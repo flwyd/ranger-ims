@@ -27,10 +27,16 @@
 
 @property (strong) NSURL *url;
 
+@property (strong) NSURLConnection *loadIncidentsConnection;
+@property (strong) NSMutableData   *loadIncidentsData;
+
 @property (strong) NSURLConnection *loadRangersConnection;
 @property (strong) NSMutableData   *loadRangersData;
 
-@property (strong) NSMutableDictionary *indexedIncidents;
+@property (strong) NSURLConnection *loadIncidentTypesConnection;
+@property (strong) NSMutableData   *loadIncidentTypesData;
+
+@property (strong,readonly) NSDictionary *allIncidentsByNumber;
 
 @end
 
@@ -53,14 +59,15 @@
 
 - (NSArray *) incidents
 {
-    return self.indexedIncidents.allValues;
+    return self.allIncidentsByNumber.allValues;
 }
 
 
 - (BOOL) load
 {
-    [self allRangersByHandle];
-    [self allIncidentTypes];
+    [self loadIncidentTypes];
+    [self loadRangers];
+    [self loadIncidents];
 
     return NO;
 }
@@ -68,7 +75,7 @@
 
 - (Incident *) incidentWithNumber:(NSNumber *)number
 {
-    return self.indexedIncidents[number];
+    return self.allIncidentsByNumber[number];
 }
 
 
@@ -76,7 +83,7 @@
 {
     NSNumber *temporaryNumber = @-1;
 
-    while (self.indexedIncidents[temporaryNumber]) {
+    while (self.allIncidentsByNumber[temporaryNumber]) {
         temporaryNumber = [NSNumber numberWithInteger:temporaryNumber.integerValue-1];
     }
 
@@ -93,7 +100,7 @@
 //    if (incident.number.integerValue < 0) {
 //        incident.number = [NSNumber numberWithInt:self.nextIncidentNumber++];
 //    }
-//    self.indexedIncidents[incident.number] = incident;
+//    self.allIncidentsByNumber[incident.number] = incident;
 //    [self writeIncident:incident];
 }
 
@@ -122,20 +129,52 @@
 }
 
 
+- (NSURLConnection *) getJSONConnectionForPath:(NSString *)path
+{
+    NSURL *url = [self.url URLByAppendingPathComponent:path];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setHTTPBody:[NSData data]];
+    
+    return [NSURLConnection connectionWithRequest:request delegate:self];
+}
+
+
+@synthesize allIncidentsByNumber;
+
+
+- (void) loadIncidents
+{
+    @synchronized(self) {
+        if (! self.loadIncidentsConnection) {
+            NSURLConnection *connection = [self getJSONConnectionForPath:@"rangers/"];
+            
+            if (connection) {
+                self.loadIncidentsConnection = connection;
+                self.loadIncidentsData = [NSMutableData data];
+            }
+        }
+    }
+}
+
+
+- (NSDictionary *) allIncidentsByNumber
+{
+    if (! allIncidentsByNumber) {
+        [self loadIncidents];
+    }
+    return allIncidentsByNumber;
+}
+
+
 @synthesize allRangersByHandle;
 
 
 - (void) loadRangers {
     @synchronized(self) {
         if (! self.loadRangersConnection) {
-            NSURL *url = [self.url URLByAppendingPathComponent:@"rangers/"];
-            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-
-            [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-            [request setHTTPBody:[NSData data]];
-
-            NSURLConnection *connection = [NSURLConnection connectionWithRequest:request
-                                                                        delegate:self];
+            NSURLConnection *connection = [self getJSONConnectionForPath:@"rangers/"];
 
             if (connection) {
                 self.loadRangersConnection = connection;
@@ -155,9 +194,28 @@
 }
 
 
+@synthesize allIncidentTypes;
+
+
+- (void) loadIncidentTypes
+{
+    @synchronized(self) {
+        NSURLConnection *connection = [self getJSONConnectionForPath:@"incident_types/"];
+        
+        if (connection) {
+            self.loadIncidentTypesConnection = connection;
+            self.loadIncidentTypesData = [NSMutableData data];
+        }
+    }
+}
+
+
 - (NSArray *) allIncidentTypes
 {
-    return @[];
+    if (! allIncidentTypes) {
+        [self loadIncidentTypes];
+    }
+    return allIncidentTypes;
 }
 
 
