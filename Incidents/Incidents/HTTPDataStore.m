@@ -148,7 +148,7 @@
 {
     @synchronized(self) {
         if (! self.loadIncidentsConnection) {
-            NSURLConnection *connection = [self getJSONConnectionForPath:@"rangers/"];
+            NSURLConnection *connection = [self getJSONConnectionForPath:@"incidents/"];
             
             if (connection) {
                 self.loadIncidentsConnection = connection;
@@ -305,7 +305,7 @@
     //        allRangersByHandle = rangers;
 
     if (connection == self.loadIncidentsConnection) {
-        NSLog(@"Load Rangers request completed.");
+        NSLog(@"Load incidents request completed.");
         self.loadIncidentsConnection = nil;
     }
     else if (connection == self.loadRangersConnection) {
@@ -313,7 +313,7 @@
         self.loadRangersConnection = nil;
     }
     else if (connection == self.loadIncidentTypesConnection) {
-        NSLog(@"Load Rangers request completed.");
+        NSLog(@"Load incident types request completed.");
         self.loadIncidentTypesConnection = nil;
     }
     else {
@@ -326,4 +326,3 @@
 
 
 @end
-

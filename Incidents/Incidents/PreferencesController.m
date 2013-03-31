@@ -27,6 +27,9 @@
 
 @property (unsafe_unretained) AppDelegate *appDelegate;
 
+@property (unsafe_unretained) IBOutlet NSTextField *serverNameField;
+@property (unsafe_unretained) IBOutlet NSTextField *serverPortField;
+
 @end
 
 
@@ -43,9 +46,12 @@
 }
 
 
-- (void)windowDidLoad
+- (void) windowDidLoad
 {
     [super windowDidLoad];
+
+    self.serverNameField.stringValue = self.appDelegate.connectionInfo.serverName;
+    self.serverPortField.integerValue = self.appDelegate.connectionInfo.serverPort;
 }
 
 

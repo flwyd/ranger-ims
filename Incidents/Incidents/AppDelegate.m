@@ -17,6 +17,7 @@
 // limitations under the License.
 ////
 
+#import "HTTPConnectionInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
 #import "AppDelegate.h"
@@ -33,6 +34,19 @@
 
 
 @implementation AppDelegate
+
+
+- (id) init
+{
+    if (self = [super init]) {
+        HTTPConnectionInfo *connectionInfo = [[HTTPConnectionInfo alloc] init];
+        connectionInfo.serverName = @"localhost";
+        connectionInfo.serverPort = 8080;
+
+        self.connectionInfo = connectionInfo;
+    }
+    return self;
+}
 
 
 - (DispatchQueueController *) dispatchQueueController
