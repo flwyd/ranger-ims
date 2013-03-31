@@ -108,7 +108,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     for (NSString *rangerHandle in rangerHandlesJSON) {
         Ranger *ranger = allRangersByHandle[rangerHandle];
         if (! ranger) {
-            ranger = [[Ranger alloc] initWithHandle:rangerHandle];
+            ranger = [[Ranger alloc] initWithHandle:rangerHandle name:nil];
         }
         [rangers addObject:ranger];
     }
@@ -128,14 +128,14 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     Location *location = [[Location alloc] initWithName:jsonIncident[@"location_name" ]
                                                 address:jsonIncident[@"incident_address"]];
 
-    NSNumber *number          = toNumber(jsonIncident[@"number"        ]);
-    NSArray  *types           = toArray (jsonIncident[@"incident_types"]);
-    NSString *summary         = toString(jsonIncident[@"summary"       ]);
-    NSDate   *created         = toDate  (jsonIncident[@"created"       ]);
-    NSDate   *dispatched      = toDate  (jsonIncident[@"dispatched"    ]);
-    NSDate   *onScene         = toDate  (jsonIncident[@"on_scene"      ]);
-    NSDate   *closed          = toDate  (jsonIncident[@"closed"        ]);
-    NSNumber *priority        = toNumber(jsonIncident[@"priority"      ]);
+    NSNumber *number     = toNumber(jsonIncident[@"number"        ]); if (*error) return nil;
+    NSArray  *types      = toArray (jsonIncident[@"incident_types"]); if (*error) return nil;
+    NSString *summary    = toString(jsonIncident[@"summary"       ]); if (*error) return nil;
+    NSDate   *created    = toDate  (jsonIncident[@"created"       ]); if (*error) return nil;
+    NSDate   *dispatched = toDate  (jsonIncident[@"dispatched"    ]); if (*error) return nil;
+    NSDate   *onScene    = toDate  (jsonIncident[@"on_scene"      ]); if (*error) return nil;
+    NSDate   *closed     = toDate  (jsonIncident[@"closed"        ]); if (*error) return nil;
+    NSNumber *priority   = toNumber(jsonIncident[@"priority"      ]); if (*error) return nil;
 
     return [[Incident alloc] initInDataStore:dataStore
                                   withNumber:number

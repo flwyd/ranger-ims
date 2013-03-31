@@ -29,10 +29,59 @@
 @implementation Ranger
 
 
++ (Ranger *) rangerFromJSON:(NSDictionary *)jsonRanger
+                      error:(NSError **)error
+{
+    *error = nil;
+
+    //
+    // Utilities
+    //
+    
+    void (^fillError)(NSString *) = ^(NSString *message) {
+        *error = [[NSError alloc] initWithDomain:@"JSON"
+                                            code:0
+                                        userInfo:@{NSLocalizedDescriptionKey: message}];
+    };
+    
+    NSNull *nullObject = [NSNull null];
+
+    NSString *(^toString)(NSString *) = ^(NSString *json) {
+        if (! json || json == (id)nullObject) return (NSString *)nil;
+        
+        if (json && [json isKindOfClass:[NSString class]]) return json;
+        
+        fillError(@"JSON object must be an NSString");
+        return (NSString *)nil;
+    };
+    
+    //
+    // Parsing
+    //
+    
+    if (! jsonRanger || ! [jsonRanger isKindOfClass:[NSDictionary class]]) {
+        fillError(@"JSON object for Ranger must be an NSDictionary.");
+        return nil;
+    }
+
+    NSString *handle = toString(jsonRanger[@"handle"]); if (*error) return nil;
+    NSString *name   = toString(jsonRanger[@"name"  ]); if (*error) return nil;
+
+    if (! handle) {
+        fillError(@"Ranger handle may not be nil.");
+        return nil;
+    }
+    
+    return [[Ranger alloc] initWithHandle:handle name:name];
+}
+
+
 - (id) initWithHandle:(NSString *)handle
+                 name:(NSString *)name
 {
     if (self = [super init]) {
         self.handle = handle;
+        self.name   = name;
     }
     return self;
 }
@@ -42,7 +91,7 @@
 {
     Ranger *copy;
     if ((copy = [[self class] allocWithZone:zone])) {
-        copy = [copy initWithHandle:self.handle];
+        copy = [copy initWithHandle:self.handle name:self.name];
     }
     return copy;
 }
@@ -77,7 +126,7 @@
 
 - (NSString *) description
 {
-    return self.handle;
+    return [NSString stringWithFormat:@"%@ (%@)", self.handle, self.name];
 }
 
 

@@ -23,7 +23,6 @@
 		35B28F2E16E962CB00C9C05A /* TableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B28F2D16E962CB00C9C05A /* TableView.m */; };
 		35BC16F616FD408300785361 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC16F416FD408300785361 /* PreferencesController.m */; };
 		35BC16F716FD408300785361 /* PreferencesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 35BC16F516FD408300785361 /* PreferencesController.xib */; };
-		35BC16FE16FE263A00785361 /* HTTPPingRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC16FD16FE263A00785361 /* HTTPPingRequest.m */; };
 		35BC170116FE266600785361 /* HTTPConnectionInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC170016FE266600785361 /* HTTPConnectionInfo.m */; };
 		35BC170816FE62B400785361 /* FileDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC170716FE62B400785361 /* FileDataStore.m */; };
 		35C496B81702383000581421 /* HTTPDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C496B71702383000581421 /* HTTPDataStore.m */; };
@@ -62,8 +61,6 @@
 		35BC16F316FD408300785361 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
 		35BC16F416FD408300785361 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
 		35BC16F516FD408300785361 /* PreferencesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesController.xib; sourceTree = "<group>"; };
-		35BC16FC16FE263A00785361 /* HTTPPingRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPPingRequest.h; sourceTree = "<group>"; };
-		35BC16FD16FE263A00785361 /* HTTPPingRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPPingRequest.m; sourceTree = "<group>"; };
 		35BC16FF16FE266600785361 /* HTTPConnectionInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPConnectionInfo.h; sourceTree = "<group>"; };
 		35BC170016FE266600785361 /* HTTPConnectionInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPConnectionInfo.m; sourceTree = "<group>"; };
 		35BC170216FE29AC00785361 /* DataStoreProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStoreProtocol.h; sourceTree = "<group>"; };
@@ -195,8 +192,6 @@
 				35BC170016FE266600785361 /* HTTPConnectionInfo.m */,
 				35C496B61702383000581421 /* HTTPDataStore.h */,
 				35C496B71702383000581421 /* HTTPDataStore.m */,
-				35BC16FC16FE263A00785361 /* HTTPPingRequest.h */,
-				35BC16FD16FE263A00785361 /* HTTPPingRequest.m */,
 			);
 			name = "HTTP Data Store";
 			sourceTree = "<group>";
@@ -297,7 +292,6 @@
 				35F498E816F194870015B9E1 /* Location.m in Sources */,
 				3579C2CF16F54C4F00FF31E8 /* Ranger.m in Sources */,
 				35BC16F616FD408300785361 /* PreferencesController.m in Sources */,
-				35BC16FE16FE263A00785361 /* HTTPPingRequest.m in Sources */,
 				35BC170116FE266600785361 /* HTTPConnectionInfo.m in Sources */,
 				35BC170816FE62B400785361 /* FileDataStore.m in Sources */,
 				35C496B81702383000581421 /* HTTPDataStore.m in Sources */,

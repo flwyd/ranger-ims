@@ -49,7 +49,13 @@ def ping(request):
 @http_sauce
 def list_rangers(request):
     set_content_type(request, ContentType.JSON)
-    return to_json(allRangers)
+    return to_json(tuple(
+        {
+            "handle": handle,
+            "name": None,
+        }
+        for handle in allRangers
+    ))
 
 
 @route("/incident_types/", methods=("GET",))

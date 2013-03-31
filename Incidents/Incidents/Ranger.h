@@ -25,9 +25,14 @@
 
 
 @property (strong) NSString *handle;
+@property (strong) NSString *name;
 
 
-- (id) initWithHandle:(NSString *)handle;
++ (Ranger *) rangerFromJSON:(NSDictionary *)jsonRanger
+                      error:(NSError **)error;
+
+- (id) initWithHandle:(NSString *)handle
+                 name:(NSString *)name;
 
 
 @end

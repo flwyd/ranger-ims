@@ -223,7 +223,7 @@ NSArray *getRangerHandles(void);
     NSMutableArray *rangers = [NSMutableArray arrayWithCapacity:rangerHandles.count];
 
     for (NSString *rangerHandle in rangerHandles) {
-        Ranger *ranger = [[Ranger alloc] initWithHandle:rangerHandle];
+        Ranger *ranger = [[Ranger alloc] initWithHandle:rangerHandle name:nil];
 
         [rangers addObject:ranger];
     }
