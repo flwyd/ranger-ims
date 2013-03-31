@@ -228,10 +228,17 @@
 
 - (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-    if (connection == self.loadRangersConnection) {
+    if (connection == self.loadIncidentsConnection) {
+        NSLog(@"Load incidents request got response: %@", response);
+        [self.loadIncidentsData setLength:0];
+    }
+    else if (connection == self.loadRangersConnection) {
         NSLog(@"Load Rangers request got response: %@", response);
-
         [self.loadRangersData setLength:0];
+    }
+    else if (connection == self.loadIncidentTypesConnection) {
+        NSLog(@"Load incident types request got response: %@", response);
+        [self.loadIncidentTypesData setLength:0];
     }
     else {
         NSLog(@"Unknown connection: %@", connection);
@@ -242,8 +249,17 @@
 
 - (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    if (connection == self.loadRangersConnection) {
+    if (connection == self.loadIncidentsConnection) {
+        NSLog(@"Load incidents request got data: %@", data);
+        [self.loadIncidentsData appendData:data];
+    }
+    else if (connection == self.loadRangersConnection) {
+        NSLog(@"Load Rangers request got data: %@", data);
         [self.loadRangersData appendData:data];
+    }
+    else if (connection == self.loadIncidentTypesConnection) {
+        NSLog(@"Load incident types request got data: %@", data);
+        [self.loadIncidentTypesData appendData:data];
     }
     else {
         NSLog(@"Unknown connection: %@", connection);
@@ -254,34 +270,58 @@
 
 - (void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    if (connection == self.loadRangersConnection) {
+    if (connection == self.loadIncidentsConnection) {
+        NSLog(@"Load incidents request failed: %@", error);
+        self.loadIncidentsConnection = nil;
+        self.loadIncidentsData = nil;
+    }
+    else if (connection == self.loadRangersConnection) {
         NSLog(@"Load Rangers request failed: %@", error);
         self.loadRangersConnection = nil;
-
-        //        NSMutableDictionary *rangers = [[NSMutableDictionary alloc] initWithCapacity:self.rangers.count];
-        //
-        //        for (Ranger *ranger in self.rangers) {
-        //            rangers[ranger.handle] = ranger;
-        //        }
-        //
-        //        allRangersByHandle = rangers;
+        self.loadRangersData = nil;
+    }
+    else if (connection == self.loadIncidentTypesConnection) {
+        NSLog(@"Load incident types request failed: %@", error);
+        self.loadIncidentTypesConnection = nil;
+        self.loadIncidentTypesData = nil;
     }
     else {
         NSLog(@"Unknown connection: %@", connection);
         NSLog(@"…got error: %@", error);
     }
+
+    // FIXME: do something useful
 }
 
 
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+- (void) connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    if (connection == self.loadRangersConnection) {
+    //        NSMutableDictionary *rangers = [[NSMutableDictionary alloc] initWithCapacity:self.rangers.count];
+    //
+    //        for (Ranger *ranger in self.rangers) {
+    //            rangers[ranger.handle] = ranger;
+    //        }
+    //
+    //        allRangersByHandle = rangers;
+
+    if (connection == self.loadIncidentsConnection) {
+        NSLog(@"Load Rangers request completed.");
+        self.loadIncidentsConnection = nil;
+    }
+    else if (connection == self.loadRangersConnection) {
         NSLog(@"Load Rangers request completed.");
         self.loadRangersConnection = nil;
     }
+    else if (connection == self.loadIncidentTypesConnection) {
+        NSLog(@"Load Rangers request completed.");
+        self.loadIncidentTypesConnection = nil;
+    }
     else {
         NSLog(@"Unknown connection completed: %@", connection);
+        return;
     }
+
+    // FIXME: Do something with the data
 }
 
 
