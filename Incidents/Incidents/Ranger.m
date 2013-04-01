@@ -51,7 +51,7 @@
         
         if (json && [json isKindOfClass:[NSString class]]) return json;
         
-        fillError(@"JSON object must be an NSString");
+        fillError(@"JSON object must be a string");
         return (NSString *)nil;
     };
     
@@ -60,7 +60,7 @@
     //
     
     if (! jsonRanger || ! [jsonRanger isKindOfClass:[NSDictionary class]]) {
-        fillError(@"JSON object for Ranger must be an NSDictionary.");
+        fillError(@"JSON object for Ranger must be a dictionary.");
         return nil;
     }
 

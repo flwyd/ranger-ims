@@ -3,13 +3,13 @@
 // Incidents
 ////
 // See the file COPYRIGHT for copyright information.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,8 +27,8 @@
 
 @property (strong) NSURL *url;
 
-@property (strong) NSURLConnection *loadIncidentsConnection;
-@property (strong) NSMutableData   *loadIncidentsData;
+@property (strong) NSURLConnection *loadIncidentNumbersConnection;
+@property (strong) NSMutableData   *loadIncidentNumbersData;
 
 @property (strong) NSURLConnection *loadRangersConnection;
 @property (strong) NSMutableData   *loadRangersData;
@@ -37,6 +37,7 @@
 @property (strong) NSMutableData   *loadIncidentTypesData;
 
 @property (strong,readonly) NSDictionary *allIncidentsByNumber;
+@property (strong,readonly) NSDictionary *allIncidentETagsByNumber;
 
 @end
 
@@ -68,7 +69,7 @@
     [self loadIncidentTypes];
     [self loadRangers];
     [self loadIncidents];
-
+    
     return NO;
 }
 
@@ -82,11 +83,11 @@
 - (Incident *) createNewIncident
 {
     NSNumber *temporaryNumber = @-1;
-
+    
     while (self.allIncidentsByNumber[temporaryNumber]) {
         temporaryNumber = [NSNumber numberWithInteger:temporaryNumber.integerValue-1];
     }
-
+    
     return [[Incident alloc] initInDataStore:self withNumber:temporaryNumber];
 }
 
@@ -108,23 +109,23 @@
 - (BOOL) writeIncident:(Incident *)incident
 {
     NSError *error;
-
+    
     NSLog(@"Writing incident: %@", incident);
-
+    
     // Option: NSJSONWritingPrettyPrinted
     NSData *data = [NSJSONSerialization dataWithJSONObject:[incident asJSON] options:0 error:&error];
     if (! data) {
         NSLog(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
         return NO;
     }
-
+    
 //    if (! [data writeToURL:childURL options:0 error:&error]) {
 //        NSLog(@"Unable to write file: %@", error);
 //        return NO;
 //    }
 //
 //    return YES;
-
+    
     return NO;
 }
 
@@ -141,18 +142,19 @@
 }
 
 
+@synthesize allIncidentETagsByNumber;
 @synthesize allIncidentsByNumber;
 
 
 - (void) loadIncidents
 {
     @synchronized(self) {
-        if (! self.loadIncidentsConnection) {
+        if (! self.loadIncidentNumbersConnection) {
             NSURLConnection *connection = [self getJSONConnectionForPath:@"incidents/"];
             
             if (connection) {
-                self.loadIncidentsConnection = connection;
-                self.loadIncidentsData = [NSMutableData data];
+                self.loadIncidentNumbersConnection = connection;
+                self.loadIncidentNumbersData = [NSMutableData data];
             }
         }
     }
@@ -175,7 +177,7 @@
     @synchronized(self) {
         if (! self.loadRangersConnection) {
             NSURLConnection *connection = [self getJSONConnectionForPath:@"rangers/"];
-
+            
             if (connection) {
                 self.loadRangersConnection = connection;
                 self.loadRangersData = [NSMutableData data];
@@ -233,7 +235,7 @@
         NSLog(@"…for connection: %@", connection);
         return;
     }
-
+    
     BOOL(^happyResponse)(void) = ^(void) {
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         BOOL result = YES;
@@ -242,7 +244,7 @@
             NSLog(@"Unexpected response code: %ld", httpResponse.statusCode);
             result = NO;
         }
-
+        
         if (! [httpResponse.MIMEType isEqualToString:@"application/json"]) {
             NSLog(@"Unexpected (non-JSON) MIME type: %@", httpResponse.MIMEType);
             result = NO;
@@ -251,18 +253,18 @@
         return result;
     };
     
-    if (connection == self.loadIncidentsConnection) {
-        NSLog(@"Load incidents request got response: %@", response);
+    if (connection == self.loadIncidentNumbersConnection) {
+        //NSLog(@"Load incident numbers request got response: %@", response);
         if (happyResponse()) {
-            [self.loadIncidentsData setLength:0];
+            [self.loadIncidentNumbersData setLength:0];
         }
         else {
-            NSLog(@"Unable to load incidents data.");
-            self.loadIncidentsData = nil;
+            NSLog(@"Unable to load incident numbers data.");
+            self.loadIncidentNumbersData = nil;
         }
     }
     else if (connection == self.loadRangersConnection) {
-        NSLog(@"Load Rangers request got response: %@", response);
+        //NSLog(@"Load Rangers request got response: %@", response);
         if (happyResponse()) {
             [self.loadRangersData setLength:0];
         }
@@ -272,7 +274,7 @@
         }
     }
     else if (connection == self.loadIncidentTypesConnection) {
-        NSLog(@"Load incident types request got response: %@", response);
+        //NSLog(@"Load incident types request got response: %@", response);
         if (happyResponse()) {
             [self.loadIncidentTypesData setLength:0];
         }
@@ -290,9 +292,9 @@
 
 - (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    if (connection == self.loadIncidentsConnection) {
-        //NSLog(@"Load incidents request got data: %@", data);
-        [self.loadIncidentsData appendData:data];
+    if (connection == self.loadIncidentNumbersConnection) {
+        //NSLog(@"Load incident numbers request got data: %@", data);
+        [self.loadIncidentNumbersData appendData:data];
     }
     else if (connection == self.loadRangersConnection) {
         //NSLog(@"Load Rangers request got data: %@", data);
@@ -311,10 +313,10 @@
 
 - (void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    if (connection == self.loadIncidentsConnection) {
-        NSLog(@"Load incidents request failed: %@", error);
-        self.loadIncidentsConnection = nil;
-        self.loadIncidentsData = nil;
+    if (connection == self.loadIncidentNumbersConnection) {
+        NSLog(@"Load incident numbers request failed: %@", error);
+        self.loadIncidentNumbersConnection = nil;
+        self.loadIncidentNumbersData = nil;
     }
     else if (connection == self.loadRangersConnection) {
         NSLog(@"Load Rangers request failed: %@", error);
@@ -330,20 +332,38 @@
         NSLog(@"Unknown connection: %@", connection);
         NSLog(@"…got error: %@", error);
     }
-
+    
     // FIXME: do something useful
 }
 
 
 - (void) connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    if (connection == self.loadIncidentsConnection) {
-        NSLog(@"Load incidents request completed.");
-        self.loadIncidentsConnection = nil;
-        if (self.loadIncidentsData) {
-            // FIXME: Do something with the data
-
-            self.loadIncidentsData = nil;
+    if (connection == self.loadIncidentNumbersConnection) {
+        NSLog(@"Load incident numbers request completed.");
+        self.loadIncidentNumbersConnection = nil;
+        if (self.loadIncidentNumbersData) {
+            NSError *error = nil;
+            NSArray *jsonNumbers = [NSJSONSerialization JSONObjectWithData:self.loadIncidentNumbersData options:0 error:&error];
+            
+            if (! jsonNumbers || ! [jsonNumbers isKindOfClass:[NSArray class]]) {
+                NSLog(@"Got JSON for incident numbers: %@", jsonNumbers);
+                NSLog(@"JSON object for incident numbers must be an array.  Unable to read incident numbers from server.");
+                return;
+            }
+            
+            NSMutableDictionary *etags = [[NSMutableDictionary alloc] initWithCapacity:jsonNumbers.count];
+            for (NSArray *jsonNumber in jsonNumbers) {
+                if (! jsonNumber || ! [jsonNumber isKindOfClass:[NSArray class]] || [jsonNumber count] < 2) {
+                    NSLog(@"Got JSON for incident number: %@", jsonNumber);
+                    NSLog(@"JSON object for incident number must be an array of two items.  Unable to read incident number from server.");
+                    return;
+                }
+                etags[jsonNumber[0]] = jsonNumber[1]; // jsonNumber is (number, etag)
+            }
+            allIncidentETagsByNumber = etags;
+            
+            self.loadIncidentNumbersData = nil;
         }
     }
     else if (connection == self.loadRangersConnection) {
@@ -352,13 +372,13 @@
         if (self.loadRangersData) {
             NSError *error = nil;
             NSArray *jsonRangers = [NSJSONSerialization JSONObjectWithData:self.loadRangersData options:0 error:&error];
-
+            
             if (! jsonRangers || ! [jsonRangers isKindOfClass:[NSArray class]]) {
                 NSLog(@"Got JSON for Rangers: %@", jsonRangers);
-                NSLog(@"JSON object for Rangers must be an NSArray.  Unable to read Rangers from server.");
+                NSLog(@"JSON object for Rangers must be an array.  Unable to read Rangers from server.");
                 return;
             }
-
+            
             NSMutableDictionary *rangers = [[NSMutableDictionary alloc] initWithCapacity:jsonRangers.count];
             for (NSDictionary *jsonRanger in jsonRangers) {
                 Ranger *ranger = [Ranger rangerFromJSON:jsonRanger error:&error];
@@ -371,10 +391,6 @@
                 }
             }
             allRangersByHandle = rangers;
-
-            NSLog(@"*******************************************************");
-            NSLog(@"Rangers: %@", rangers);
-            NSLog(@"*******************************************************");
             
             self.loadRangersData = nil;
         }
@@ -383,7 +399,26 @@
         NSLog(@"Load incident types request completed.");
         self.loadIncidentTypesConnection = nil;
         if (self.loadIncidentTypesData) {
-            // FIXME: Do something with the data
+            NSError *error = nil;
+            NSArray *jsonIncidentTypes = [NSJSONSerialization JSONObjectWithData:self.loadIncidentTypesData options:0 error:&error];
+            
+            if (! jsonIncidentTypes || ! [jsonIncidentTypes isKindOfClass:[NSArray class]]) {
+                NSLog(@"Got JSON for incident types: %@", jsonIncidentTypes);
+                NSLog(@"JSON object for incident types must be an array.  Unable to read incident types from server.");
+                return;
+            }
+            
+            NSMutableArray *incidentTypes = [[NSMutableArray alloc] initWithCapacity:jsonIncidentTypes.count];
+            for (NSString *incidentType in jsonIncidentTypes) {
+                if (incidentType && [incidentType isKindOfClass:[NSString class]]) {
+                    [incidentTypes addObject:incidentType];
+                }
+                else {
+                    NSLog(@"Got JSON for incident type: %@", incidentType);
+                    NSLog(@"Invalid JSON: %@", error);
+                }
+            }
+            allIncidentTypes = incidentTypes;
             
             self.loadIncidentTypesData = nil;
         }

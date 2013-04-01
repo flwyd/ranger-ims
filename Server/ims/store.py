@@ -22,6 +22,8 @@ __all__ = [
     "Storage",
 ]
 
+from hashlib import sha1 as etag_hash
+
 from twisted.python import log
 
 
@@ -79,7 +81,12 @@ class Storage(object):
                 )
                 continue
 
-            yield number
+            yield (number, self.etag_for_incident_with_number(number))
+
+
+    def etag_for_incident_with_number(self, number):
+        data = self.read_incident_with_number_raw(number)
+        return etag_hash(data).hexdigest()
 
 
     def read_incident_with_number_raw(self, number):

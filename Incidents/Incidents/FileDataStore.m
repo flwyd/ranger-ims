@@ -29,7 +29,7 @@ NSArray *getRangerHandles(void);
 
 @interface FileDataStore ()
 
-@property (strong) NSMutableDictionary *indexedIncidents;
+@property (strong) NSMutableDictionary *allIncidentsByNumber;
 @property (assign) int nextIncidentNumber;
 @property (strong) NSFileWrapper *fileStorage;
 
@@ -92,7 +92,7 @@ NSArray *getRangerHandles(void);
 
     NSLog(@"Loading incidents...");
 
-    self.indexedIncidents = [NSMutableDictionary dictionary];
+    self.allIncidentsByNumber = [NSMutableDictionary dictionary];
 
     // Create the data directory if it doesn't exist
     NSURL *queueDataDirectory = [self dispatchQueueDataDirectory];
@@ -142,7 +142,7 @@ NSArray *getRangerHandles(void);
             maxNumber = incident.number.intValue;
         }
 
-        self.indexedIncidents[incident.number] = incident;
+        self.allIncidentsByNumber[incident.number] = incident;
 
         NSLog(@"Loaded: %@", incident);
     }
@@ -155,13 +155,13 @@ NSArray *getRangerHandles(void);
 
 - (NSArray *) incidents
 {
-    return self.indexedIncidents.allValues;
+    return self.allIncidentsByNumber.allValues;
 }
 
 
 - (Incident *) incidentWithNumber:(NSNumber *)number
 {
-    return self.indexedIncidents[number];
+    return self.allIncidentsByNumber[number];
 }
 
 
@@ -169,7 +169,7 @@ NSArray *getRangerHandles(void);
 {
     NSNumber *temporaryNumber = @-1;
 
-    while (self.indexedIncidents[temporaryNumber]) {
+    while (self.allIncidentsByNumber[temporaryNumber]) {
         temporaryNumber = [NSNumber numberWithInteger:temporaryNumber.integerValue-1];
     }
 
@@ -186,7 +186,7 @@ NSArray *getRangerHandles(void);
     if (incident.number.integerValue < 0) {
         incident.number = [NSNumber numberWithInt:self.nextIncidentNumber++];
     }
-    self.indexedIncidents[incident.number] = incident;
+    self.allIncidentsByNumber[incident.number] = incident;
     [self writeIncident:incident];
 }
 

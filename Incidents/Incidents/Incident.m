@@ -62,7 +62,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
         if (json && [json isKindOfClass:[NSString class]]) return json;
 
-        fillError(@"JSON object must be an NSString");
+        fillError(@"JSON object must be a string");
         return (NSString *)nil;
     };
 
@@ -71,7 +71,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
         if (json && [json isKindOfClass:[NSNumber class]]) return json;
 
-        fillError(@"JSON object must be an NSNumber.");
+        fillError(@"JSON object must be a number.");
         return (NSNumber *)nil;
     };
 
@@ -80,7 +80,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
         if (json && [json isKindOfClass:[NSArray class]]) return json;
 
-        fillError(@"JSON object must be an NSArray.");
+        fillError(@"JSON object must be an array.");
         return (NSArray *)nil;
     };
 
@@ -89,18 +89,18 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
         if (json && [json isKindOfClass:[NSString class]]) return dateFromRFC3339String(json);
 
-        fillError(@"JSON date object must be an NSString.");
+        fillError(@"JSON date object must be a string.");
         return (NSDate *)nil;
     };
 
     if (! jsonIncident || ! [jsonIncident isKindOfClass:[NSDictionary class]]) {
-        fillError(@"JSON object for Incident must be an NSDictionary.");
+        fillError(@"JSON object for Incident must be a dictionary.");
         return nil;
     }
 
     NSArray *rangerHandlesJSON = jsonIncident[@"ranger_handles"];
     if (! [rangerHandlesJSON isKindOfClass:[NSArray class]]) {
-        fillError(@"JSON for ranger handles must be an NSArray.");
+        fillError(@"JSON for ranger handles must be an array.");
         return nil;
     }
     NSMutableArray *rangers = [NSMutableArray arrayWithCapacity:rangerHandlesJSON.count];
@@ -115,7 +115,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
     NSArray *reportEntriesJSON = jsonIncident[@"report_entries"];
     if (! [reportEntriesJSON isKindOfClass:[NSArray class]]) {
-        fillError(@"JSON for report entries must be an NSArray.");
+        fillError(@"JSON for report entries must be an array.");
         return nil;
     }
     NSMutableArray *reportEntries = [NSMutableArray arrayWithCapacity:reportEntriesJSON.count];
