@@ -362,6 +362,16 @@ NSString *formattedDateTimeShort(NSDate *date);
 }
 
 
+////
+// DataStoreDelegate methods
+////
+
+- (void) dataStoreDidUpdateIncidents:(id)dataStore
+{
+    [self loadTable];
+}
+
+
 @end
 
 
@@ -460,6 +470,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 
 
 @end
+
 
 
 @implementation DispatchQueueController (TableViewDelegate)

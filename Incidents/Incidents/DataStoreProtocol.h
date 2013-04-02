@@ -24,6 +24,11 @@
 
 
 @protocol DataStoreDelegate <NSObject>
+
+
+- (void) dataStoreDidUpdateIncidents:(id)dataStore;
+
+
 @end
 
 

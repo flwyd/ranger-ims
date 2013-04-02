@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>IDESourceControlProjectAlertMissingCheckouts</key>
-	<true/>
 	<key>IDESourceControlProjectIsFavorite</key>
 	<false/>
 	<key>IDESourceControlProjectName</key>
@@ -12,25 +10,21 @@
 	<dict>
 		<key>519A1A83-B80D-4E18-B0A4-3B73BBDE4389</key>
 		<string>http://www.wsanchez.net/svn</string>
+		<key>6A31C7A8-80DC-4B20-BE51-BE225B737690</key>
+		<string>git@github.com:burningmantech/ranger-ims.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Dropbox/Burning Man/Ranger Shift Command/Incidents/Incidents.xcodeproj/project.xcworkspace</string>
+	<string>Incidents/Incidents.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>6A31C7A8-80DC-4B20-BE51-BE225B737690</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>/Volumes/data/Users/wsanchez/Developer/IMS/Incidents/Incidents.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>101</integer>
+	<integer>104</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>519A1A83-B80D-4E18-B0A4-3B73BBDE4389</string>
-	<key>IDESourceControlProjectWCConfigurations</key>
-	<array>
-		<dict>
-			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
-			<string>public.vcs.subversion</string>
-			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>519A1A83-B80D-4E18-B0A4-3B73BBDE4389</string>
-			<key>IDESourceControlWCCName</key>
-			<string>wsanchez</string>
-			<key>IDESourceControlWorkingCopyRelativeInstallLocationKey</key>
-			<string>../../../../../..</string>
-		</dict>
-	</array>
+	<string>6A31C7A8-80DC-4B20-BE51-BE225B737690</string>
 </dict>
 </plist>

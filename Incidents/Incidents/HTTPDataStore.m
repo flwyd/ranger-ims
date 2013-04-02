@@ -30,14 +30,22 @@
 @property (strong) NSURLConnection *loadIncidentNumbersConnection;
 @property (strong) NSMutableData   *loadIncidentNumbersData;
 
+@property (strong) NSURLConnection *loadIncidentConnection;
+@property (strong) NSMutableData   *loadIncidentData;
+@property (strong) NSNumber        *loadIncidentNumber;
+@property (strong) NSString        *loadIncidentETag;
+
 @property (strong) NSURLConnection *loadRangersConnection;
 @property (strong) NSMutableData   *loadRangersData;
 
 @property (strong) NSURLConnection *loadIncidentTypesConnection;
 @property (strong) NSMutableData   *loadIncidentTypesData;
 
-@property (strong,readonly) NSDictionary *allIncidentsByNumber;
-@property (strong,readonly) NSDictionary *allIncidentETagsByNumber;
+@property (strong) NSMutableDictionary *allIncidentsByNumber;
+
+@property (strong) NSMutableDictionary *incidentETagsByNumber;
+@property (strong) NSMutableSet        *incidentsNumbersToLoad;
+
 
 @end
 
@@ -50,6 +58,10 @@
 {
     if (self = [super init]) {
         self.url = url;
+
+        self.allIncidentsByNumber   = [NSMutableDictionary dictionary];
+        self.incidentETagsByNumber  = [NSMutableDictionary dictionary];
+        self.incidentsNumbersToLoad = [NSMutableSet set];
     }
     return self;
 }
@@ -60,7 +72,12 @@
 
 - (NSArray *) incidents
 {
-    return self.allIncidentsByNumber.allValues;
+    if (! self.allIncidentsByNumber) {
+        return @[];
+    }
+    else {
+        return self.allIncidentsByNumber.allValues;
+    }
 }
 
 
@@ -76,12 +93,21 @@
 
 - (Incident *) incidentWithNumber:(NSNumber *)number
 {
-    return self.allIncidentsByNumber[number];
+    if (! self.allIncidentsByNumber) {
+        return nil;
+    }
+    else {
+        return self.allIncidentsByNumber[number];
+    }
 }
 
 
 - (Incident *) createNewIncident
 {
+    if (! self.allIncidentsByNumber) {
+        return nil;
+    }
+
     NSNumber *temporaryNumber = @-1;
     
     while (self.allIncidentsByNumber[temporaryNumber]) {
@@ -142,10 +168,6 @@
 }
 
 
-@synthesize allIncidentETagsByNumber;
-@synthesize allIncidentsByNumber;
-
-
 - (void) loadIncidents
 {
     @synchronized(self) {
@@ -161,16 +183,38 @@
 }
 
 
-- (NSDictionary *) allIncidentsByNumber
-{
-    if (! allIncidentsByNumber) {
-        [self loadIncidents];
+- (void) loadQueuedIncidents {
+    @synchronized(self) {
+        if (self.loadIncidentConnection) {
+            //
+            // This shouldn't happen given how this code is wired up.
+            // Logging here in case that cases accidentally, in case it's a performance oopsie.
+            //
+            NSLog(@"Already loading incidents.");
+        }
+        else {
+            NSString *path = nil;
+            for (NSNumber *number in self.incidentsNumbersToLoad) {
+                path = [NSString stringWithFormat:@"incidents/%@", number];
+                NSURLConnection *connection = [self getJSONConnectionForPath:path];
+
+                if (connection) {
+                    self.loadIncidentConnection = connection;
+                    self.loadIncidentData = [NSMutableData data];
+                    self.loadIncidentNumber = number;
+                    self.loadIncidentETag = nil;
+                }
+                break;
+            }
+
+            if (! path) {
+                NSLog(@"Done loading incidents.");
+                NSLog(@"ETags: %@", self.incidentETagsByNumber);
+                NSLog(@"Incidents: %@", self.allIncidentsByNumber);
+            }
+        }
     }
-    return allIncidentsByNumber;
 }
-
-
-@synthesize allRangersByHandle;
 
 
 - (void) loadRangers {
@@ -194,9 +238,7 @@
     }
     return allRangersByHandle;
 }
-
-
-@synthesize allIncidentTypes;
+@synthesize allRangersByHandle;
 
 
 - (void) loadIncidentTypes
@@ -219,6 +261,7 @@
     }
     return allIncidentTypes;
 }
+@synthesize allIncidentTypes;
 
 
 @end
@@ -263,6 +306,19 @@
             self.loadIncidentNumbersData = nil;
         }
     }
+    else if (connection == self.loadIncidentConnection) {
+        //NSLog(@"Load incident request got response: %@", response);
+        if (happyResponse()) {
+            [self.loadIncidentData setLength:0];
+
+            // FIXME
+            self.loadIncidentETag = @"*** WE SHOULD SET THIS HERE ***";
+        }
+        else {
+            NSLog(@"Unable to load incident data.");
+            self.loadIncidentData = nil;
+        }
+    }
     else if (connection == self.loadRangersConnection) {
         //NSLog(@"Load Rangers request got response: %@", response);
         if (happyResponse()) {
@@ -296,6 +352,10 @@
         //NSLog(@"Load incident numbers request got data: %@", data);
         [self.loadIncidentNumbersData appendData:data];
     }
+    else if (connection == self.loadIncidentConnection) {
+        //NSLog(@"Load incident request got data: %@", data);
+        [self.loadIncidentData appendData:data];
+    }
     else if (connection == self.loadRangersConnection) {
         //NSLog(@"Load Rangers request got data: %@", data);
         [self.loadRangersData appendData:data];
@@ -318,6 +378,11 @@
         self.loadIncidentNumbersConnection = nil;
         self.loadIncidentNumbersData = nil;
     }
+    if (connection == self.loadIncidentConnection) {
+        NSLog(@"Load incident request failed: %@", error);
+        self.loadIncidentConnection = nil;
+        self.loadIncidentData = nil;
+    }
     else if (connection == self.loadRangersConnection) {
         NSLog(@"Load Rangers request failed: %@", error);
         self.loadRangersConnection = nil;
@@ -339,9 +404,42 @@
 
 - (void) connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    if (connection == self.loadIncidentNumbersConnection) {
+    if (connection == self.loadIncidentConnection) {
+        NSLog(@"Load incident request completed.");
+        self.loadIncidentConnection = nil;
+        if (self.loadIncidentData) {
+            NSError *error = nil;
+            NSDictionary *jsonIncident = [NSJSONSerialization JSONObjectWithData:self.loadIncidentData options:0 error:&error];
+            Incident *incident = [Incident incidentInDataStore:self fromJSON:jsonIncident error:&error];
+
+            if (incident) {
+                if ([incident.number isEqualToNumber:self.loadIncidentNumber]) {
+                    self.allIncidentsByNumber[incident.number] = incident;
+                    self.incidentETagsByNumber[incident.number] = self.loadIncidentETag;
+
+                    NSLog(@"Loaded incident #%@.", self.loadIncidentNumber);
+                }
+                else {
+                    NSLog(@"Got incident #%@ when I asked for incident #%@.  I'm confused.", incident.number, self.loadIncidentNumber);
+                }
+            }
+            else {
+                NSLog(@"Unable to load incident #%@: %@", self.loadIncidentNumber, error);
+            }
+        }
+
+        // De-queue the incident
+        [self.incidentsNumbersToLoad removeObject:self.loadIncidentNumber];
+
+        self.loadIncidentData = nil;
+        self.loadIncidentNumber = nil;
+
+        [self loadQueuedIncidents];
+    }
+    else if (connection == self.loadIncidentNumbersConnection) {
         NSLog(@"Load incident numbers request completed.");
         self.loadIncidentNumbersConnection = nil;
+
         if (self.loadIncidentNumbersData) {
             NSError *error = nil;
             NSArray *jsonNumbers = [NSJSONSerialization JSONObjectWithData:self.loadIncidentNumbersData options:0 error:&error];
@@ -352,23 +450,30 @@
                 return;
             }
             
-            NSMutableDictionary *etags = [[NSMutableDictionary alloc] initWithCapacity:jsonNumbers.count];
             for (NSArray *jsonNumber in jsonNumbers) {
                 if (! jsonNumber || ! [jsonNumber isKindOfClass:[NSArray class]] || [jsonNumber count] < 2) {
                     NSLog(@"Got JSON for incident number: %@", jsonNumber);
                     NSLog(@"JSON object for incident number must be an array of two items.  Unable to read incident number from server.");
                     return;
                 }
-                etags[jsonNumber[0]] = jsonNumber[1]; // jsonNumber is (number, etag)
+                // jsonNumber is (number, etag)
+                if (! [jsonNumber[1] isEqualToString: self.incidentETagsByNumber[jsonNumber[0]]]) {
+                    [self.incidentsNumbersToLoad addObject:jsonNumber[0]];
+                }
             }
-            allIncidentETagsByNumber = etags;
             
+            // FIXME: Run through self.allIncidentsByNumber and verify that all are in self.incidentsNumbersToLoad.
+            //    …if not, that's an error of some sort, since we don't remove incidents.
+
             self.loadIncidentNumbersData = nil;
+
+            [self loadQueuedIncidents];
         }
     }
     else if (connection == self.loadRangersConnection) {
         NSLog(@"Load Rangers request completed.");
         self.loadRangersConnection = nil;
+
         if (self.loadRangersData) {
             NSError *error = nil;
             NSArray *jsonRangers = [NSJSONSerialization JSONObjectWithData:self.loadRangersData options:0 error:&error];
@@ -398,6 +503,7 @@
     else if (connection == self.loadIncidentTypesConnection) {
         NSLog(@"Load incident types request completed.");
         self.loadIncidentTypesConnection = nil;
+
         if (self.loadIncidentTypesData) {
             NSError *error = nil;
             NSArray *jsonIncidentTypes = [NSJSONSerialization JSONObjectWithData:self.loadIncidentTypesData options:0 error:&error];
