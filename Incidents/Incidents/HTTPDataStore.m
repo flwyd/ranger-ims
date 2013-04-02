@@ -206,11 +206,8 @@
                 }
                 break;
             }
-
             if (! path) {
                 NSLog(@"Done loading incidents.");
-                NSLog(@"ETags: %@", self.incidentETagsByNumber);
-                NSLog(@"Incidents: %@", self.allIncidentsByNumber);
             }
         }
     }
