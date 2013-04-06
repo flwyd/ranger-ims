@@ -31,7 +31,7 @@ void performAlert(NSString *format, ...)
 
     NSLog(@"ALERT: %@", message);
 
-    [NSAlert alertWithMessageText:message
+    [NSAlert alertWithMessageText:@"Oops"
                     defaultButton:nil
                   alternateButton:nil
                       otherButton:nil
