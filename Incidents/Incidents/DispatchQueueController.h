@@ -30,6 +30,7 @@
 
 
 @property (strong) id <DataStoreProtocol> dataStore;
+@property (strong) NSMutableDictionary *incidentControllers;
 
 
 - (id) initWithAppDelegate:(AppDelegate *)appDelegate;
@@ -40,6 +41,5 @@
 - (void) openNewIncident:(id)sender;
 - (void) findIncident:(id)sender;
 - (void) commitIncident:(Incident *)incident;
-
 
 @end

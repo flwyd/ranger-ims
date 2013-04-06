@@ -53,8 +53,6 @@ NSString *formattedDateTimeShort(NSDate *date);
 @property (unsafe_unretained) IBOutlet NSButton            *showClosed;
 @property (unsafe_unretained) IBOutlet NSTextField         *updatedLabel;
 
-@property (strong) NSMutableDictionary *incidentControllers;
-
 @property (strong,nonatomic) NSArray *sortedIncidents;
 @property (strong,nonatomic) NSArray *sortedOpenIncidents;
 
@@ -214,6 +212,26 @@ NSString *formattedDateTimeShort(NSDate *date);
 
     [incidentController showWindow:self];
     [incidentController.window makeKeyAndOrderFront:self];
+
+    void (^incidentWindowDidClose)(NSNotification *) = ^(NSNotification *notification) {
+        NSWindow *notedWindow = notification.object;
+        IncidentController *notedController = notedWindow.windowController;
+        Incident *notedIncident = notedController.incident;
+
+        if (notedController != incidentController) {
+            performAlert(@"Closing incident controllers don't match: %@ != %@", notedController, incidentController);
+        }
+        if (notedIncident != incident) {
+            performAlert(@"Closing incidents don't match: %@ != %@", notedIncident, incident);
+        }
+
+        [self.incidentControllers removeObjectForKey:incident.number];
+    };
+
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSWindowWillCloseNotification
+                                                      object:incidentController.window
+                                                       queue:nil
+                                                  usingBlock:incidentWindowDidClose];
 }
 
 

@@ -27,6 +27,9 @@
 @interface IncidentController : NSWindowController
 
 
+@property (strong) Incident *incident;
+
+
 - (id) initWithDispatchQueueController:(DispatchQueueController *)dispatchQueueController
                               incident:(Incident *)incident;
 

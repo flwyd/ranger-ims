@@ -43,7 +43,6 @@ static NSDateFormatter *entryDateFormatter = nil;
 >
 
 @property (strong) DispatchQueueController *dispatchQueueController;
-@property (strong) Incident *incident;
 
 @property (unsafe_unretained) IBOutlet NSTextField   *numberField;
 @property (unsafe_unretained) IBOutlet NSPopUpButton *statePopUp;
@@ -716,7 +715,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (BOOL)textView:(NSTextView *)textView doCommandBySelector:(SEL)selector
+- (BOOL) textView:(NSTextView *)textView doCommandBySelector:(SEL)selector
 {
     if (textView == self.reportEntryToAddView) {
 	if (selector == NSSelectorFromString(@"insertNewline:")) {

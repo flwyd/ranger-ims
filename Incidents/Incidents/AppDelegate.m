@@ -17,6 +17,7 @@
 // limitations under the License.
 ////
 
+#import "utilities.h"
 #import "HTTPConnectionInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
@@ -49,12 +50,14 @@
 }
 
 
+@synthesize dispatchQueueController;
+
 - (DispatchQueueController *) dispatchQueueController
 {
-    if (! _dispatchQueueController) {
-        _dispatchQueueController = [[DispatchQueueController alloc] initWithAppDelegate:self];
+    if (! dispatchQueueController) {
+        dispatchQueueController = [[DispatchQueueController alloc] initWithAppDelegate:self];
     }
-    return _dispatchQueueController;
+    return dispatchQueueController;
 }
 
 
@@ -82,18 +85,28 @@
 }
 
 
+@synthesize preferencesController;
+
 - (PreferencesController *) preferencesController
 {
-    if (! _preferencesController) {
-        _preferencesController = [[PreferencesController alloc] initWithAppDelegate:self];
+    if (! preferencesController) {
+        preferencesController = [[PreferencesController alloc] initWithAppDelegate:self];
     }
-    return _preferencesController;
+    return preferencesController;
 }
 
 
 - (IBAction) showPreferences:(id)sender
 {
     [self.preferencesController showWindow:self];
+}
+
+
+- (IBAction) showOpenIncidents:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.incidentControllers);
+    }
 }
 
 
