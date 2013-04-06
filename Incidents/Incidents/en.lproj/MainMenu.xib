@@ -732,7 +732,7 @@
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 								</object>
-								<object class="NSMenuItem" id="772313193">
+								<object class="NSMenuItem" id="345860401">
 									<reference key="NSMenu" ref="835318025"/>
 									<string key="NSTitle">Enter Full Screen</string>
 									<string key="NSKeyEquiv">f</string>
@@ -764,7 +764,7 @@
 							<string key="NSName">_NSWindowsMenu</string>
 						</object>
 					</object>
-					<object class="NSMenuItem" id="467575007">
+					<object class="NSMenuItem" id="532214597">
 						<reference key="NSMenu" ref="649796088"/>
 						<string key="NSTitle">Debug</string>
 						<string key="NSKeyEquiv"/>
@@ -773,12 +773,12 @@
 						<reference key="NSOnImage" ref="35465992"/>
 						<reference key="NSMixedImage" ref="502551668"/>
 						<string key="NSAction">submenuAction:</string>
-						<object class="NSMenu" key="NSSubmenu" id="145887442">
+						<object class="NSMenu" key="NSSubmenu" id="925765095">
 							<string key="NSTitle">Debug</string>
 							<array class="NSMutableArray" key="NSMenuItems">
-								<object class="NSMenuItem" id="199438855">
-									<reference key="NSMenu" ref="145887442"/>
-									<string key="NSTitle">List Open Incidents…</string>
+								<object class="NSMenuItem" id="984472840">
+									<reference key="NSMenu" ref="925765095"/>
+									<string key="NSTitle">List Active Incidents Controllers…</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
@@ -1180,7 +1180,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">toggleFullScreen:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="772313193"/>
+						<reference key="destination" ref="345860401"/>
 					</object>
 					<int key="connectionID">573</int>
 				</object>
@@ -1220,7 +1220,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">showOpenIncidents:</string>
 						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="199438855"/>
+						<reference key="destination" ref="984472840"/>
 					</object>
 					<int key="connectionID">585</int>
 				</object>
@@ -1260,7 +1260,7 @@
 							<reference ref="952259628"/>
 							<reference ref="379814623"/>
 							<reference ref="448692316"/>
-							<reference ref="467575007"/>
+							<reference ref="532214597"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -1582,7 +1582,7 @@
 							<reference ref="1011231497"/>
 							<reference ref="862279176"/>
 							<reference ref="776855612"/>
-							<reference ref="772313193"/>
+							<reference ref="345860401"/>
 						</array>
 						<reference key="parent" ref="713487014"/>
 					</object>
@@ -1793,7 +1793,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">572</int>
-						<reference key="object" ref="772313193"/>
+						<reference key="object" ref="345860401"/>
 						<reference key="parent" ref="835318025"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -1811,24 +1811,24 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">580</int>
-						<reference key="object" ref="467575007"/>
+						<reference key="object" ref="532214597"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="145887442"/>
+							<reference ref="925765095"/>
 						</array>
 						<reference key="parent" ref="649796088"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">581</int>
-						<reference key="object" ref="145887442"/>
+						<reference key="object" ref="925765095"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="199438855"/>
+							<reference ref="984472840"/>
 						</array>
-						<reference key="parent" ref="467575007"/>
+						<reference key="parent" ref="532214597"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">582</int>
-						<reference key="object" ref="199438855"/>
-						<reference key="parent" ref="145887442"/>
+						<reference key="object" ref="984472840"/>
+						<reference key="parent" ref="925765095"/>
 					</object>
 				</array>
 			</object>
@@ -1937,35 +1937,6 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">AppDelegate</string>
 					<string key="superclassName">NSObject</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="findIncident:">id</string>
-						<string key="newIncident:">id</string>
-						<string key="showDispatchQueue:">id</string>
-						<string key="showOpenIncidents:">id</string>
-						<string key="showPreferences:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="findIncident:">
-							<string key="name">findIncident:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="newIncident:">
-							<string key="name">newIncident:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="showDispatchQueue:">
-							<string key="name">showDispatchQueue:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="showOpenIncidents:">
-							<string key="name">showOpenIncidents:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="showPreferences:">
-							<string key="name">showPreferences:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/AppDelegate.h</string>
