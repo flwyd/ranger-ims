@@ -17,6 +17,7 @@
 // limitations under the License.
 ////
 
+#import "utilities.h"
 #import "FileDataStore.h"
 #import "HTTPDataStore.h"
 #import "HTTPConnectionInfo.h"
@@ -97,14 +98,14 @@ NSString *formattedDateTimeShort(NSDate *date);
         [loadingIndicator startAnimation:self];
     }
     else {
-        NSLog(@"loadingIndicator is not connected.");
+        performAlert(@"loadingIndicator is not connected.");
     }
 
     // Load queue data from server
     if (! self.dataStore) {
         id <DataStoreProtocol> dataStore;
 
-#if 0
+#if 1
         dataStore = [[FileDataStore alloc] init];
 #else
         HTTPConnectionInfo *connectionInfo = self.appDelegate.connectionInfo;
@@ -130,7 +131,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
     }
     else {
-        NSLog(@"updatedLabel is not connected.");
+        performAlert(@"updatedLabel is not connected.");
     }
 
     // Stop the progress indicator.
@@ -151,7 +152,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         [dispatchTable reloadData];
     }
     else {
-        NSLog(@"dispatchTable is not connected.");
+        performAlert(@"dispatchTable is not connected.");
     }
 }
 
@@ -185,7 +186,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     Incident *incident = [self.dataStore createNewIncident];
 
     if (! incident) {
-        NSLog(@"Unable to create new incident?");
+        performAlert(@"Unable to create new incident?");
         return;
     }
 
@@ -196,7 +197,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 - (void) openIncident:(Incident *)incident
 {
     if (! incident) {
-        NSLog(@"Unable to open nil incident.");
+        performAlert(@"Unable to open nil incident.");
         return;
     }
 
@@ -319,8 +320,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     }
 
     if (rowIndex >= (NSInteger)incidents.count) {
-        NSLog(@"incidentForTableRow: got out of bounds rowIndex: %ld",
-              rowIndex);
+        NSLog(@"incidentForTableRow: got out of bounds rowIndex: %ld", rowIndex);
         return nil;
     }
     
@@ -432,7 +432,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         return incident.summaryFromReport;
     }
 
-    NSLog(@"Unknown column identifier: %@", identifier);
+    performAlert(@"Unknown column identifier: %@", identifier);
     return nil;
 }
 

@@ -16,7 +16,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ////
-
+#import "utilities.h"
 #import "Ranger.h"
 #import "Incident.h"
 #import "FileDataStore.h"
@@ -59,7 +59,7 @@ NSArray *getRangerHandles(void);
                                                       inDomains:NSUserDomainMask];
 
     if (! supportDirectories.count) {
-        NSLog(@"No application support directory?!?");
+        performAlert(@"No application support directory?!?");
         return nil;
     }
 
@@ -101,7 +101,7 @@ NSArray *getRangerHandles(void);
                withIntermediateDirectories:YES
                                 attributes:nil
                                      error:&error]) {
-        NSLog(@"Can't create data directory: %@", error);
+        performAlert(@"Can't create data directory: %@", error);
         return NO;
     }
 
@@ -111,7 +111,7 @@ NSArray *getRangerHandles(void);
                                                          error:&error];
 
     if (! childURLs) {
-        NSLog(@"Unable to enumerate data directory: %@", error);
+        performAlert(@"Unable to enumerate data directory: %@", error);
         return NO;
     }
 
@@ -126,7 +126,7 @@ NSArray *getRangerHandles(void);
         NSData *data = [NSData dataWithContentsOfURL:childURL options:0 error:&error];
 
         if (! data) {
-            NSLog(@"Unable to read file: %@", error);
+            performAlert(@"Unable to read file: %@", error);
             return NO;
         }
 
@@ -134,7 +134,7 @@ NSArray *getRangerHandles(void);
 
         Incident *incident = [Incident incidentInDataStore:self fromJSON:incidentJSON error:&error];
         if (! incident || error) {
-            NSLog(@"Unable to deserialize incident: %@", error);
+            performAlert(@"Unable to deserialize incident: %@", error);
             return NO;
         }
 
@@ -180,7 +180,7 @@ NSArray *getRangerHandles(void);
 - (void) commitIncident:(Incident *)incident
 {
     if (! incident || ! incident.number) {
-        NSLog(@"Cannot commit invalid incident: %@", incident);
+        performAlert(@"Cannot commit invalid incident: %@", incident);
         return;
     }
     if (incident.number.integerValue < 0) {
@@ -203,12 +203,12 @@ NSArray *getRangerHandles(void);
     // Option: NSJSONWritingPrettyPrinted
     NSData *data = [NSJSONSerialization dataWithJSONObject:[incident asJSON] options:0 error:&error];
     if (! data) {
-        NSLog(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
+        performAlert(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
         return NO;
     }
 
     if (! [data writeToURL:childURL options:0 error:&error]) {
-        NSLog(@"Unable to write file: %@", error);
+        performAlert(@"Unable to write file: %@", error);
         return NO;
     }
     

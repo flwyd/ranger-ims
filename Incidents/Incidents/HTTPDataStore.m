@@ -17,6 +17,7 @@
 // limitations under the License.
 ////
 
+#import "utilities.h"
 #import "Ranger.h"
 #import "Incident.h"
 #import "HTTPDataStore.h"
@@ -121,7 +122,7 @@
 - (void) commitIncident:(Incident *)incident
 {
     if (! incident || ! incident.number) {
-        NSLog(@"Cannot commit invalid incident: %@", incident);
+        performAlert(@"Cannot commit invalid incident: %@", incident);
         return;
     }
 //    if (incident.number.integerValue < 0) {
@@ -141,12 +142,12 @@
     // Option: NSJSONWritingPrettyPrinted
     NSData *data = [NSJSONSerialization dataWithJSONObject:[incident asJSON] options:0 error:&error];
     if (! data) {
-        NSLog(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
+        performAlert(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
         return NO;
     }
     
 //    if (! [data writeToURL:childURL options:0 error:&error]) {
-//        NSLog(@"Unable to write file: %@", error);
+//        performAlert(@"Unable to write file: %@", error);
 //        return NO;
 //    }
 //
@@ -271,7 +272,7 @@
 - (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
     if (! [response isKindOfClass:NSHTTPURLResponse.class]) {
-        NSLog(@"Unexpected (non-HTTP) response: %@", response);
+        performAlert(@"Unexpected (non-HTTP) response: %@", response);
         NSLog(@"…for connection: %@", connection);
         return;
     }
@@ -281,12 +282,12 @@
         BOOL result = YES;
         
         if (httpResponse.statusCode != 200) {
-            NSLog(@"Unexpected response code: %ld", httpResponse.statusCode);
+            performAlert(@"Unexpected response code from server: %ld", httpResponse.statusCode);
             result = NO;
         }
         
         if (! [httpResponse.MIMEType isEqualToString:@"application/json"]) {
-            NSLog(@"Unexpected (non-JSON) MIME type: %@", httpResponse.MIMEType);
+            performAlert(@"Unexpected (non-JSON) MIME type: %@", httpResponse.MIMEType);
             result = NO;
         }
         
@@ -299,7 +300,7 @@
             [self.loadIncidentNumbersData setLength:0];
         }
         else {
-            NSLog(@"Unable to load incident numbers data.");
+            performAlert(@"Unable to load incident numbers data.");
             self.loadIncidentNumbersData = nil;
         }
     }
@@ -312,7 +313,7 @@
             self.loadIncidentETag = @"*** WE SHOULD SET THIS HERE ***";
         }
         else {
-            NSLog(@"Unable to load incident data.");
+            performAlert(@"Unable to load incident data.");
             self.loadIncidentData = nil;
         }
     }
@@ -322,7 +323,7 @@
             [self.loadRangersData setLength:0];
         }
         else {
-            NSLog(@"Unable to load Rangers data.");
+            performAlert(@"Unable to load Rangers data.");
             self.loadRangersData = nil;
         }
     }
@@ -332,12 +333,12 @@
             [self.loadIncidentTypesData setLength:0];
         }
         else {
-            NSLog(@"Unable to load incident types data.");
+            performAlert(@"Unable to load incident types data.");
             self.loadIncidentTypesData = nil;
         }
     }
     else {
-        NSLog(@"Unknown connection: %@", connection);
+        performAlert(@"Unknown connection: %@", connection);
         NSLog(@"…got response: %@", response);
     }
 }
@@ -362,7 +363,7 @@
         [self.loadIncidentTypesData appendData:data];
     }
     else {
-        NSLog(@"Unknown connection: %@", connection);
+        performAlert(@"Unknown connection: %@", connection);
         NSLog(@"…got data: %@", data);
     }
 }
@@ -371,27 +372,27 @@
 - (void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
     if (connection == self.loadIncidentNumbersConnection) {
-        NSLog(@"Load incident numbers request failed: %@", error);
+        performAlert(@"Load incident numbers request failed: %@", error);
         self.loadIncidentNumbersConnection = nil;
         self.loadIncidentNumbersData = nil;
     }
     if (connection == self.loadIncidentConnection) {
-        NSLog(@"Load incident request failed: %@", error);
+        performAlert(@"Load incident request failed: %@", error);
         self.loadIncidentConnection = nil;
         self.loadIncidentData = nil;
     }
     else if (connection == self.loadRangersConnection) {
-        NSLog(@"Load Rangers request failed: %@", error);
+        performAlert(@"Load Rangers request failed: %@", error);
         self.loadRangersConnection = nil;
         self.loadRangersData = nil;
     }
     else if (connection == self.loadIncidentTypesConnection) {
-        NSLog(@"Load incident types request failed: %@", error);
+        performAlert(@"Load incident types request failed: %@", error);
         self.loadIncidentTypesConnection = nil;
         self.loadIncidentTypesData = nil;
     }
     else {
-        NSLog(@"Unknown connection: %@", connection);
+        performAlert(@"Unknown connection: %@", connection);
         NSLog(@"…got error: %@", error);
     }
     
@@ -417,11 +418,11 @@
                     NSLog(@"Loaded incident #%@.", self.loadIncidentNumber);
                 }
                 else {
-                    NSLog(@"Got incident #%@ when I asked for incident #%@.  I'm confused.", incident.number, self.loadIncidentNumber);
+                    performAlert(@"Got incident #%@ when I asked for incident #%@.  I'm confused.", incident.number, self.loadIncidentNumber);
                 }
             }
             else {
-                NSLog(@"Unable to load incident #%@: %@", self.loadIncidentNumber, error);
+                performAlert(@"Unable to load incident #%@: %@", self.loadIncidentNumber, error);
             }
         }
 
@@ -443,14 +444,14 @@
             
             if (! jsonNumbers || ! [jsonNumbers isKindOfClass:[NSArray class]]) {
                 NSLog(@"Got JSON for incident numbers: %@", jsonNumbers);
-                NSLog(@"JSON object for incident numbers must be an array.  Unable to read incident numbers from server.");
+                performAlert(@"JSON object for incident numbers must be an array.  Unable to read incident numbers from server.");
                 return;
             }
             
             for (NSArray *jsonNumber in jsonNumbers) {
                 if (! jsonNumber || ! [jsonNumber isKindOfClass:[NSArray class]] || [jsonNumber count] < 2) {
                     NSLog(@"Got JSON for incident number: %@", jsonNumber);
-                    NSLog(@"JSON object for incident number must be an array of two items.  Unable to read incident number from server.");
+                    performAlert(@"JSON object for incident number must be an array of two items.  Unable to read incident number from server.");
                     return;
                 }
                 // jsonNumber is (number, etag)
@@ -477,7 +478,7 @@
             
             if (! jsonRangers || ! [jsonRangers isKindOfClass:[NSArray class]]) {
                 NSLog(@"Got JSON for Rangers: %@", jsonRangers);
-                NSLog(@"JSON object for Rangers must be an array.  Unable to read Rangers from server.");
+                performAlert(@"JSON object for Rangers must be an array.  Unable to read Rangers from server.");
                 return;
             }
             
@@ -489,7 +490,7 @@
                 }
                 else {
                     NSLog(@"Got JSON for Ranger: %@", jsonRanger);
-                    NSLog(@"Invalid JSON: %@", error);
+                    performAlert(@"Invalid JSON: %@", error);
                 }
             }
             allRangersByHandle = rangers;
@@ -507,7 +508,7 @@
             
             if (! jsonIncidentTypes || ! [jsonIncidentTypes isKindOfClass:[NSArray class]]) {
                 NSLog(@"Got JSON for incident types: %@", jsonIncidentTypes);
-                NSLog(@"JSON object for incident types must be an array.  Unable to read incident types from server.");
+                performAlert(@"JSON object for incident types must be an array.  Unable to read incident types from server.");
                 return;
             }
             
@@ -518,7 +519,7 @@
                 }
                 else {
                     NSLog(@"Got JSON for incident type: %@", incidentType);
-                    NSLog(@"Invalid JSON: %@", error);
+                    performAlert(@"Invalid JSON: %@", error);
                 }
             }
             allIncidentTypes = incidentTypes;
@@ -527,7 +528,7 @@
         }
     }
     else {
-        NSLog(@"Unknown connection completed: %@", connection);
+        performAlert(@"Unknown connection completed: %@", connection);
         return;
     }
 }
