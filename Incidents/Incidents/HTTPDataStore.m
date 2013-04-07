@@ -338,8 +338,7 @@
         }
     }
     else {
-        performAlert(@"Unknown connection: %@", connection);
-        NSLog(@"…got response: %@", response);
+        performAlert(@"Unknown connection: %@\nGot response: %@", connection, response);
     }
 }
 
@@ -363,8 +362,7 @@
         [self.loadIncidentTypesData appendData:data];
     }
     else {
-        performAlert(@"Unknown connection: %@", connection);
-        NSLog(@"…got data: %@", data);
+        performAlert(@"Unknown connection: %@\nGotData: %@", connection, data);
     }
 }
 
@@ -392,8 +390,7 @@
         self.loadIncidentTypesData = nil;
     }
     else {
-        performAlert(@"Unknown connection: %@", connection);
-        NSLog(@"…got error: %@", error);
+        performAlert(@"Unknown connection: %@\nGot error: %@", connection, error);
     }
     
     // FIXME: do something useful
