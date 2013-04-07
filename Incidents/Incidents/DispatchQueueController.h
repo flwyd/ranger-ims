@@ -33,7 +33,8 @@
 @property (strong) NSMutableDictionary *incidentControllers;
 
 
-- (id) initWithAppDelegate:(AppDelegate *)appDelegate;
+- (id) initWithDataStore:(id <DataStoreProtocol>)dataStore
+             appDelegate:(AppDelegate *)appDelegate;
 
 - (Incident *) selectedIncident;
 

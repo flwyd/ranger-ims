@@ -18,9 +18,6 @@
 ////
 
 #import "utilities.h"
-#import "FileDataStore.h"
-#import "HTTPDataStore.h"
-#import "HTTPConnectionInfo.h"
 #import "Location.h"
 #import "ReportEntry.h"
 #import "Incident.h"
@@ -63,9 +60,13 @@ NSString *formattedDateTimeShort(NSDate *date);
 @implementation DispatchQueueController
 
 
-- (id) initWithAppDelegate:(AppDelegate *)appDelegate
+- (id) initWithDataStore:(id <DataStoreProtocol>)dataStore
+             appDelegate:(AppDelegate *)appDelegate
 {
     if (self = [super initWithWindowNibName:@"DispatchQueueController"]) {
+        dataStore.delegate = self;
+
+        self.dataStore = dataStore;
         self.appDelegate = appDelegate;
         self.incidentControllers = [NSMutableDictionary dictionary];
         self.sortedIncidents = nil;
@@ -100,25 +101,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     }
 
     // Load queue data from server
-    if (! self.dataStore) {
-        id <DataStoreProtocol> dataStore;
-
-#if 1
-        dataStore = [[FileDataStore alloc] init];
-#else
-        HTTPConnectionInfo *connectionInfo = self.appDelegate.connectionInfo;
-        NSString *host = [NSString stringWithFormat:@"%@:%lu",
-                          connectionInfo.serverName,
-                          (unsigned long)connectionInfo.serverPort];
-        NSURL* url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/"];
-        dataStore = [[HTTPDataStore alloc] initWithURL:url];
-#endif
-
-        dataStore.delegate = self;
-        self.dataStore = dataStore;
-
-        [dataStore load];
-    }
+    [self.dataStore load];
     
     // Populate dispatch table
     [self loadTable];

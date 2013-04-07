@@ -18,6 +18,8 @@
 ////
 
 #import "utilities.h"
+#import "FileDataStore.h"
+#import "HTTPDataStore.h"
 #import "HTTPConnectionInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
@@ -29,6 +31,11 @@
 
 @property (strong,nonatomic) DispatchQueueController *dispatchQueueController;
 @property (strong,nonatomic) PreferencesController   *preferencesController;
+
+@property (unsafe_unretained) IBOutlet NSMenuItem *httpStoreMenuItem;
+@property (unsafe_unretained) IBOutlet NSMenuItem *fileStoreMenuItem;
+
+@property (strong,nonatomic) NSString *dataStoreType;
 
 @end
 
@@ -55,14 +62,59 @@
 - (DispatchQueueController *) dispatchQueueController
 {
     if (! dispatchQueueController) {
-        dispatchQueueController = [[DispatchQueueController alloc] initWithAppDelegate:self];
+        id <DataStoreProtocol> dataStore;
+
+        if ([self.dataStoreType isEqualToString:@"File"]) {
+            dataStore = [[FileDataStore alloc] init];
+        }
+        else if ([self.dataStoreType isEqualToString:@"HTTP"]) {
+            HTTPConnectionInfo *connectionInfo = self.connectionInfo;
+            NSString *host = [NSString stringWithFormat:@"%@:%lu",
+                              connectionInfo.serverName,
+                              (unsigned long)connectionInfo.serverPort];
+            NSURL* url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/"];
+            dataStore = [[HTTPDataStore alloc] initWithURL:url];
+        }
+        else {
+            performAlert(@"Unknown data store type: %@", self.dataStoreType);
+            return nil;
+        }
+
+        NSLog(@"Initialized data store: %@", dataStore);
+
+        dispatchQueueController = [[DispatchQueueController alloc] initWithDataStore:dataStore appDelegate:self];
     }
     return dispatchQueueController;
 }
 
 
+@synthesize dataStoreType;
+
+- (void) setDataStoreType:(NSString *)type
+{
+    if (! [dataStoreType isEqualToString:type]) {
+        self.httpStoreMenuItem.state = NSOffState;
+        self.fileStoreMenuItem.state = NSOffState;
+
+        if ([self.dataStoreType isEqualToString:@"HTTP"]) {
+            self.httpStoreMenuItem.state = NSOnState;
+        }
+        else if (! [self.dataStoreType isEqualToString:@"File"]) {
+            self.fileStoreMenuItem.state = NSOnState;
+        }
+
+        dataStoreType = type;
+        self.dispatchQueueController = nil;
+    }
+}
+
+
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    self.dataStoreType = @"File";
+    self.httpStoreMenuItem.state = NSOffState;
+    self.fileStoreMenuItem.state = NSOnState;
+
     [self showDispatchQueue:self];
 }
 
@@ -107,6 +159,19 @@
     if (self.dispatchQueueController) {
         performAlert(@"%@", self.dispatchQueueController.incidentControllers);
     }
+}
+
+
+- (IBAction) selectDataStore:(id)sender
+{
+    if (sender == self.httpStoreMenuItem) {
+        self.dataStoreType = @"HTTP";
+    }
+    else if (sender == self.fileStoreMenuItem) {
+        self.dataStoreType = @"File";
+    }
+
+//    [self showDispatchQueue:self];
 }
 
 
