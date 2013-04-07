@@ -152,6 +152,11 @@
 }
 
 
+////
+// Debug Menu Actions
+////
+
+
 - (IBAction) showOpenIncidents:(id)sender
 {
     if (self.dispatchQueueController) {
@@ -169,7 +174,32 @@
         self.dataStoreType = @"File";
     }
 
-//    [self showDispatchQueue:self];
+    // This leads to crashing; need to wait for something first
+    //[self showDispatchQueue:self];
+}
+
+
+- (IBAction) showAllRangers:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.dataStore.allRangersByHandle);
+    }
+}
+
+
+- (IBAction) showAllIncidentTypes:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.dataStore.allIncidentTypes);
+    }
+}
+
+
+- (IBAction) showAllIncidents:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.dataStore.incidents);
+    }
 }
 
 
