@@ -149,6 +149,8 @@ NSArray *getRangerHandles(void);
 
     self.nextIncidentNumber = (NSUInteger)maxNumber + 1;
 
+    [self.delegate dataStoreDidUpdateIncidents:self];
+
     return YES;
 }
 

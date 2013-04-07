@@ -181,7 +181,7 @@
             }
         }
         else {
-            NSLog(@"Unable to connect to load incident numbers.");
+            performAlert(@"Unable to connect to load incident numbers.");
         }
     }
 }
@@ -194,12 +194,12 @@
             // This shouldn't happen given how this code is wired up.
             // Logging here in case that cases accidentally, in case it's a performance oopsie.
             //
-            NSLog(@"Already loading incidents.");
+            NSLog(@"Already loading incidents... we shouldn't be here.");
         }
         else {
             NSString *path = nil;
             for (NSNumber *number in self.incidentsNumbersToLoad) {
-                NSLog(@"Loading queued incident: %@", number);
+                //NSLog(@"Loading queued incident: %@", number);
                 path = [NSString stringWithFormat:@"incidents/%@", number];
                 NSURLConnection *connection = [self getJSONConnectionForPath:path];
 
@@ -413,7 +413,7 @@
 - (void) connectionDidFinishLoading:(NSURLConnection *)connection
 {
     if (connection == self.loadIncidentConnection) {
-        NSLog(@"Load incident request completed.");
+        //NSLog(@"Load incident request completed.");
         self.loadIncidentConnection = nil;
         if (self.loadIncidentData) {
             NSError *error = nil;
@@ -426,6 +426,7 @@
                     self.incidentETagsByNumber[incident.number] = self.loadIncidentETag;
 
                     NSLog(@"Loaded incident #%@.", self.loadIncidentNumber);
+                    [self.delegate dataStoreDidUpdateIncidents:self];
                 }
                 else {
                     performAlert(@"Got incident #%@ when I asked for incident #%@.  I'm confused.", incident.number, self.loadIncidentNumber);
@@ -441,9 +442,11 @@
 
         self.loadIncidentData = nil;
         self.loadIncidentNumber = nil;
+
+        [self loadQueuedIncidents];
     }
     else if (connection == self.loadIncidentNumbersConnection) {
-        NSLog(@"Load incident numbers request completed.");
+        //NSLog(@"Load incident numbers request completed.");
         self.loadIncidentNumbersConnection = nil;
 
         if (self.loadIncidentNumbersData) {
@@ -477,7 +480,7 @@
         }
     }
     else if (connection == self.loadRangersConnection) {
-        NSLog(@"Load Rangers request completed.");
+        //NSLog(@"Load Rangers request completed.");
         self.loadRangersConnection = nil;
 
         if (self.loadRangersData) {
@@ -507,7 +510,7 @@
         }
     }
     else if (connection == self.loadIncidentTypesConnection) {
-        NSLog(@"Load incident types request completed.");
+        //NSLog(@"Load incident types request completed.");
         self.loadIncidentTypesConnection = nil;
 
         if (self.loadIncidentTypesData) {
