@@ -111,9 +111,7 @@
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    self.dataStoreType = @"File";
-    self.httpStoreMenuItem.state = NSOffState;
-    self.fileStoreMenuItem.state = NSOnState;
+    self.dataStoreType = @"HTTP";
 
     [self showDispatchQueue:self];
 }

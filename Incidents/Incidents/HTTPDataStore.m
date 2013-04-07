@@ -180,6 +180,9 @@
                 self.loadIncidentNumbersData = [NSMutableData data];
             }
         }
+        else {
+            NSLog(@"Unable to connect to load incident numbers.");
+        }
     }
 }
 
@@ -196,6 +199,7 @@
         else {
             NSString *path = nil;
             for (NSNumber *number in self.incidentsNumbersToLoad) {
+                NSLog(@"Loading queued incident: %@", number);
                 path = [NSString stringWithFormat:@"incidents/%@", number];
                 NSURLConnection *connection = [self getJSONConnectionForPath:path];
 
@@ -205,10 +209,13 @@
                     self.loadIncidentNumber = number;
                     self.loadIncidentETag = nil;
                 }
+                else {
+                    NSLog(@"Unable to connect to load queued incident: %@", number);
+                }
                 break;
             }
             if (! path) {
-                NSLog(@"Done loading incidents.");
+                NSLog(@"Done loading queued incidents.");
             }
         }
     }
@@ -223,6 +230,9 @@
             if (connection) {
                 self.loadRangersConnection = connection;
                 self.loadRangersData = [NSMutableData data];
+            }
+            else {
+                NSLog(@"Unable to connect to load Rangers.");
             }
         }
     }
@@ -247,6 +257,9 @@
         if (connection) {
             self.loadIncidentTypesConnection = connection;
             self.loadIncidentTypesData = [NSMutableData data];
+        }
+        else {
+            NSLog(@"Unable to connect to load incident types.");
         }
     }
 }
@@ -428,8 +441,6 @@
 
         self.loadIncidentData = nil;
         self.loadIncidentNumber = nil;
-
-        [self loadQueuedIncidents];
     }
     else if (connection == self.loadIncidentNumbersConnection) {
         NSLog(@"Load incident numbers request completed.");
