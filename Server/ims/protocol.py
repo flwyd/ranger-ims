@@ -41,8 +41,8 @@ protocol_version = "0.0"
 @route("/ping/", methods=("GET",))
 @http_sauce
 def ping(request):
-    set_content_type(request, ContentType.plain)
-    return "ack\n";
+    set_content_type(request, ContentType.JSON)
+    return to_json("ack")
 
 
 @route("/rangers/", methods=("GET",))
