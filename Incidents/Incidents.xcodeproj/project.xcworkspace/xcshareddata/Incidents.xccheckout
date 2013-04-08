@@ -8,6 +8,8 @@
 	<string>Incidents</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>33B78E2F-E73F-41C5-AC5C-B4252448F6B3</key>
+		<string>git@github.com:burningmantech/ranger-ims.git</string>
 		<key>519A1A83-B80D-4E18-B0A4-3B73BBDE4389</key>
 		<string>http://www.wsanchez.net/svn</string>
 		<key>6A31C7A8-80DC-4B20-BE51-BE225B737690</key>
@@ -19,6 +21,8 @@
 	<string>Incidents/Incidents.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>33B78E2F-E73F-41C5-AC5C-B4252448F6B3</key>
+		<string>../../..</string>
 		<key>6A31C7A8-80DC-4B20-BE51-BE225B737690</key>
 		<string>../../..</string>
 		<key>FB69E368-ABC5-4696-BEE0-B1AB8EBC02E9</key>
@@ -29,6 +33,6 @@
 	<key>IDESourceControlProjectVersion</key>
 	<integer>104</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>FB69E368-ABC5-4696-BEE0-B1AB8EBC02E9</string>
+	<string>33B78E2F-E73F-41C5-AC5C-B4252448F6B3</string>
 </dict>
 </plist>

@@ -47,6 +47,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 @property (unsafe_unretained) IBOutlet NSSearchField       *searchField;
 @property (unsafe_unretained) IBOutlet NSTableView         *dispatchTable;
 @property (unsafe_unretained) IBOutlet NSProgressIndicator *loadingIndicator;
+@property (unsafe_unretained) IBOutlet NSButton            *reloadButton;
 @property (unsafe_unretained) IBOutlet NSButton            *showClosed;
 @property (unsafe_unretained) IBOutlet NSTextField         *updatedLabel;
 
@@ -324,6 +325,12 @@ NSString *formattedDateTimeShort(NSDate *date);
 }
 
 
+- (IBAction) loadIncidents:(id)sender
+{
+    [self load];
+}
+
+
 - (IBAction) loadTable:(id)sender
 {
     [self loadTable];
@@ -344,7 +351,11 @@ NSString *formattedDateTimeShort(NSDate *date);
 
 - (void) dataStoreWillUpdateIncidents:(id)dataStore
 {
+    // Hide the reload button…
+    self.reloadButton.hidden = YES;
+
     // Spin the progress indicator...
+    self.loadingIndicator.hidden = NO;
     [self.loadingIndicator startAnimation:self];
 
     // Display the update time
@@ -358,6 +369,10 @@ NSString *formattedDateTimeShort(NSDate *date);
 
     // Stop the progress indicator.
     [self.loadingIndicator stopAnimation:self];
+    self.loadingIndicator.hidden = YES;
+
+    // Show the reload button…
+    self.reloadButton.hidden = NO;
 
     // Display the update time
     self.updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
