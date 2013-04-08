@@ -18,6 +18,7 @@
 ////
 
 #import <Block.h>
+#import "utilities.h"
 #import "ReportEntry.h"
 #import "Incident.h"
 #import "Location.h"
@@ -42,7 +43,6 @@ static NSDateFormatter *entryDateFormatter = nil;
 >
 
 @property (strong) DispatchQueueController *dispatchQueueController;
-@property (strong) Incident *incident;
 
 @property (unsafe_unretained) IBOutlet NSTextField   *numberField;
 @property (unsafe_unretained) IBOutlet NSPopUpButton *statePopUp;
@@ -125,7 +125,7 @@ static NSDateFormatter *entryDateFormatter = nil;
                                 summaryFromReport];
     }
     else {
-        NSLog(@"No window?");
+        performAlert(@"No window?");
     }
 
     NSTextField *numberField = self.numberField;
@@ -133,7 +133,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         numberField.stringValue = incident.number ? incident.number.description : @"";
     }
     else {
-        NSLog(@"No numberField?");
+        performAlert(@"No numberField?");
     }
 
     NSPopUpButton *statePopUp = self.statePopUp;
@@ -145,7 +145,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         else if (incident.dispatched) { stateTag = 2; }
         else if (incident.created   ) { stateTag = 1; }
         else {
-            NSLog(@"Unknown incident state.");
+            performAlert(@"Unknown incident state.");
             stateTag = 0;
         }
         [statePopUp selectItemWithTag:stateTag];
@@ -167,7 +167,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         else if (stateTag == 4) { enableStates(YES, NO , NO , YES); }
     }
     else {
-        NSLog(@"No statePopUp?");
+        performAlert(@"No statePopUp?");
     }
 
     NSPopUpButton *priorityPopUp = self.priorityPopUp;
@@ -175,7 +175,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         [priorityPopUp selectItemWithTag:incident.priority.integerValue];
     }
     else {
-        NSLog(@"No priorityPopUp?");
+        performAlert(@"No priorityPopUp?");
     }
 
     NSTextField *summaryField = self.summaryField;
@@ -193,7 +193,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         }
     }
     else {
-        NSLog(@"No summaryField?");
+        performAlert(@"No summaryField?");
     }
 
     NSTableView *rangersTable = self.rangersTable;
@@ -201,7 +201,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         [rangersTable reloadData];
     }
     else {
-        NSLog(@"No rangersTable?");
+        performAlert(@"No rangersTable?");
     }
 
     NSTableView *typesTable = self.typesTable;
@@ -209,7 +209,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         [typesTable reloadData];
     }
     else {
-        NSLog(@"No typesTable?");
+        performAlert(@"No typesTable?");
     }
 
     NSTextField *locationNameField = self.locationNameField;
@@ -217,7 +217,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         locationNameField.stringValue = incident.location.name ? incident.location.name : @"";
     }
     else {
-        NSLog(@"No locationNameField?");
+        performAlert(@"No locationNameField?");
     }
 
     NSTextField *locationAddressField = self.locationAddressField;
@@ -225,7 +225,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         locationAddressField.stringValue = incident.location.address ? incident.location.address : @"";
     }
     else {
-        NSLog(@"No locationAddressField?");
+        performAlert(@"No locationAddressField?");
     }
 
     NSTextView *reportEntriesView = self.reportEntriesView;
@@ -237,7 +237,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         [reportEntriesView scrollRangeToVisible:end];
     }
     else {
-        NSLog(@"No reportEntriesView?");
+        performAlert(@"No reportEntriesView?");
     }
 }
 
@@ -389,7 +389,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         if (! incident.closed    ) { incident.closed     = [NSDate date]; }
     }
     else {
-        NSLog(@"Unknown state tag: %ld", stateTag);
+        performAlert(@"Unknown state tag: %ld", stateTag);
         return;
     }
 
@@ -445,7 +445,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         return self.incident.types;
     }
     else {
-        NSLog(@"Table view unknown to IncidentController: %@", tableView);
+        performAlert(@"Table view unknown to IncidentController: %@", tableView);
         return nil;
     }
 }
@@ -516,7 +516,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         return self.incident.types.count;
     }
     else {
-        NSLog(@"Table view unknown to IncidentController: %@", tableView);
+        performAlert(@"Table view unknown to IncidentController: %@", tableView);
         return 0;
     }
 }
@@ -557,7 +557,7 @@ static NSDateFormatter *entryDateFormatter = nil;
             [self.incident.types removeObject:objectToDelete];
         }
         else {
-            NSLog(@"Table view unknown to IncidentController: %@", tableView);
+            performAlert(@"Table view unknown to IncidentController: %@", tableView);
             return;
         }
         
@@ -630,7 +630,7 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSArray *source = [self completionSourceForControl:control];
 
     if (! source) {
-        NSLog(@"Completion request from unknown control: %@", control);
+        performAlert(@"Completion request from unknown control: %@", control);
         return @[];
     }
 
@@ -715,7 +715,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (BOOL)textView:(NSTextView *)textView doCommandBySelector:(SEL)selector
+- (BOOL) textView:(NSTextView *)textView doCommandBySelector:(SEL)selector
 {
     if (textView == self.reportEntryToAddView) {
 	if (selector == NSSelectorFromString(@"insertNewline:")) {

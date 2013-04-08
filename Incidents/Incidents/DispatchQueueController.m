@@ -17,9 +17,7 @@
 // limitations under the License.
 ////
 
-#import "FileDataStore.h"
-#import "HTTPDataStore.h"
-#import "HTTPConnectionInfo.h"
+#import "utilities.h"
 #import "Location.h"
 #import "ReportEntry.h"
 #import "Incident.h"
@@ -52,8 +50,6 @@ NSString *formattedDateTimeShort(NSDate *date);
 @property (unsafe_unretained) IBOutlet NSButton            *showClosed;
 @property (unsafe_unretained) IBOutlet NSTextField         *updatedLabel;
 
-@property (strong) NSMutableDictionary *incidentControllers;
-
 @property (strong,nonatomic) NSArray *sortedIncidents;
 @property (strong,nonatomic) NSArray *sortedOpenIncidents;
 
@@ -64,9 +60,13 @@ NSString *formattedDateTimeShort(NSDate *date);
 @implementation DispatchQueueController
 
 
-- (id) initWithAppDelegate:(AppDelegate *)appDelegate
+- (id) initWithDataStore:(id <DataStoreProtocol>)dataStore
+             appDelegate:(AppDelegate *)appDelegate
 {
     if (self = [super initWithWindowNibName:@"DispatchQueueController"]) {
+        dataStore.delegate = self;
+
+        self.dataStore = dataStore;
         self.appDelegate = appDelegate;
         self.incidentControllers = [NSMutableDictionary dictionary];
         self.sortedIncidents = nil;
@@ -97,29 +97,11 @@ NSString *formattedDateTimeShort(NSDate *date);
         [loadingIndicator startAnimation:self];
     }
     else {
-        NSLog(@"loadingIndicator is not connected.");
+        performAlert(@"loadingIndicator is not connected.");
     }
 
     // Load queue data from server
-    if (! self.dataStore) {
-        id <DataStoreProtocol> dataStore;
-
-#if 0
-        dataStore = [[FileDataStore alloc] init];
-#else
-        HTTPConnectionInfo *connectionInfo = self.appDelegate.connectionInfo;
-        NSString *host = [NSString stringWithFormat:@"%@:%lu",
-                          connectionInfo.serverName,
-                          (unsigned long)connectionInfo.serverPort];
-        NSURL* url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/"];
-        dataStore = [[HTTPDataStore alloc] initWithURL:url];
-#endif
-
-        dataStore.delegate = self;
-        self.dataStore = dataStore;
-
-        [dataStore load];
-    }
+    [self.dataStore load];
     
     // Populate dispatch table
     [self loadTable];
@@ -130,7 +112,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
     }
     else {
-        NSLog(@"updatedLabel is not connected.");
+        performAlert(@"updatedLabel is not connected.");
     }
 
     // Stop the progress indicator.
@@ -151,7 +133,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         [dispatchTable reloadData];
     }
     else {
-        NSLog(@"dispatchTable is not connected.");
+        performAlert(@"dispatchTable is not connected.");
     }
 }
 
@@ -185,7 +167,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     Incident *incident = [self.dataStore createNewIncident];
 
     if (! incident) {
-        NSLog(@"Unable to create new incident?");
+        performAlert(@"Unable to create new incident?");
         return;
     }
 
@@ -196,7 +178,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 - (void) openIncident:(Incident *)incident
 {
     if (! incident) {
-        NSLog(@"Unable to open nil incident.");
+        performAlert(@"Unable to open nil incident.");
         return;
     }
 
@@ -213,6 +195,26 @@ NSString *formattedDateTimeShort(NSDate *date);
 
     [incidentController showWindow:self];
     [incidentController.window makeKeyAndOrderFront:self];
+
+    void (^incidentWindowDidClose)(NSNotification *) = ^(NSNotification *notification) {
+        NSWindow *notedWindow = notification.object;
+        IncidentController *notedController = notedWindow.windowController;
+        Incident *notedIncident = notedController.incident;
+
+        if (notedController != incidentController) {
+            performAlert(@"Closing incident controllers don't match: %@ != %@", notedController, incidentController);
+        }
+        if (notedIncident != incident) {
+            performAlert(@"Closing incidents don't match: %@ != %@", notedIncident, incident);
+        }
+
+        [self.incidentControllers removeObjectForKey:incident.number];
+    };
+
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSWindowWillCloseNotification
+                                                      object:incidentController.window
+                                                       queue:nil
+                                                  usingBlock:incidentWindowDidClose];
 }
 
 
@@ -319,8 +321,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     }
 
     if (rowIndex >= (NSInteger)incidents.count) {
-        NSLog(@"incidentForTableRow: got out of bounds rowIndex: %ld",
-              rowIndex);
+        NSLog(@"incidentForTableRow: got out of bounds rowIndex: %ld", rowIndex);
         return nil;
     }
     
@@ -432,7 +433,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         return incident.summaryFromReport;
     }
 
-    NSLog(@"Unknown column identifier: %@", identifier);
+    performAlert(@"Unknown column identifier: %@", identifier);
     return nil;
 }
 

@@ -22,32 +22,17 @@ if [ $# != 0 ]; then
     usage "Unrecognized arguments:" "$@";
 fi;
 
-curl                              \
+if ack="$(curl                    \
     --silent                      \
     --request "GET"               \
     --data ""                     \
     "http://localhost:8080/ping/" \
-| (
-  ack="false";
-
-  while read line; do
-    if "${ack}"; then
-      ack="false";
-      break;
-    fi;
-
-    if [ "${line}" == "ack" ]; then
-      ack="true";
-    else
-      break;
-    fi;
-  done;
-
-  if "${ack}"; then
+| python -m json.tool 2>/dev/null)"; then
+  if [ "${ack}" == '"ack"' ]; then
     echo "OK";
     exit 0;
-  else
-    echo "FAIL";
-    exit 1;
   fi;
-)
+fi;
+
+echo "FAIL";
+exit 1;

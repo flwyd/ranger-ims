@@ -28,6 +28,7 @@
 		35C496B81702383000581421 /* HTTPDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C496B71702383000581421 /* HTTPDataStore.m */; };
 		35D5621E16DC107E0081EB7E /* Incident.m in Sources */ = {isa = PBXBuildFile; fileRef = 35D5621D16DC107E0081EB7E /* Incident.m */; };
 		35F498E816F194870015B9E1 /* Location.m in Sources */ = {isa = PBXBuildFile; fileRef = 35F498E716F194870015B9E1 /* Location.m */; };
+		35FBFD8B1710938100D5EBA0 /* utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 35FBFD8A1710938100D5EBA0 /* utilities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +73,8 @@
 		35D5621D16DC107E0081EB7E /* Incident.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Incident.m; sourceTree = "<group>"; };
 		35F498E616F194870015B9E1 /* Location.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
 		35F498E716F194870015B9E1 /* Location.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Location.m; sourceTree = "<group>"; };
+		35FBFD891710938100D5EBA0 /* utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utilities.h; sourceTree = "<group>"; };
+		35FBFD8A1710938100D5EBA0 /* utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utilities.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +132,7 @@
 				35366ADA16E52CDC0058A88E /* Data */,
 				35BC16F816FE257100785361 /* HTTP Data Store */,
 				35BC170516FE629000785361 /* File Data Store */,
+				35FBFD881710932000D5EBA0 /* Utilities */,
 				352089EB16D84E6F0037733C /* Supporting Files */,
 			);
 			path = Incidents;
@@ -203,6 +207,15 @@
 				35BC170716FE62B400785361 /* FileDataStore.m */,
 			);
 			name = "File Data Store";
+			sourceTree = "<group>";
+		};
+		35FBFD881710932000D5EBA0 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				35FBFD891710938100D5EBA0 /* utilities.h */,
+				35FBFD8A1710938100D5EBA0 /* utilities.m */,
+			);
+			name = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -295,6 +308,7 @@
 				35BC170116FE266600785361 /* HTTPConnectionInfo.m in Sources */,
 				35BC170816FE62B400785361 /* FileDataStore.m in Sources */,
 				35C496B81702383000581421 /* HTTPDataStore.m in Sources */,
+				35FBFD8B1710938100D5EBA0 /* utilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

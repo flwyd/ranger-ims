@@ -17,6 +17,9 @@
 // limitations under the License.
 ////
 
+#import "utilities.h"
+#import "FileDataStore.h"
+#import "HTTPDataStore.h"
 #import "HTTPConnectionInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
@@ -28,6 +31,11 @@
 
 @property (strong,nonatomic) DispatchQueueController *dispatchQueueController;
 @property (strong,nonatomic) PreferencesController   *preferencesController;
+
+@property (unsafe_unretained) IBOutlet NSMenuItem *httpStoreMenuItem;
+@property (unsafe_unretained) IBOutlet NSMenuItem *fileStoreMenuItem;
+
+@property (strong,nonatomic) NSString *dataStoreType;
 
 @end
 
@@ -49,17 +57,62 @@
 }
 
 
+@synthesize dispatchQueueController;
+
 - (DispatchQueueController *) dispatchQueueController
 {
-    if (! _dispatchQueueController) {
-        _dispatchQueueController = [[DispatchQueueController alloc] initWithAppDelegate:self];
+    if (! dispatchQueueController) {
+        id <DataStoreProtocol> dataStore;
+
+        if ([self.dataStoreType isEqualToString:@"File"]) {
+            dataStore = [[FileDataStore alloc] init];
+        }
+        else if ([self.dataStoreType isEqualToString:@"HTTP"]) {
+            HTTPConnectionInfo *connectionInfo = self.connectionInfo;
+            NSString *host = [NSString stringWithFormat:@"%@:%lu",
+                              connectionInfo.serverName,
+                              (unsigned long)connectionInfo.serverPort];
+            NSURL* url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/"];
+            dataStore = [[HTTPDataStore alloc] initWithURL:url];
+        }
+        else {
+            performAlert(@"Unknown data store type: %@", self.dataStoreType);
+            return nil;
+        }
+
+        NSLog(@"Initialized data store: %@", dataStore);
+
+        dispatchQueueController = [[DispatchQueueController alloc] initWithDataStore:dataStore appDelegate:self];
     }
-    return _dispatchQueueController;
+    return dispatchQueueController;
+}
+
+
+@synthesize dataStoreType;
+
+- (void) setDataStoreType:(NSString *)type
+{
+    if (! [dataStoreType isEqualToString:type]) {
+        self.httpStoreMenuItem.state = NSOffState;
+        self.fileStoreMenuItem.state = NSOffState;
+
+        if ([self.dataStoreType isEqualToString:@"HTTP"]) {
+            self.httpStoreMenuItem.state = NSOnState;
+        }
+        else if (! [self.dataStoreType isEqualToString:@"File"]) {
+            self.fileStoreMenuItem.state = NSOnState;
+        }
+
+        dataStoreType = type;
+        self.dispatchQueueController = nil;
+    }
 }
 
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    self.dataStoreType = @"HTTP";
+
     [self showDispatchQueue:self];
 }
 
@@ -82,18 +135,71 @@
 }
 
 
+@synthesize preferencesController;
+
 - (PreferencesController *) preferencesController
 {
-    if (! _preferencesController) {
-        _preferencesController = [[PreferencesController alloc] initWithAppDelegate:self];
+    if (! preferencesController) {
+        preferencesController = [[PreferencesController alloc] initWithAppDelegate:self];
     }
-    return _preferencesController;
+    return preferencesController;
 }
 
 
 - (IBAction) showPreferences:(id)sender
 {
     [self.preferencesController showWindow:self];
+}
+
+
+////
+// Debug Menu Actions
+////
+
+
+- (IBAction) showOpenIncidents:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.incidentControllers);
+    }
+}
+
+
+- (IBAction) selectDataStore:(id)sender
+{
+    if (sender == self.httpStoreMenuItem) {
+        self.dataStoreType = @"HTTP";
+    }
+    else if (sender == self.fileStoreMenuItem) {
+        self.dataStoreType = @"File";
+    }
+
+    // This leads to crashing; need to wait for something first
+    //[self showDispatchQueue:self];
+}
+
+
+- (IBAction) showAllRangers:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.dataStore.allRangersByHandle);
+    }
+}
+
+
+- (IBAction) showAllIncidentTypes:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.dataStore.allIncidentTypes);
+    }
+}
+
+
+- (IBAction) showAllIncidents:(id)sender
+{
+    if (self.dispatchQueueController) {
+        performAlert(@"%@", self.dispatchQueueController.dataStore.incidents);
+    }
 }
 
 

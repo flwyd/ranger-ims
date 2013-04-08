@@ -1,15 +1,15 @@
 ////
-// DispatchQueueController.h
+// utilities.m
 // Incidents
 ////
 // See the file COPYRIGHT for copyright information.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,29 +18,23 @@
 ////
 
 #import <Cocoa/Cocoa.h>
-#import "DataStoreProtocol.h"
 
-@class Incident;
-@class DispatchQueue;
-@class AppDelegate;
+#import "utilities.h"
 
 
+void performAlert(NSString *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
 
-@interface DispatchQueueController : NSWindowController
+    NSLog(@"ALERT: %@", message);
 
-
-@property (strong) id <DataStoreProtocol> dataStore;
-@property (strong) NSMutableDictionary *incidentControllers;
-
-
-- (id) initWithDataStore:(id <DataStoreProtocol>)dataStore
-             appDelegate:(AppDelegate *)appDelegate;
-
-- (Incident *) selectedIncident;
-
-- (void) openSelectedIncident:(id)sender;
-- (void) openNewIncident:(id)sender;
-- (void) findIncident:(id)sender;
-- (void) commitIncident:(Incident *)incident;
-
-@end
+    NSAlert *alert = [NSAlert alertWithMessageText:@"Alert"
+                                     defaultButton:nil
+                                   alternateButton:nil
+                                       otherButton:nil
+                         informativeTextWithFormat:@"%@", message];
+    [alert runModal];
+}
