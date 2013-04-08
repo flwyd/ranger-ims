@@ -259,6 +259,8 @@
                         self.loadIncidentData = [NSMutableData data];
                         self.loadIncidentNumber = number;
                         self.loadIncidentETag = nil;
+
+                        [self.delegate dataStoreWillUpdateIncidents:self];
                     }
                     else {
                         NSLog(@"Unable to connect to load queued incident: %@", number);
@@ -466,6 +468,7 @@
     if (connection == self.loadIncidentConnection) {
         self.loadIncidentConnection = nil;
         self.loadIncidentData = nil;
+        [self.delegate dataStoreDidUpdateIncidents:self];
         performAlert(@"Load incident request failed: %@", error);
     }
     else if (connection == self.loadRangersConnection) {
@@ -532,7 +535,6 @@
                     self.incidentETagsByNumber[incident.number] = self.loadIncidentETag;
 
                     NSLog(@"Loaded incident #%@.", self.loadIncidentNumber);
-                    [self.delegate dataStoreDidUpdateIncidents:self];
                 }
                 else {
                     performAlert(@"Got incident #%@ when I asked for incident #%@.  I'm confused.", incident.number, self.loadIncidentNumber);
@@ -541,6 +543,7 @@
             else {
                 performAlert(@"Unable to deserialize incident #%@: %@", self.loadIncidentNumber, error);
             }
+            [self.delegate dataStoreDidUpdateIncidents:self];
         }
 
         // De-queue the incident

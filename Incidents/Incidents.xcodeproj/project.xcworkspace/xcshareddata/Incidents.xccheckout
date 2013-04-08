@@ -12,6 +12,8 @@
 		<string>http://www.wsanchez.net/svn</string>
 		<key>6A31C7A8-80DC-4B20-BE51-BE225B737690</key>
 		<string>git@github.com:burningmantech/ranger-ims.git</string>
+		<key>FB69E368-ABC5-4696-BEE0-B1AB8EBC02E9</key>
+		<string>git@github.com:burningmantech/ranger-ims.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Incidents/Incidents.xcodeproj/project.xcworkspace</string>
@@ -19,12 +21,14 @@
 	<dict>
 		<key>6A31C7A8-80DC-4B20-BE51-BE225B737690</key>
 		<string>../../..</string>
+		<key>FB69E368-ABC5-4696-BEE0-B1AB8EBC02E9</key>
+		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>/Volumes/data/Users/wsanchez/Developer/IMS/Incidents/Incidents.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>104</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>6A31C7A8-80DC-4B20-BE51-BE225B737690</string>
+	<string>FB69E368-ABC5-4696-BEE0-B1AB8EBC02E9</string>
 </dict>
 </plist>

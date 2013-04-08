@@ -91,34 +91,8 @@ NSString *formattedDateTimeShort(NSDate *date);
 {
     NSLog(@"Updating dispatch queue...");
     
-    // Spin the progress indicator...
-    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
-    if (loadingIndicator) {
-        [loadingIndicator startAnimation:self];
-    }
-    else {
-        performAlert(@"loadingIndicator is not connected.");
-    }
-
     // Load queue data from server
     [self.dataStore load];
-    
-    // Populate dispatch table
-    [self loadTable];
-
-    // Display the update time
-    NSTextField *updatedLabel = self.updatedLabel;
-    if (updatedLabel) {
-        updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
-    }
-    else {
-        performAlert(@"updatedLabel is not connected.");
-    }
-
-    // Stop the progress indicator.
-    if (loadingIndicator) {
-        [loadingIndicator stopAnimation:self];
-    }
 }
 
 
@@ -367,9 +341,26 @@ NSString *formattedDateTimeShort(NSDate *date);
 // DataStoreDelegate methods
 ////
 
+
+- (void) dataStoreWillUpdateIncidents:(id)dataStore
+{
+    // Spin the progress indicator...
+    [self.loadingIndicator startAnimation:self];
+
+    // Display the update time
+    self.updatedLabel.stringValue = @"Updating…";
+}
+
+
 - (void) dataStoreDidUpdateIncidents:(id)dataStore
 {
     [self loadTable];
+
+    // Stop the progress indicator.
+    [self.loadingIndicator stopAnimation:self];
+
+    // Display the update time
+    self.updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
 }
 
 
