@@ -25,6 +25,14 @@ __all__ = [
 from hashlib import sha1 as etag_hash
 
 from twisted.python import log
+from ims.data import Incident
+
+
+
+class StorageError(RuntimeError):
+    """
+    Storage error.
+    """
 
 
 
@@ -74,7 +82,7 @@ class Storage(object):
             name = child.basename()
             try:
                 number = int(name)
-            except ValueError as e:
+            except ValueError:
                 log.err(
                     "Invalid filename in data store: {}"
                     .format(name)

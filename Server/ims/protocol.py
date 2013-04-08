@@ -93,6 +93,8 @@ def list_incidents(request):
 @route("/incidents/<number>", methods=("GET",))
 @http_sauce
 def get_incident(request, number):
+    #import time
+    #time.sleep(2)
     set_content_type(request, ContentType.JSON)
     return storage().read_incident_with_number_raw(number)
 
@@ -100,7 +102,6 @@ def get_incident(request, number):
 @route("/incidents/<number>", methods=("PUT",))
 @http_sauce
 def edit_incident(request, number):
-    json = request.content
     incident = Incident.from_json(request.content)
     storage().write_incident(incident)
     
