@@ -128,7 +128,7 @@ def edit_incident(request, number):
 
 
 @route("/incidents/", methods=("POST",))
-#@http_sauce
+@http_sauce
 def new_incident(request):
     store = storage()
 
