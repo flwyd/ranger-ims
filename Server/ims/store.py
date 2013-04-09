@@ -107,8 +107,11 @@ class Storage(object):
 
 
     def read_incident_with_number(self, number):
-        json = self.read_incident_with_number_raw(number)
-        return Incident.from_json(json)
+        handle = self._open_incident(number, "r")
+        try:
+            return Incident.from_json_io(handle)
+        finally:
+            handle.close()
 
 
     def write_incident(self, incident):

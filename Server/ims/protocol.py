@@ -21,15 +21,13 @@ Protocol bits
 __all__ = [
 ]
 
-from json import dumps as to_json
-
 from twisted.python.filepath import FilePath
 from twisted.web import http
 
 from klein import route
 
 from ims.store import Storage
-from ims.data import Incident
+from ims.data import Incident, JSON, to_json, from_json_io
 from ims.sauce import url_for, set_content_type
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
@@ -93,39 +91,58 @@ def list_incidents(request):
 @route("/incidents/<number>", methods=("GET",))
 @http_sauce
 def get_incident(request, number):
-    #import time
-    #time.sleep(2)
+    import time
+    time.sleep(0.3)
     set_content_type(request, ContentType.JSON)
     return storage().read_incident_with_number_raw(number)
 
 
-@route("/incidents/<number>", methods=("PUT",))
+@route("/incidents/<number>", methods=("POST",))
 @http_sauce
 def edit_incident(request, number):
-    incident = Incident.from_json(request.content)
+    number = int(number)
+    incident = storage().read_incident_with_number(number)
+
+    edits_json = from_json_io(request.content)
+    edits = Incident.from_json(edits_json, number=number, validate=False)
+
+    for key in edits_json.keys():
+        if key == "report_entries":
+            incident.report_entries += edits.report_entries
+        elif key == "location_name":
+            incident.location.name = edits.location.name
+        elif key == "location_address":
+            incident.location.address = edits.location.address
+        elif key == "ranger_handles":
+            incident.rangers = edits.rangers
+        else:
+            attr_name = JSON.lookupByValue(key).name
+            setattr(incident, attr_name, getattr(edits, attr_name))
+
     storage().write_incident(incident)
-    
+
     # FIXME: created is only correct for new resources
     request.setResponseCode(http.CREATED)
 
     return "";
 
 
-@route("/incidents/", methods=("POST",))
-@http_sauce
-def new_incident(request):
-    number = storage().next_incident_number()
-    incident = Incident.from_json(request.content, number=number)
-    storage().write_incident(incident)
 
-    request.setResponseCode(http.CREATED)
-
-    request.setHeader(
-        HeaderName.location.value,
-        url_for(request, "get_incident", {"number": incident.number})
-    )
-
-    return "";
+#@route("/incidents/", methods=("POST",))
+#@http_sauce
+#def new_incident(request):
+#    number = storage().next_incident_number()
+#    incident = Incident.from_json_io(request.content, number=number)
+#    storage().write_incident(incident)
+#
+#    request.setResponseCode(http.CREATED)
+#
+#    request.setHeader(
+#        HeaderName.location.value,
+#        url_for(request, "get_incident", {"number": incident.number})
+#    )
+#
+#    return "";
 
 
 def storage():

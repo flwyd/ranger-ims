@@ -24,9 +24,12 @@ __all__ = [
     "ReportEntry",
     "Ranger",
     "Location",
+    "to_json",
+    "from_json_io",
+    "from_json_text",
 ]
 
-from json import dumps as to_json, load as from_json
+from json import dumps, load as from_json_io, loads as from_json_text
 from datetime import datetime
 
 from twisted.python.constants import Values, ValueConstant
@@ -65,13 +68,23 @@ class Incident(object):
     """
 
     @classmethod
-    def from_json(cls, json, number=None):
-        root = from_json(json)
+    def from_json_text(cls, text, number=None, validate=True):
+        root = from_json_text(text)
+        return cls.from_json(root, number, validate)
 
+
+    @classmethod
+    def from_json_io(cls, io, number=None, validate=True):
+        root = from_json_io(io)
+        return cls.from_json(root, number, validate)
+
+
+    @classmethod
+    def from_json(cls, root, number=None, validate=True):
         if number is not None:
             json_number = root.get(JSON.number.value, -1)
-            if json_number >= 0:
-                raise InvalidDataError("New incident may not assign its own number: {}".format(json_number))
+            if json_number != number:
+                raise InvalidDataError("New incident may not assign its own number: {} != {}".format(json_number.__class__, number.__class__))
 
             root[JSON.number.value] = number
 
@@ -102,7 +115,7 @@ class Incident(object):
             for entry in root.get(JSON.report_entries.value, ())
         )
 
-        return cls(
+        incident = cls(
             number         = root.get(JSON.number.value, None),
             priority       = root.get(JSON.priority.value, None),
             summary        = root.get(JSON.summary.value, None),
@@ -114,7 +127,12 @@ class Incident(object):
             dispatched     = parse_date(root.get(JSON.dispatched.value, None)),
             on_scene       = parse_date(root.get(JSON.on_scene.value, None)),
             closed         = parse_date(root.get(JSON.closed.value, None)),
-        ).validate()
+        )
+
+        if validate:
+            incident.validate()
+
+        return incident
 
 
     def __init__(
@@ -127,6 +145,16 @@ class Incident(object):
         created=None, dispatched=None, on_scene=None, closed=None,
         priority=None,
     ):
+        if type(number) is not int:
+            raise InvalidDataError(
+                "Incident number must be an int, not {}".format(number)
+            )
+
+        if number < 0:
+            raise InvalidDataError(
+                "Incident number but be natural, not {}".format(number)
+            )
+
         if created is None:
             created = datetime.now()
 
@@ -150,16 +178,6 @@ class Incident(object):
         """
         Validate this incident.
         """
-        if type(self.number) is not int:
-            raise InvalidDataError(
-                "Incident number must be an int, not {}".format(self.number)
-            )
-
-        if self.number < 0:
-            raise InvalidDataError(
-                "Incident number but be natural, not {}".format(self.number)
-            )
-
         for ranger in self.rangers:
             ranger.validate()
 
@@ -320,3 +338,8 @@ class Location(object):
             raise InvalidDataError(
                 "Location address must be unicode, not {}".format(self.handle)
             )
+
+
+
+def to_json(obj):
+    return dumps(obj, separators=(',',':'))
