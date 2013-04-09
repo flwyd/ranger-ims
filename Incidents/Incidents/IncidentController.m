@@ -244,7 +244,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (void) commitIncident
 {
-    [self.dispatchQueueController commitIncident:self.incident];
+    [self.dispatchQueueController.dataStore commitIncident:self.incident];
     [self reloadIncident];
 }
 

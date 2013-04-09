@@ -41,6 +41,5 @@
 - (void) openSelectedIncident:(id)sender;
 - (void) openNewIncident:(id)sender;
 - (void) findIncident:(id)sender;
-- (void) commitIncident:(Incident *)incident;
 
 @end

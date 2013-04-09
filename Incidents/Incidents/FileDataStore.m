@@ -144,12 +144,11 @@ NSArray *getRangerHandles(void);
 
         self.allIncidentsByNumber[incident.number] = incident;
 
+        [self.delegate dataStore:self didUpdateIncident:incident];
         NSLog(@"Loaded: %@", incident);
     }
 
     self.nextIncidentNumber = (NSUInteger)maxNumber + 1;
-
-    [self.delegate dataStoreDidUpdateIncidents:self];
 
     return YES;
 }

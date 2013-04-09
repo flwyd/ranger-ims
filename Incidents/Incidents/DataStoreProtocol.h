@@ -22,12 +22,11 @@
 @class Incident;
 
 
-
 @protocol DataStoreDelegate <NSObject>
 
 
 - (void) dataStoreWillUpdateIncidents:(id)dataStore;
-- (void) dataStoreDidUpdateIncidents:(id)dataStore;
+- (void) dataStore:(id)dataStore didUpdateIncident:(Incident *)incident;
 
 
 @end

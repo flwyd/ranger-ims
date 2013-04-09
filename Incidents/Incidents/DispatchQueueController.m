@@ -163,7 +163,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     // …or create one if necessary.
     if (! incidentController) {
         incidentController = [[IncidentController alloc] initWithDispatchQueueController:self
-                                                                                incident:incident];
+                                                                                incident:[incident copy]];
 
         self.incidentControllers[incident.number] = incidentController;
     }
@@ -304,25 +304,25 @@ NSString *formattedDateTimeShort(NSDate *date);
 }
 
 
-- (void) commitIncident:(Incident *)incident
-{
-    NSLog(@"Committing incident: %@", incident);
-
-    NSNumber *oldNumber = incident.number;
-    [self.dataStore commitIncident:incident];
-    NSNumber *newNumber = incident.number;
-
-    [self loadTable];
-
-    IncidentController *controller = self.incidentControllers[oldNumber];
-    if (controller) {
-        if (! [newNumber isEqualToNumber:oldNumber]) {
-            [self.incidentControllers removeObjectForKey:oldNumber];
-            self.incidentControllers[newNumber] = controller;
-        }
-        [controller reloadIncident];
-    }
-}
+//- (void) commitIncident:(Incident *)incident
+//{
+//    NSLog(@"Committing incident: %@", incident);
+//
+//    NSNumber *oldNumber = incident.number;
+//    [self.dataStore commitIncident:incident];
+//    NSNumber *newNumber = incident.number;
+//
+//    [self loadTable];
+//
+//    IncidentController *controller = self.incidentControllers[oldNumber];
+//    if (controller) {
+//        if (! [newNumber isEqualToNumber:oldNumber]) {
+//            [self.incidentControllers removeObjectForKey:oldNumber];
+//            self.incidentControllers[newNumber] = controller;
+//        }
+//        [controller reloadIncident];
+//    }
+//}
 
 
 - (IBAction) loadIncidents:(id)sender
@@ -363,9 +363,14 @@ NSString *formattedDateTimeShort(NSDate *date);
 }
 
 
-- (void) dataStoreDidUpdateIncidents:(id)dataStore
+- (void) dataStore:(id)dataStore didUpdateIncident:(Incident *)incident
 {
     [self loadTable];
+
+    IncidentController *controller = self.incidentControllers[incident.number];
+    if (controller) {
+        [controller reloadIncident];
+    }
 
     // Stop the progress indicator.
     [self.loadingIndicator stopAnimation:self];

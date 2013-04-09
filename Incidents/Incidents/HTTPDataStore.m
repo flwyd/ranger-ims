@@ -122,6 +122,8 @@
         performAlert(@"Cannot commit invalid incident: %@", incident);
         return;
     }
+
+    performAlert(@"commitIncident: unimplemented.");
 //    if (incident.number.integerValue < 0) {
 //        incident.number = [NSNumber numberWithInt:self.nextIncidentNumber++];
 //    }
@@ -142,7 +144,9 @@
         performAlert(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
         return NO;
     }
-    
+
+    performAlert(@"writeIncident: unimplemented.");
+
 //    if (! [data writeToURL:childURL options:0 error:&error]) {
 //        performAlert(@"Unable to write file: %@", error);
 //        return NO;
@@ -468,7 +472,6 @@
     if (connection == self.loadIncidentConnection) {
         self.loadIncidentConnection = nil;
         self.loadIncidentData = nil;
-        [self.delegate dataStoreDidUpdateIncidents:self];
         performAlert(@"Load incident request failed: %@", error);
     }
     else if (connection == self.loadRangersConnection) {
@@ -534,6 +537,7 @@
                     self.allIncidentsByNumber[incident.number] = incident;
                     self.incidentETagsByNumber[incident.number] = self.loadIncidentETag;
 
+                    [self.delegate dataStore:self didUpdateIncident:incident];
                     NSLog(@"Loaded incident #%@.", self.loadIncidentNumber);
                 }
                 else {
@@ -543,7 +547,6 @@
             else {
                 performAlert(@"Unable to deserialize incident #%@: %@", self.loadIncidentNumber, error);
             }
-            [self.delegate dataStoreDidUpdateIncidents:self];
         }
 
         // De-queue the incident
