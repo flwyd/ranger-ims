@@ -127,22 +127,22 @@ def edit_incident(request, number):
     return "";
 
 
-
-#@route("/incidents/", methods=("POST",))
+@route("/incidents/", methods=("POST",))
 #@http_sauce
-#def new_incident(request):
-#    number = storage().next_incident_number()
-#    incident = Incident.from_json_io(request.content, number=number)
-#    storage().write_incident(incident)
-#
-#    request.setResponseCode(http.CREATED)
-#
-#    request.setHeader(
-#        HeaderName.location.value,
-#        url_for(request, "get_incident", {"number": incident.number})
-#    )
-#
-#    return "";
+def new_incident(request):
+    store = storage()
+
+    incident = Incident.from_json_io(request.content, number=store.next_incident_number())
+    store.write_incident(incident)
+
+    request.setResponseCode(http.CREATED)
+
+    request.setHeader(
+        HeaderName.location.value,
+        url_for(request, "get_incident", {"number": incident.number})
+    )
+
+    return "";
 
 
 def storage():

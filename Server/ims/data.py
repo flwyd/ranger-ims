@@ -81,10 +81,14 @@ class Incident(object):
 
     @classmethod
     def from_json(cls, root, number=None, validate=True):
-        if number is not None:
-            json_number = root.get(JSON.number.value, -1)
+        if number is None:
+            raise TypeError("Incident number may not be null")
+
+        json_number = root.get(JSON.number.value, None)
+
+        if json_number is not None:
             if json_number != number:
-                raise InvalidDataError("New incident may not assign its own number: {} != {}".format(json_number.__class__, number.__class__))
+                raise InvalidDataError("Incident number may not be modified: {} != {}".format(json_number, number))
 
             root[JSON.number.value] = number
 
@@ -116,7 +120,7 @@ class Incident(object):
         )
 
         incident = cls(
-            number         = root.get(JSON.number.value, None),
+            number         = number,
             priority       = root.get(JSON.priority.value, None),
             summary        = root.get(JSON.summary.value, None),
             location       = location,

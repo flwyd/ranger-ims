@@ -65,7 +65,7 @@ class Storage(object):
             )
 
         max = 0
-        for number in self.list_incidents():
+        for number, etag in self.list_incidents():
             if number > max:
                 max = number
         self._max_incident_number = max
@@ -109,7 +109,7 @@ class Storage(object):
     def read_incident_with_number(self, number):
         handle = self._open_incident(number, "r")
         try:
-            return Incident.from_json_io(handle)
+            return Incident.from_json_io(handle, number=number)
         finally:
             handle.close()
 
