@@ -123,38 +123,20 @@
         return;
     }
 
-    performAlert(@"commitIncident: unimplemented.");
-//    if (incident.number.integerValue < 0) {
-//        incident.number = [NSNumber numberWithInt:self.nextIncidentNumber++];
-//    }
-//    self.allIncidentsByNumber[incident.number] = incident;
-//    [self writeIncident:incident];
-}
+    //    if (incident.number.integerValue < 0) {
+    //        incident.number = [NSNumber numberWithInt:self.nextIncidentNumber++];
+    //    }
+    //    self.allIncidentsByNumber[incident.number] = incident;
 
-
-- (BOOL) writeIncident:(Incident *)incident
-{
-    NSError *error;
-    
-    NSLog(@"Writing incident: %@", incident);
-    
     // Option: NSJSONWritingPrettyPrinted
+    NSError *error;
     NSData *data = [NSJSONSerialization dataWithJSONObject:[incident asJSON] options:0 error:&error];
     if (! data) {
         performAlert(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
-        return NO;
+        return;
     }
 
-    performAlert(@"writeIncident: unimplemented.");
-
-//    if (! [data writeToURL:childURL options:0 error:&error]) {
-//        performAlert(@"Unable to write file: %@", error);
-//        return NO;
-//    }
-//
-//    return YES;
-    
-    return NO;
+    performAlert(@"commitIncident: unimplemented.");
 }
 
 
