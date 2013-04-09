@@ -64,6 +64,8 @@
                 closed:(NSDate   *)closed
               priority:(NSNumber *)priority;
 
+- (BOOL) isEqualToIncident:(Incident *)other;
+
 - (NSDictionary *) asJSON;
 
 - (void) addRanger:(Ranger *)ranger;

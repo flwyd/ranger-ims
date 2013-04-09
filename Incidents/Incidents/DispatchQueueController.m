@@ -179,7 +179,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         if (notedController != incidentController) {
             performAlert(@"Closing incident controllers don't match: %@ != %@", notedController, incidentController);
         }
-        if (notedIncident != incident) {
+        if (! [notedIncident isEqualToIncident:incident]) {
             performAlert(@"Closing incidents don't match: %@ != %@", notedIncident, incident);
         }
 
