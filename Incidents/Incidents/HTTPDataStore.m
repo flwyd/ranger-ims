@@ -33,8 +33,7 @@
 
 @property (strong) HTTPConnection *pingConnection;
 
-@property (strong) NSURLConnection *loadIncidentNumbersConnection;
-@property (strong) NSMutableData   *loadIncidentNumbersData;
+@property (strong) HTTPConnection *loadIncidentNumbersConnection;
 
 @property (strong) NSURLConnection *loadIncidentConnection;
 @property (strong) NSMutableData   *loadIncidentData;
@@ -197,7 +196,7 @@
             HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
                 self.serverAvailable = NO;
 
-                performAlert(@"Ping failed: %@", error.localizedDescription);
+                performAlert(@"Unable to connect to server: %@", error.localizedDescription);
                 NSLog(@"Unable to connect to server: %@", error);
             };
 
@@ -232,16 +231,48 @@
 - (void) loadIncidents
 {
     @synchronized(self) {
-        if (! self.loadIncidentNumbersConnection) {
-            NSURLConnection *connection = [self getJSONConnectionForPath:@"incidents/"];
-            
-            if (connection) {
-                self.loadIncidentNumbersConnection = connection;
-                self.loadIncidentNumbersData = [NSMutableData data];
-            }
-            else {
-                performAlert(@"Unable to connect to load incident numbers.");
-            }
+        if (! self.loadIncidentNumbersConnection.active) {
+            NSURL *url = [self.url URLByAppendingPathComponent:@"incidents/"];
+
+            HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                //NSLog(@"Load incident numbers request completed.");
+
+                NSError *error = nil;
+                NSArray *jsonNumbers = [NSJSONSerialization JSONObjectWithData:self.loadIncidentNumbersConnection.responseData
+                                                                       options:0
+                                                                         error:&error];
+
+                if (! jsonNumbers || ! [jsonNumbers isKindOfClass:[NSArray class]]) {
+                    NSLog(@"JSON object for incident numbers must be an array: %@", jsonNumbers);
+                    performAlert(@"Unable to read incident numbers from server.");
+                    return;
+                }
+
+                for (NSArray *jsonNumber in jsonNumbers) {
+                    if (! jsonNumber || ! [jsonNumber isKindOfClass:[NSArray class]] || [jsonNumber count] < 2) {
+                        NSLog(@"JSON object for incident number must be an array of two items: %@", jsonNumber);
+                        performAlert(@"Unable to read incident number from server.");
+                        return;
+                    }
+                    // jsonNumber is (number, etag)
+                    if (! [jsonNumber[1] isEqualToString: self.incidentETagsByNumber[jsonNumber[0]]]) {
+                        [self.incidentsNumbersToLoad addObject:jsonNumber[0]];
+                    }
+                }
+
+                // FIXME: Run through self.allIncidentsByNumber and verify that all are in self.incidentsNumbersToLoad.
+                //    …if not, that's an error of some sort, since we don't remove incidents.
+                    
+                [self loadQueuedIncidents];
+            };
+
+            HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
+                performAlert(@"Load incident numbers request failed: %@", error);
+            };
+
+            self.loadIncidentNumbersConnection = [HTTPConnection JSONRequestConnectionWithURL:url
+                                                                          withResponseHandler:onSuccess
+                                                                                 errorHandler:onError];
         }
     }
 }
@@ -373,17 +404,7 @@
         return result;
     };
     
-    if (connection == self.loadIncidentNumbersConnection) {
-        //NSLog(@"Load incident numbers request got response: %@", response);
-        if (happyResponse()) {
-            [self.loadIncidentNumbersData setLength:0];
-        }
-        else {
-            performAlert(@"Unable to load incident numbers data.");
-            self.loadIncidentNumbersData = nil;
-        }
-    }
-    else if (connection == self.loadIncidentConnection) {
+    if (connection == self.loadIncidentConnection) {
         //NSLog(@"Load incident request got response: %@", response);
         if (happyResponse()) {
             [self.loadIncidentData setLength:0];
@@ -424,11 +445,7 @@
 
 - (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    if (connection == self.loadIncidentNumbersConnection) {
-        //NSLog(@"Load incident numbers request got data: %@", data);
-        [self.loadIncidentNumbersData appendData:data];
-    }
-    else if (connection == self.loadIncidentConnection) {
+    if (connection == self.loadIncidentConnection) {
         //NSLog(@"Load incident request got data: %@", data);
         [self.loadIncidentData appendData:data];
     }
@@ -448,11 +465,6 @@
 
 - (void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    if (connection == self.loadIncidentNumbersConnection) {
-        self.loadIncidentNumbersConnection = nil;
-        self.loadIncidentNumbersData = nil;
-        performAlert(@"Load incident numbers request failed: %@", error);
-    }
     if (connection == self.loadIncidentConnection) {
         self.loadIncidentConnection = nil;
         self.loadIncidentData = nil;
@@ -515,40 +527,6 @@
         self.loadIncidentNumber = nil;
 
         [self loadQueuedIncidents];
-    }
-    else if (connection == self.loadIncidentNumbersConnection) {
-        //NSLog(@"Load incident numbers request completed.");
-        self.loadIncidentNumbersConnection = nil;
-
-        if (self.loadIncidentNumbersData) {
-            NSError *error = nil;
-            NSArray *jsonNumbers = [NSJSONSerialization JSONObjectWithData:self.loadIncidentNumbersData options:0 error:&error];
-            
-            if (! jsonNumbers || ! [jsonNumbers isKindOfClass:[NSArray class]]) {
-                NSLog(@"Got JSON for incident numbers: %@", jsonNumbers);
-                performAlert(@"JSON object for incident numbers must be an array.  Unable to read incident numbers from server.");
-                return;
-            }
-            
-            for (NSArray *jsonNumber in jsonNumbers) {
-                if (! jsonNumber || ! [jsonNumber isKindOfClass:[NSArray class]] || [jsonNumber count] < 2) {
-                    NSLog(@"Got JSON for incident number: %@", jsonNumber);
-                    performAlert(@"JSON object for incident number must be an array of two items.  Unable to read incident number from server.");
-                    return;
-                }
-                // jsonNumber is (number, etag)
-                if (! [jsonNumber[1] isEqualToString: self.incidentETagsByNumber[jsonNumber[0]]]) {
-                    [self.incidentsNumbersToLoad addObject:jsonNumber[0]];
-                }
-            }
-            
-            // FIXME: Run through self.allIncidentsByNumber and verify that all are in self.incidentsNumbersToLoad.
-            //    …if not, that's an error of some sort, since we don't remove incidents.
-
-            self.loadIncidentNumbersData = nil;
-
-            [self loadQueuedIncidents];
-        }
     }
     else if (connection == self.loadRangersConnection) {
         //NSLog(@"Load Rangers request completed.");
