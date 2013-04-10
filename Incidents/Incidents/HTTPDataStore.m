@@ -40,8 +40,7 @@
 @property (strong) NSNumber        *loadIncidentNumber;
 @property (strong) NSString        *loadIncidentETag;
 
-@property (strong) NSURLConnection *loadRangersConnection;
-@property (strong) NSMutableData   *loadRangersData;
+@property (strong) HTTPConnection *loadRangersConnection;
 
 @property (strong) NSURLConnection *loadIncidentTypesConnection;
 @property (strong) NSMutableData   *loadIncidentTypesData;
@@ -320,16 +319,43 @@
 - (void) loadRangers {
     @synchronized(self) {
         if (self.serverAvailable) {
-            if (! self.loadRangersConnection) {
-                NSURLConnection *connection = [self getJSONConnectionForPath:@"rangers/"];
-                
-                if (connection) {
-                    self.loadRangersConnection = connection;
-                    self.loadRangersData = [NSMutableData data];
-                }
-                else {
-                    NSLog(@"Unable to connect to load Rangers.");
-                }
+            if (! self.loadRangersConnection.active) {
+                NSURL *url = [self.url URLByAppendingPathComponent:@"rangers/"];
+
+                HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                    //NSLog(@"Load Rangers request completed.");
+
+                    NSError *error = nil;
+                    NSArray *jsonRangers = [NSJSONSerialization JSONObjectWithData:self.loadRangersConnection.responseData
+                                                                           options:0
+                                                                             error:&error];
+
+                    if (! jsonRangers || ! [jsonRangers isKindOfClass:[NSArray class]]) {
+                        NSLog(@"JSON object for Rangers must be an array: %@", jsonRangers);
+                        return;
+                    }
+
+                    NSMutableDictionary *rangers = [[NSMutableDictionary alloc] initWithCapacity:jsonRangers.count];
+                    for (NSDictionary *jsonRanger in jsonRangers) {
+                        Ranger *ranger = [Ranger rangerFromJSON:jsonRanger error:&error];
+                        if (ranger) {
+                            rangers[ranger.handle] = ranger;
+                        }
+                        else {
+                            NSLog(@"Invalid JSON: %@", jsonRanger);
+                            performAlert(@"Unable to read Rangers from server: %@", error);
+                        }
+                    }
+                    allRangersByHandle = rangers;
+                };
+
+                HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
+                    performAlert(@"Load Rangers request failed: %@", error);
+                };
+
+                self.loadRangersConnection = [HTTPConnection JSONRequestConnectionWithURL:url
+                                                                      withResponseHandler:onSuccess
+                                                                             errorHandler:onError];
             }
         }
     }
@@ -417,16 +443,6 @@
             self.loadIncidentData = nil;
         }
     }
-    else if (connection == self.loadRangersConnection) {
-        //NSLog(@"Load Rangers request got response: %@", response);
-        if (happyResponse()) {
-            [self.loadRangersData setLength:0];
-        }
-        else {
-            performAlert(@"Unable to load Rangers data.");
-            self.loadRangersData = nil;
-        }
-    }
     else if (connection == self.loadIncidentTypesConnection) {
         //NSLog(@"Load incident types request got response: %@", response);
         if (happyResponse()) {
@@ -449,10 +465,6 @@
         //NSLog(@"Load incident request got data: %@", data);
         [self.loadIncidentData appendData:data];
     }
-    else if (connection == self.loadRangersConnection) {
-        //NSLog(@"Load Rangers request got data: %@", data);
-        [self.loadRangersData appendData:data];
-    }
     else if (connection == self.loadIncidentTypesConnection) {
         //NSLog(@"Load incident types request got data: %@", data);
         [self.loadIncidentTypesData appendData:data];
@@ -469,11 +481,6 @@
         self.loadIncidentConnection = nil;
         self.loadIncidentData = nil;
         performAlert(@"Load incident request failed: %@", error);
-    }
-    else if (connection == self.loadRangersConnection) {
-        self.loadRangersConnection = nil;
-        self.loadRangersData = nil;
-        performAlert(@"Load Rangers request failed: %@", error);
     }
     else if (connection == self.loadIncidentTypesConnection) {
         self.loadIncidentTypesConnection = nil;
@@ -527,36 +534,6 @@
         self.loadIncidentNumber = nil;
 
         [self loadQueuedIncidents];
-    }
-    else if (connection == self.loadRangersConnection) {
-        //NSLog(@"Load Rangers request completed.");
-        self.loadRangersConnection = nil;
-
-        if (self.loadRangersData) {
-            NSError *error = nil;
-            NSArray *jsonRangers = [NSJSONSerialization JSONObjectWithData:self.loadRangersData options:0 error:&error];
-            
-            if (! jsonRangers || ! [jsonRangers isKindOfClass:[NSArray class]]) {
-                NSLog(@"Got JSON for Rangers: %@", jsonRangers);
-                performAlert(@"JSON object for Rangers must be an array.  Unable to read Rangers from server.");
-                return;
-            }
-            
-            NSMutableDictionary *rangers = [[NSMutableDictionary alloc] initWithCapacity:jsonRangers.count];
-            for (NSDictionary *jsonRanger in jsonRangers) {
-                Ranger *ranger = [Ranger rangerFromJSON:jsonRanger error:&error];
-                if (ranger) {
-                    rangers[ranger.handle] = ranger;
-                }
-                else {
-                    NSLog(@"Got JSON for Ranger: %@", jsonRanger);
-                    performAlert(@"Invalid JSON: %@", error);
-                }
-            }
-            allRangersByHandle = rangers;
-            
-            self.loadRangersData = nil;
-        }
     }
     else if (connection == self.loadIncidentTypesConnection) {
         //NSLog(@"Load incident types request completed.");
