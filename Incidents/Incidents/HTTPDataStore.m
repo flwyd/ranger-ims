@@ -20,6 +20,7 @@
 #import "utilities.h"
 #import "Ranger.h"
 #import "Incident.h"
+#import "HTTPConnection.h"
 #import "HTTPDataStore.h"
 
 
@@ -30,8 +31,7 @@
 
 @property (assign) BOOL serverAvailable;
 
-@property (strong) NSURLConnection *pingConnection;
-@property (strong) NSMutableData   *pingData;
+@property (strong) HTTPConnection *pingConnection;
 
 @property (strong) NSURLConnection *loadIncidentNumbersConnection;
 @property (strong) NSMutableData   *loadIncidentNumbersData;
@@ -169,17 +169,41 @@
 - (void) pingServer
 {
     @synchronized(self) {
-        if (! self.pingConnection) {
-            NSURLConnection *connection = [self getJSONConnectionForPath:@"ping/"];
+        if (! self.pingConnection.active) {
+            NSURL *url = [self.url URLByAppendingPathComponent:@"ping/"];
 
-            if (connection) {
-                self.pingConnection = connection;
-                self.pingData = [NSMutableData data];
-            }
-            else {
-                performAlert(@"Unable to connect to server.");
+            HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                //NSLog(@"Ping request completed.");
+
+                NSError *error = nil;
+                NSString *jsonACK = [NSJSONSerialization JSONObjectWithData:self.pingConnection.responseData
+                                                                    options:NSJSONReadingAllowFragments
+                                                                      error:&error];
+
+                if (jsonACK) {
+                    if ([jsonACK isEqualToString:@"ack"]) {
+                        self.serverAvailable = YES;
+                    }
+                    else {
+                        performAlert(@"Unexpected response to ping: %@", jsonACK);
+                        self.serverAvailable = NO;
+                    }
+                }
+                else {
+                    performAlert(@"Unable to deserialize ping response: %@", error);
+                }
+            };
+
+            HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
                 self.serverAvailable = NO;
-            }
+
+                performAlert(@"Ping failed: %@", error.localizedDescription);
+                NSLog(@"Unable to connect to server: %@", error);
+            };
+
+            self.pingConnection = [HTTPConnection JSONRequestConnectionWithURL:url
+                                                           withResponseHandler:onSuccess
+                                                                  errorHandler:onError];
         }
     }
 }
@@ -349,18 +373,7 @@
         return result;
     };
     
-    if (connection == self.pingConnection) {
-        //NSLog(@"Ping request got response: %@", response);
-        if (happyResponse()) {
-            [self.pingData setLength:0];
-        }
-        else {
-            performAlert(@"Unable to ping.");
-            self.pingData = nil;
-            self.serverAvailable = NO;
-        }
-    }
-    else if (connection == self.loadIncidentNumbersConnection) {
+    if (connection == self.loadIncidentNumbersConnection) {
         //NSLog(@"Load incident numbers request got response: %@", response);
         if (happyResponse()) {
             [self.loadIncidentNumbersData setLength:0];
@@ -411,11 +424,7 @@
 
 - (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    if (connection == self.pingConnection) {
-        //NSLog(@"Ping request got data: %@", data);
-        [self.pingData appendData:data];
-    }
-    else if (connection == self.loadIncidentNumbersConnection) {
+    if (connection == self.loadIncidentNumbersConnection) {
         //NSLog(@"Load incident numbers request got data: %@", data);
         [self.loadIncidentNumbersData appendData:data];
     }
@@ -439,14 +448,7 @@
 
 - (void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    if (connection == self.pingConnection) {
-        self.pingConnection = nil;
-        self.pingData = nil;
-        self.serverAvailable = NO;
-        performAlert(@"Ping failed: %@", error.localizedDescription);
-        NSLog(@"Unable to connect to server: %@", error);
-    }
-    else if (connection == self.loadIncidentNumbersConnection) {
+    if (connection == self.loadIncidentNumbersConnection) {
         self.loadIncidentNumbersConnection = nil;
         self.loadIncidentNumbersData = nil;
         performAlert(@"Load incident numbers request failed: %@", error);
@@ -479,32 +481,7 @@
 
 - (void) connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    if (connection == self.pingConnection) {
-        //NSLog(@"Ping request completed.");
-        self.pingConnection = nil;
-        if (self.pingData) {
-            NSError *error = nil;
-            NSString *jsonACK = [NSJSONSerialization JSONObjectWithData:self.pingData
-                                                                options:NSJSONReadingAllowFragments
-                                                                  error:&error];
-
-            if (jsonACK) {
-                if ([jsonACK isEqualToString:@"ack"]) {
-                    self.serverAvailable = YES;
-                }
-                else {
-                    performAlert(@"Unexpected response to ping: %@", jsonACK);
-                    self.serverAvailable = NO;
-                }
-            }
-            else {
-                performAlert(@"Unable to deserialize ping response: %@", error);
-            }
-        }
-
-        self.pingData = nil;
-    }
-    else if (connection == self.loadIncidentConnection) {
+    if (connection == self.loadIncidentConnection) {
         //NSLog(@"Load incident request completed.");
         self.loadIncidentConnection = nil;
         if (self.loadIncidentData) {

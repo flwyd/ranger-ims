@@ -24,6 +24,8 @@
 
 @interface HTTPConnection () <NSConnectionDelegate>
 
+@property (assign) BOOL active;
+
 @property (strong) NSURLRequest      *request;
 @property (strong) NSHTTPURLResponse *responseInfo;
 @property (strong) NSData            *responseData;
@@ -40,9 +42,9 @@
 @implementation HTTPConnection
 
 
-+ (HTTPConnection *) JSONRequestConnectionForURL:(NSURL *)url
-                             withResponseHandler:(HTTPResponseHandler)onSuccess
-                                    errorHandler:(HTTPErrorHandler)onError
++ (HTTPConnection *) JSONRequestConnectionWithURL:(NSURL *)url
+                              withResponseHandler:(HTTPResponseHandler)onSuccess
+                                     errorHandler:(HTTPErrorHandler)onError
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
@@ -59,16 +61,23 @@
           errorHandler:(HTTPErrorHandler)onError
 {
     if (self = [super init]) {
-        NSURLConnection *urlConnection = [NSURLConnection connectionWithRequest:request delegate:self];
+        self.active = YES;
 
         self.request      = request;
         self.responseInfo = nil;
         self.responseData = [NSMutableData data];
 
-        self.urlConnection = urlConnection;
+        self.urlConnection = [NSURLConnection connectionWithRequest:request delegate:self];
 
         self.onSuccess = onSuccess;
         self.onError   = onError;
+
+        if (! self.urlConnection) {
+            NSError *error = [[NSError alloc] initWithDomain:@"HTTPConnection"
+                                                        code:0
+                                                    userInfo:@{NSLocalizedDescriptionKey: @"Unable to initialize connection."}];
+            [self reportError:error];
+        }
     }
     return self;
 }
@@ -76,6 +85,7 @@
 
 - (void) reportResponse
 {
+    self.active = NO;
     if (self.onSuccess) {
         self.onSuccess(self);
     }
@@ -84,6 +94,7 @@
 
 - (void) reportError:(NSError *)error
 {
+    self.active = NO;
     if (self.onError) {
         self.onError(self, error);
     }

@@ -30,11 +30,16 @@ typedef void (^HTTPErrorHandler)(HTTPConnection *, NSError *);
 
 @interface HTTPConnection : NSObject
 
+@property (assign,readonly) BOOL active;
 
 @property (strong,readonly) NSURLRequest      *request;
 @property (strong,readonly) NSHTTPURLResponse *responseInfo;
 @property (strong,readonly) NSData            *responseData;
 
+
++ (HTTPConnection *) JSONRequestConnectionWithURL:(NSURL *)url
+                              withResponseHandler:(HTTPResponseHandler)onSuccess
+                                     errorHandler:(HTTPErrorHandler)onError;
 
 - (id) initWithRequest:(NSURLRequest *)request
        responseHandler:(HTTPResponseHandler)onSuccess
