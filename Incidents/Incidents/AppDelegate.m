@@ -20,7 +20,7 @@
 #import "utilities.h"
 #import "FileDataStore.h"
 #import "HTTPDataStore.h"
-#import "HTTPConnectionInfo.h"
+#import "HTTPServerInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
 #import "AppDelegate.h"
@@ -47,7 +47,7 @@
 - (id) init
 {
     if (self = [super init]) {
-        HTTPConnectionInfo *connectionInfo = [[HTTPConnectionInfo alloc] init];
+        HTTPServerInfo *connectionInfo = [[HTTPServerInfo alloc] init];
         connectionInfo.serverName = @"localhost";
         connectionInfo.serverPort = 8080;
 
@@ -68,7 +68,7 @@
             dataStore = [[FileDataStore alloc] init];
         }
         else if ([self.dataStoreType isEqualToString:@"HTTP"]) {
-            HTTPConnectionInfo *connectionInfo = self.connectionInfo;
+            HTTPServerInfo *connectionInfo = self.connectionInfo;
             NSString *host = [NSString stringWithFormat:@"%@:%lu",
                               connectionInfo.serverName,
                               (unsigned long)connectionInfo.serverPort];

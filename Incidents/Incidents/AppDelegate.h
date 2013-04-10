@@ -19,12 +19,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class HTTPConnectionInfo;
+@class HTTPServerInfo;
 
 
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (strong) HTTPConnectionInfo *connectionInfo;
+@property (strong) HTTPServerInfo *connectionInfo;
 
 @end
