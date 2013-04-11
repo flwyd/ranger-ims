@@ -25,23 +25,16 @@
 
 
 
-@interface HTTPDataStore () <NSConnectionDelegate>
+@interface HTTPDataStore ()
 
 @property (strong) NSURL *url;
 
 @property (assign) BOOL serverAvailable;
 
 @property (strong) HTTPConnection *pingConnection;
-
 @property (strong) HTTPConnection *loadIncidentNumbersConnection;
-
-@property (strong) NSURLConnection *loadIncidentConnection;
-@property (strong) NSMutableData   *loadIncidentData;
-@property (strong) NSNumber        *loadIncidentNumber;
-@property (strong) NSString        *loadIncidentETag;
-
+@property (strong) HTTPConnection *loadIncidentConnection;
 @property (strong) HTTPConnection *loadRangersConnection;
-
 @property (strong) HTTPConnection *loadIncidentTypesConnection;
 
 @property (strong) NSMutableDictionary *allIncidentsByNumber;
@@ -279,7 +272,7 @@
 - (void) loadQueuedIncidents {
     @synchronized(self) {
         if (self.serverAvailable) {
-            if (self.loadIncidentConnection) {
+            if (self.loadIncidentConnection.active) {
                 //
                 // This shouldn't happen given how this code is wired up.
                 // Logging here in case that cases accidentally, in case it's a performance oopsie.
@@ -290,20 +283,55 @@
                 NSString *path = nil;
                 for (NSNumber *number in self.incidentsNumbersToLoad) {
                     //NSLog(@"Loading queued incident: %@", number);
+
                     path = [NSString stringWithFormat:@"incidents/%@", number];
-                    NSURLConnection *connection = [self getJSONConnectionForPath:path];
+                    NSURL *url = [self.url URLByAppendingPathComponent:path];
 
-                    if (connection) {
-                        self.loadIncidentConnection = connection;
-                        self.loadIncidentData = [NSMutableData data];
-                        self.loadIncidentNumber = number;
-                        self.loadIncidentETag = nil;
+                    HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                        //NSLog(@"Load incident request completed.");
 
-                        [self.delegate dataStoreWillUpdateIncidents:self];
-                    }
-                    else {
-                        NSLog(@"Unable to connect to load queued incident: %@", number);
-                    }
+                        NSError *error = nil;
+                        NSDictionary *jsonIncident = [NSJSONSerialization JSONObjectWithData:self.loadIncidentConnection.responseData
+                                                                                     options:0
+                                                                                       error:&error];
+                        Incident *incident = [Incident incidentInDataStore:self fromJSON:jsonIncident error:&error];
+
+                        if (incident) {
+                            if ([incident.number isEqualToNumber:number]) {
+                                // FIXME: Acquire from connection.response.headers
+                                NSString *loadIncidentETag = @"*** WE SHOULD SET THIS HERE ***";
+
+                                self.allIncidentsByNumber[number] = incident;
+                                self.incidentETagsByNumber[number] = loadIncidentETag;
+
+                                [self.delegate dataStore:self didUpdateIncident:incident];
+                                NSLog(@"Loaded incident #%@.", number);
+                            }
+                            else {
+                                performAlert(@"Got incident #%@ when I asked for incident #%@.  I'm confused.",
+                                             incident.number, number);
+                            }
+                        }
+                        else {
+                            performAlert(@"Unable to deserialize incident #%@: %@", number, error);
+                        }
+
+                        // De-queue the incident
+                        [self.incidentsNumbersToLoad removeObject:number];
+
+                        [self loadQueuedIncidents];
+                    };
+
+                    HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
+                        performAlert(@"Load incident #%@ request failed: %@", number, error);
+                    };
+
+                    self.loadIncidentConnection = [HTTPConnection JSONRequestConnectionWithURL:url
+                                                                           withResponseHandler:onSuccess
+                                                                                  errorHandler:onError];
+
+                    [self.delegate dataStoreWillUpdateIncidents:self];
+
                     break;
                 }
                 if (! path) {
@@ -426,131 +454,6 @@
     return allIncidentTypes;
 }
 @synthesize allIncidentTypes;
-
-
-@end
-
-
-
-@implementation HTTPDataStore (NSConnectionDelegate)
-
-
-- (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-    if (! [response isKindOfClass:NSHTTPURLResponse.class]) {
-        performAlert(@"Unexpected (non-HTTP) response: %@", response);
-        NSLog(@"…for connection: %@", connection);
-        return;
-    }
-    
-    BOOL(^happyResponse)(void) = ^(void) {
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        BOOL result = YES;
-        
-        if (httpResponse.statusCode != 200) {
-            performAlert(@"Unexpected response code from server: %ld", httpResponse.statusCode);
-            result = NO;
-        }
-        
-        if (! [httpResponse.MIMEType isEqualToString:@"application/json"]) {
-            performAlert(@"Unexpected (non-JSON) MIME type: %@", httpResponse.MIMEType);
-            result = NO;
-        }
-        
-        return result;
-    };
-    
-    if (connection == self.loadIncidentConnection) {
-        //NSLog(@"Load incident request got response: %@", response);
-        if (happyResponse()) {
-            [self.loadIncidentData setLength:0];
-
-            // FIXME
-            self.loadIncidentETag = @"*** WE SHOULD SET THIS HERE ***";
-        }
-        else {
-            performAlert(@"Unable to load incident data.");
-            self.loadIncidentData = nil;
-        }
-    }
-    else {
-        performAlert(@"Unknown connection: %@\nGot response: %@", connection, response);
-    }
-}
-
-
-- (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-    if (connection == self.loadIncidentConnection) {
-        //NSLog(@"Load incident request got data: %@", data);
-        [self.loadIncidentData appendData:data];
-    }
-    else {
-        performAlert(@"Unknown connection: %@\nGotData: %@", connection, data);
-    }
-}
-
-
-- (void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    if (connection == self.loadIncidentConnection) {
-        self.loadIncidentConnection = nil;
-        self.loadIncidentData = nil;
-        performAlert(@"Load incident request failed: %@", error);
-    }
-    else {
-        // FIXME: This actually happens; unsure why.
-        // Might be because the same connection yields two errors, and we stop
-        // tracking it after the first error…
-        NSLog(@"Unknown connection: %@\nGot error: %@", connection, error);
-    }
-    
-    // FIXME: do something useful
-}
-
-
-- (void) connectionDidFinishLoading:(NSURLConnection *)connection
-{
-    if (connection == self.loadIncidentConnection) {
-        //NSLog(@"Load incident request completed.");
-        self.loadIncidentConnection = nil;
-        if (self.loadIncidentData) {
-            NSError *error = nil;
-            NSDictionary *jsonIncident = [NSJSONSerialization JSONObjectWithData:self.loadIncidentData
-                                                                         options:0
-                                                                           error:&error];
-            Incident *incident = [Incident incidentInDataStore:self fromJSON:jsonIncident error:&error];
-
-            if (incident) {
-                if ([incident.number isEqualToNumber:self.loadIncidentNumber]) {
-                    self.allIncidentsByNumber[incident.number] = incident;
-                    self.incidentETagsByNumber[incident.number] = self.loadIncidentETag;
-
-                    [self.delegate dataStore:self didUpdateIncident:incident];
-                    NSLog(@"Loaded incident #%@.", self.loadIncidentNumber);
-                }
-                else {
-                    performAlert(@"Got incident #%@ when I asked for incident #%@.  I'm confused.", incident.number, self.loadIncidentNumber);
-                }
-            }
-            else {
-                performAlert(@"Unable to deserialize incident #%@: %@", self.loadIncidentNumber, error);
-            }
-        }
-
-        // De-queue the incident
-        [self.incidentsNumbersToLoad removeObject:self.loadIncidentNumber];
-
-        self.loadIncidentData = nil;
-        self.loadIncidentNumber = nil;
-
-        [self loadQueuedIncidents];
-    }
-    else {
-        performAlert(@"Unknown connection completed: %@", connection);
-        return;
-    }
-}
 
 
 @end
