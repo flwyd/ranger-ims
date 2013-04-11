@@ -42,8 +42,7 @@
 
 @property (strong) HTTPConnection *loadRangersConnection;
 
-@property (strong) NSURLConnection *loadIncidentTypesConnection;
-@property (strong) NSMutableData   *loadIncidentTypesData;
+@property (strong) HTTPConnection *loadIncidentTypesConnection;
 
 @property (strong) NSMutableDictionary *allIncidentsByNumber;
 
@@ -375,14 +374,45 @@
 - (void) loadIncidentTypes
 {
     @synchronized(self) {
-        NSURLConnection *connection = [self getJSONConnectionForPath:@"incident_types/"];
-        
-        if (connection) {
-            self.loadIncidentTypesConnection = connection;
-            self.loadIncidentTypesData = [NSMutableData data];
-        }
-        else {
-            NSLog(@"Unable to connect to load incident types.");
+        if (self.serverAvailable) {
+            if (! self.loadIncidentTypesConnection.active) {
+                NSURL *url = [self.url URLByAppendingPathComponent:@"incident_types/"];
+
+                HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                    //NSLog(@"Load incident types request completed.");
+
+                    NSError *error = nil;
+                    NSArray *jsonIncidentTypes = [NSJSONSerialization JSONObjectWithData:self.loadIncidentTypesConnection.responseData
+                                                                                 options:0
+                                                                                   error:&error];
+
+                    if (! jsonIncidentTypes || ! [jsonIncidentTypes isKindOfClass:[NSArray class]]) {
+                        NSLog(@"JSON object for incident types must be an array: %@", jsonIncidentTypes);
+                        performAlert(@"Unable to read incident types from server.");
+                        return;
+                    }
+
+                    NSMutableArray *incidentTypes = [[NSMutableArray alloc] initWithCapacity:jsonIncidentTypes.count];
+                    for (NSString *incidentType in jsonIncidentTypes) {
+                        if (incidentType && [incidentType isKindOfClass:[NSString class]]) {
+                            [incidentTypes addObject:incidentType];
+                        }
+                        else {
+                            NSLog(@"Invalid JSON: %@", incidentType);
+                            performAlert(@"Unable to read incident types from server: %@", error);
+                        }
+                    }
+                    allIncidentTypes = incidentTypes;
+                };
+
+                HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
+                    performAlert(@"Load incident types request failed: %@", error);
+                };
+
+                self.loadIncidentTypesConnection = [HTTPConnection JSONRequestConnectionWithURL:url
+                                                                            withResponseHandler:onSuccess
+                                                                                   errorHandler:onError];
+            }
         }
     }
 }
@@ -443,16 +473,6 @@
             self.loadIncidentData = nil;
         }
     }
-    else if (connection == self.loadIncidentTypesConnection) {
-        //NSLog(@"Load incident types request got response: %@", response);
-        if (happyResponse()) {
-            [self.loadIncidentTypesData setLength:0];
-        }
-        else {
-            performAlert(@"Unable to load incident types data.");
-            self.loadIncidentTypesData = nil;
-        }
-    }
     else {
         performAlert(@"Unknown connection: %@\nGot response: %@", connection, response);
     }
@@ -464,10 +484,6 @@
     if (connection == self.loadIncidentConnection) {
         //NSLog(@"Load incident request got data: %@", data);
         [self.loadIncidentData appendData:data];
-    }
-    else if (connection == self.loadIncidentTypesConnection) {
-        //NSLog(@"Load incident types request got data: %@", data);
-        [self.loadIncidentTypesData appendData:data];
     }
     else {
         performAlert(@"Unknown connection: %@\nGotData: %@", connection, data);
@@ -481,11 +497,6 @@
         self.loadIncidentConnection = nil;
         self.loadIncidentData = nil;
         performAlert(@"Load incident request failed: %@", error);
-    }
-    else if (connection == self.loadIncidentTypesConnection) {
-        self.loadIncidentTypesConnection = nil;
-        self.loadIncidentTypesData = nil;
-        performAlert(@"Load incident types request failed: %@", error);
     }
     else {
         // FIXME: This actually happens; unsure why.
@@ -534,35 +545,6 @@
         self.loadIncidentNumber = nil;
 
         [self loadQueuedIncidents];
-    }
-    else if (connection == self.loadIncidentTypesConnection) {
-        //NSLog(@"Load incident types request completed.");
-        self.loadIncidentTypesConnection = nil;
-
-        if (self.loadIncidentTypesData) {
-            NSError *error = nil;
-            NSArray *jsonIncidentTypes = [NSJSONSerialization JSONObjectWithData:self.loadIncidentTypesData options:0 error:&error];
-            
-            if (! jsonIncidentTypes || ! [jsonIncidentTypes isKindOfClass:[NSArray class]]) {
-                NSLog(@"Got JSON for incident types: %@", jsonIncidentTypes);
-                performAlert(@"JSON object for incident types must be an array.  Unable to read incident types from server.");
-                return;
-            }
-            
-            NSMutableArray *incidentTypes = [[NSMutableArray alloc] initWithCapacity:jsonIncidentTypes.count];
-            for (NSString *incidentType in jsonIncidentTypes) {
-                if (incidentType && [incidentType isKindOfClass:[NSString class]]) {
-                    [incidentTypes addObject:incidentType];
-                }
-                else {
-                    NSLog(@"Got JSON for incident type: %@", incidentType);
-                    performAlert(@"Invalid JSON: %@", error);
-                }
-            }
-            allIncidentTypes = incidentTypes;
-            
-            self.loadIncidentTypesData = nil;
-        }
     }
     else {
         performAlert(@"Unknown connection completed: %@", connection);
