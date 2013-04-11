@@ -65,7 +65,7 @@
 }
 
 
-@synthesize delegate;
+@synthesize delegate=_delegate;
 
 
 - (NSArray *) incidents
@@ -130,18 +130,16 @@
 }
 
 
-@synthesize serverAvailable;
-
-
 - (BOOL) serverAvailable {
-    return serverAvailable;
+    return _serverAvailable;
 }
+@synthesize serverAvailable=_serverAvailable;
 
 
 - (void) setServerAvailable:(BOOL)available
 {
-    if (available != serverAvailable) {
-        serverAvailable = available;
+    if (available != _serverAvailable) {
+        _serverAvailable = available;
 
         if (available) {
             NSLog(@"Server connection is available.");
@@ -373,7 +371,7 @@
                             performAlert(@"Unable to read Rangers from server: %@", error);
                         }
                     }
-                    allRangersByHandle = rangers;
+                    _allRangersByHandle = rangers;
                 };
 
                 HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
@@ -391,12 +389,12 @@
 
 - (NSDictionary *) allRangersByHandle
 {
-    if (! allRangersByHandle) {
+    if (! _allRangersByHandle) {
         [self loadRangers];
     }
-    return allRangersByHandle;
+    return _allRangersByHandle;
 }
-@synthesize allRangersByHandle;
+@synthesize allRangersByHandle=_allRangersByHandle;
 
 
 - (void) loadIncidentTypes
@@ -430,7 +428,7 @@
                             performAlert(@"Unable to read incident types from server: %@", error);
                         }
                     }
-                    allIncidentTypes = incidentTypes;
+                    _allIncidentTypes = incidentTypes;
                 };
 
                 HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
@@ -448,12 +446,12 @@
 
 - (NSArray *) allIncidentTypes
 {
-    if (! allIncidentTypes) {
+    if (! _allIncidentTypes) {
         [self loadIncidentTypes];
     }
-    return allIncidentTypes;
+    return _allIncidentTypes;
 }
-@synthesize allIncidentTypes;
+@synthesize allIncidentTypes=_allIncidentTypes;
 
 
 @end
