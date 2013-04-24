@@ -90,13 +90,15 @@
 }
 
 
+static int nextTemporaryNumber = -1;
+
 - (Incident *) createNewIncident
 {
     if (! self.allIncidentsByNumber) {
         return nil;
     }
 
-    NSNumber *temporaryNumber = @-1;
+    NSNumber *temporaryNumber = [NSNumber numberWithInt:nextTemporaryNumber--];
     
     while (self.allIncidentsByNumber[temporaryNumber]) {
         temporaryNumber = [NSNumber numberWithInteger:temporaryNumber.integerValue-1];
@@ -125,6 +127,7 @@
         performAlert(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
         return;
     }
+
 
     performAlert(@"commitIncident: unimplemented.");
 }
