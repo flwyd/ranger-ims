@@ -37,9 +37,14 @@ typedef void (^HTTPErrorHandler)(HTTPConnection *, NSError *);
 @property (strong,readonly) NSData            *responseData;
 
 
-+ (HTTPConnection *) JSONRequestConnectionWithURL:(NSURL *)url
-                              withResponseHandler:(HTTPResponseHandler)onSuccess
-                                     errorHandler:(HTTPErrorHandler)onError;
++ (HTTPConnection *) JSONQueryConnectionWithURL:(NSURL *)url
+                                responseHandler:(HTTPResponseHandler)onSuccess
+                                   errorHandler:(HTTPErrorHandler)onError;
+
++ (HTTPConnection *) JSONPostConnectionWithURL:(NSURL *)url
+                                          body:(NSData *)body
+                               responseHandler:(HTTPResponseHandler)onSuccess
+                                  errorHandler:(HTTPErrorHandler)onError;
 
 - (id) initWithRequest:(NSURLRequest *)request
        responseHandler:(HTTPResponseHandler)onSuccess

@@ -42,13 +42,30 @@
 @implementation HTTPConnection
 
 
-+ (HTTPConnection *) JSONRequestConnectionWithURL:(NSURL *)url
-                              withResponseHandler:(HTTPResponseHandler)onSuccess
-                                     errorHandler:(HTTPErrorHandler)onError
++ (HTTPConnection *) JSONQueryConnectionWithURL:(NSURL *)url
+                                responseHandler:(HTTPResponseHandler)onSuccess
+                                   errorHandler:(HTTPErrorHandler)onError
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"GET"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setHTTPBody:[NSData data]];
+
+    return [[HTTPConnection alloc] initWithRequest:request
+                                   responseHandler:onSuccess
+                                      errorHandler:onError];
+}
+
+
++ (HTTPConnection *) JSONPostConnectionWithURL:(NSURL *)url
+                                          body:(NSData *)body
+                               responseHandler:(HTTPResponseHandler)onSuccess
+                                  errorHandler:(HTTPErrorHandler)onError
+{
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setHTTPBody:body];
 
     return [[HTTPConnection alloc] initWithRequest:request
                                    responseHandler:onSuccess

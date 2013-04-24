@@ -122,7 +122,7 @@ def edit_incident(request, number):
     storage().write_incident(incident)
 
     # FIXME: created is only correct for new resources
-    request.setResponseCode(http.CREATED)
+    request.setResponseCode(http.OK)
 
     return "";
 
