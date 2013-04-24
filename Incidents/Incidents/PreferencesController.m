@@ -17,7 +17,7 @@
 // limitations under the License.
 ////
 
-#import "HTTPConnectionInfo.h"
+#import "HTTPServerInfo.h"
 #import "AppDelegate.h"
 #import "PreferencesController.h"
 

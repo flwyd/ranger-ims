@@ -20,7 +20,7 @@
 #import "utilities.h"
 #import "FileDataStore.h"
 #import "HTTPDataStore.h"
-#import "HTTPConnectionInfo.h"
+#import "HTTPServerInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
 #import "AppDelegate.h"
@@ -47,7 +47,7 @@
 - (id) init
 {
     if (self = [super init]) {
-        HTTPConnectionInfo *connectionInfo = [[HTTPConnectionInfo alloc] init];
+        HTTPServerInfo *connectionInfo = [[HTTPServerInfo alloc] init];
         connectionInfo.serverName = @"localhost";
         connectionInfo.serverPort = 8080;
 
@@ -57,18 +57,16 @@
 }
 
 
-@synthesize dispatchQueueController;
-
 - (DispatchQueueController *) dispatchQueueController
 {
-    if (! dispatchQueueController) {
+    if (! _dispatchQueueController) {
         id <DataStoreProtocol> dataStore;
 
         if ([self.dataStoreType isEqualToString:@"File"]) {
             dataStore = [[FileDataStore alloc] init];
         }
         else if ([self.dataStoreType isEqualToString:@"HTTP"]) {
-            HTTPConnectionInfo *connectionInfo = self.connectionInfo;
+            HTTPServerInfo *connectionInfo = self.connectionInfo;
             NSString *host = [NSString stringWithFormat:@"%@:%lu",
                               connectionInfo.serverName,
                               (unsigned long)connectionInfo.serverPort];
@@ -82,17 +80,15 @@
 
         NSLog(@"Initialized data store: %@", dataStore);
 
-        dispatchQueueController = [[DispatchQueueController alloc] initWithDataStore:dataStore appDelegate:self];
+        _dispatchQueueController = [[DispatchQueueController alloc] initWithDataStore:dataStore appDelegate:self];
     }
-    return dispatchQueueController;
+    return _dispatchQueueController;
 }
 
 
-@synthesize dataStoreType;
-
 - (void) setDataStoreType:(NSString *)type
 {
-    if (! [dataStoreType isEqualToString:type]) {
+    if (! [_dataStoreType isEqualToString:type]) {
         self.httpStoreMenuItem.state = NSOffState;
         self.fileStoreMenuItem.state = NSOffState;
 
@@ -103,7 +99,7 @@
             self.fileStoreMenuItem.state = NSOnState;
         }
 
-        dataStoreType = type;
+        _dataStoreType = type;
         self.dispatchQueueController = nil;
     }
 }
@@ -135,14 +131,12 @@
 }
 
 
-@synthesize preferencesController;
-
 - (PreferencesController *) preferencesController
 {
-    if (! preferencesController) {
-        preferencesController = [[PreferencesController alloc] initWithAppDelegate:self];
+    if (! _preferencesController) {
+        _preferencesController = [[PreferencesController alloc] initWithAppDelegate:self];
     }
-    return preferencesController;
+    return _preferencesController;
 }
 
 

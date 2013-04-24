@@ -23,9 +23,10 @@
 		35B28F2E16E962CB00C9C05A /* TableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B28F2D16E962CB00C9C05A /* TableView.m */; };
 		35BC16F616FD408300785361 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC16F416FD408300785361 /* PreferencesController.m */; };
 		35BC16F716FD408300785361 /* PreferencesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 35BC16F516FD408300785361 /* PreferencesController.xib */; };
-		35BC170116FE266600785361 /* HTTPConnectionInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC170016FE266600785361 /* HTTPConnectionInfo.m */; };
+		35BC170116FE266600785361 /* HTTPServerInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC170016FE266600785361 /* HTTPServerInfo.m */; };
 		35BC170816FE62B400785361 /* FileDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 35BC170716FE62B400785361 /* FileDataStore.m */; };
 		35C496B81702383000581421 /* HTTPDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C496B71702383000581421 /* HTTPDataStore.m */; };
+		35C62F3A17160E1B00242B79 /* HTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C62F3917160E1B00242B79 /* HTTPConnection.m */; };
 		35D5621E16DC107E0081EB7E /* Incident.m in Sources */ = {isa = PBXBuildFile; fileRef = 35D5621D16DC107E0081EB7E /* Incident.m */; };
 		35F498E816F194870015B9E1 /* Location.m in Sources */ = {isa = PBXBuildFile; fileRef = 35F498E716F194870015B9E1 /* Location.m */; };
 		35FBFD8B1710938100D5EBA0 /* utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 35FBFD8A1710938100D5EBA0 /* utilities.m */; };
@@ -62,13 +63,15 @@
 		35BC16F316FD408300785361 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
 		35BC16F416FD408300785361 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
 		35BC16F516FD408300785361 /* PreferencesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesController.xib; sourceTree = "<group>"; };
-		35BC16FF16FE266600785361 /* HTTPConnectionInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPConnectionInfo.h; sourceTree = "<group>"; };
-		35BC170016FE266600785361 /* HTTPConnectionInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPConnectionInfo.m; sourceTree = "<group>"; };
+		35BC16FF16FE266600785361 /* HTTPServerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPServerInfo.h; sourceTree = "<group>"; };
+		35BC170016FE266600785361 /* HTTPServerInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPServerInfo.m; sourceTree = "<group>"; };
 		35BC170216FE29AC00785361 /* DataStoreProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStoreProtocol.h; sourceTree = "<group>"; };
 		35BC170616FE62B400785361 /* FileDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileDataStore.h; sourceTree = "<group>"; };
 		35BC170716FE62B400785361 /* FileDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileDataStore.m; sourceTree = "<group>"; };
 		35C496B61702383000581421 /* HTTPDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPDataStore.h; sourceTree = "<group>"; };
 		35C496B71702383000581421 /* HTTPDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPDataStore.m; sourceTree = "<group>"; };
+		35C62F3817160E1B00242B79 /* HTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPConnection.h; sourceTree = "<group>"; };
+		35C62F3917160E1B00242B79 /* HTTPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPConnection.m; sourceTree = "<group>"; };
 		35D5621C16DC107E0081EB7E /* Incident.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Incident.h; sourceTree = "<group>"; };
 		35D5621D16DC107E0081EB7E /* Incident.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Incident.m; sourceTree = "<group>"; };
 		35F498E616F194870015B9E1 /* Location.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
@@ -192,10 +195,12 @@
 		35BC16F816FE257100785361 /* HTTP Data Store */ = {
 			isa = PBXGroup;
 			children = (
-				35BC16FF16FE266600785361 /* HTTPConnectionInfo.h */,
-				35BC170016FE266600785361 /* HTTPConnectionInfo.m */,
 				35C496B61702383000581421 /* HTTPDataStore.h */,
 				35C496B71702383000581421 /* HTTPDataStore.m */,
+				35C62F3817160E1B00242B79 /* HTTPConnection.h */,
+				35C62F3917160E1B00242B79 /* HTTPConnection.m */,
+				35BC16FF16FE266600785361 /* HTTPServerInfo.h */,
+				35BC170016FE266600785361 /* HTTPServerInfo.m */,
 			);
 			name = "HTTP Data Store";
 			sourceTree = "<group>";
@@ -305,10 +310,11 @@
 				35F498E816F194870015B9E1 /* Location.m in Sources */,
 				3579C2CF16F54C4F00FF31E8 /* Ranger.m in Sources */,
 				35BC16F616FD408300785361 /* PreferencesController.m in Sources */,
-				35BC170116FE266600785361 /* HTTPConnectionInfo.m in Sources */,
+				35BC170116FE266600785361 /* HTTPServerInfo.m in Sources */,
 				35BC170816FE62B400785361 /* FileDataStore.m in Sources */,
 				35C496B81702383000581421 /* HTTPDataStore.m in Sources */,
 				35FBFD8B1710938100D5EBA0 /* utilities.m in Sources */,
+				35C62F3A17160E1B00242B79 /* HTTPConnection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -419,7 +425,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = "Incidents/Incidents-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -453,7 +459,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = "Incidents/Incidents-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

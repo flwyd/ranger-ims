@@ -49,7 +49,7 @@ NSArray *getRangerHandles(void);
 }
 
 
-@synthesize delegate;
+@synthesize delegate=_delegate;
 
 
 - (NSURL *) applicationDataDirectory
@@ -233,21 +233,20 @@ NSArray *getRangerHandles(void);
 }
 
 
-@synthesize allRangersByHandle;
-
 - (NSDictionary *) allRangersByHandle
 {
-    if (! allRangersByHandle) {
+    if (! _allRangersByHandle) {
         NSMutableDictionary *rangers = [[NSMutableDictionary alloc] initWithCapacity:self.rangers.count];
 
         for (Ranger *ranger in self.rangers) {
             rangers[ranger.handle] = ranger;
         }
 
-        allRangersByHandle = rangers;
+        _allRangersByHandle = rangers;
     }
-    return allRangersByHandle;
+    return _allRangersByHandle;
 }
+@synthesize allRangersByHandle=_allRangersByHandle;
 
 
 - (NSArray *) allIncidentTypes

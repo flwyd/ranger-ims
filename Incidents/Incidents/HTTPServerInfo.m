@@ -1,5 +1,5 @@
 ////
-// HTTPConnectionInfo.h
+// HTTPServerInfo.m
 // Incidents
 ////
 // See the file COPYRIGHT for copyright information.
@@ -17,15 +17,14 @@
 // limitations under the License.
 ////
 
-#import <Foundation/Foundation.h>
+#import "HTTPServerInfo.h"
 
 
 
-@interface HTTPConnectionInfo : NSObject
+@interface HTTPServerInfo ()
+@end
 
 
-@property (strong) NSString   *serverName;
-@property (assign) NSUInteger serverPort;
 
-
+@implementation HTTPServerInfo
 @end

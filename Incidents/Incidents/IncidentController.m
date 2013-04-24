@@ -118,10 +118,17 @@ static NSDateFormatter *entryDateFormatter = nil;
 
     NSString *summaryFromReport = incident.summaryFromReport;
 
+    NSString *numberToDisplay;
+    if (incident.number.integerValue < 0) {
+        numberToDisplay = @"(new)";
+    } else {
+        numberToDisplay = incident.number.stringValue;
+    }
+
     if (self.window) {
         self.window.title = [NSString stringWithFormat:
                                 @"%@: %@",
-                                incident.number,
+                                numberToDisplay,
                                 summaryFromReport];
     }
     else {
@@ -130,7 +137,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 
     NSTextField *numberField = self.numberField;
     if (numberField) {
-        numberField.stringValue = incident.number ? incident.number.description : @"";
+        numberField.stringValue = numberToDisplay;
     }
     else {
         performAlert(@"No numberField?");
