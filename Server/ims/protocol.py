@@ -92,7 +92,7 @@ def list_incidents(request):
 @http_sauce
 def get_incident(request, number):
     import time
-    time.sleep(0.3)
+    time.sleep(0.3) # FIXME: remove this
     set_content_type(request, ContentType.JSON)
     return storage().read_incident_with_number_raw(number)
 
@@ -121,7 +121,7 @@ def edit_incident(request, number):
 
     storage().write_incident(incident)
 
-    # FIXME: created is only correct for new resources
+    set_content_type(request, ContentType.JSON)
     request.setResponseCode(http.OK)
 
     return "";

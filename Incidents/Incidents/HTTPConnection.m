@@ -64,6 +64,7 @@
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setHTTPBody:body];
 
@@ -132,13 +133,12 @@
         return;
     }
 
+    self.responseInfo = response;
+
     NSString *whyIDontLikeThisResponse = nil;
 
     if (! [response isKindOfClass:NSHTTPURLResponse.class]) {
         whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-HTTP) response: %@", response];
-    }
-    else if (response.statusCode != 200) {
-        whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected response code from server: %ld", response.statusCode];
     }
     else if (! [response.MIMEType isEqualToString:@"application/json"]) {
         whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-JSON) MIME type: %@", response.MIMEType];
