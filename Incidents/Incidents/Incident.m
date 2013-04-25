@@ -243,18 +243,18 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
         return YES;
     }
 
-    if ([self.dataStore     isEqual: other.dataStore    ]) { return NO; }
-    if ([self.number        isEqual: other.number       ]) { return NO; }
-    if ([self.rangers       isEqual: other.rangers      ]) { return NO; }
-    if ([self.location      isEqual: other.location     ]) { return NO; }
-    if ([self.types         isEqual: other.types        ]) { return NO; }
-    if ([self.summary       isEqual: other.summary      ]) { return NO; }
-    if ([self.reportEntries isEqual: other.reportEntries]) { return NO; }
-    if ([self.created       isEqual: other.created      ]) { return NO; }
-    if ([self.dispatched    isEqual: other.dispatched   ]) { return NO; }
-    if ([self.onScene       isEqual: other.onScene      ]) { return NO; }
-    if ([self.closed        isEqual: other.closed       ]) { return NO; }
-    if ([self.priority      isEqual: other.priority     ]) { return NO; }
+    if (! [self.dataStore     isEqual: other.dataStore    ]) { return NO; }
+    if (! [self.number        isEqual: other.number       ]) { return NO; }
+    if (! [self.rangers       isEqual: other.rangers      ]) { return NO; }
+    if (! [self.location      isEqual: other.location     ]) { return NO; }
+    if (! [self.types         isEqual: other.types        ]) { return NO; }
+    if (! [self.summary       isEqual: other.summary      ]) { return NO; }
+    if (! [self.reportEntries isEqual: other.reportEntries]) { return NO; }
+    if (! [self.created       isEqual: other.created      ]) { return NO; }
+    if (! [self.dispatched    isEqual: other.dispatched   ]) { return NO; }
+    if (! [self.onScene       isEqual: other.onScene      ]) { return NO; }
+    if (! [self.closed        isEqual: other.closed       ]) { return NO; }
+    if (! [self.priority      isEqual: other.priority     ]) { return NO; }
 
     return YES;
 }
