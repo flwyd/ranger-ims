@@ -32,5 +32,7 @@
 - (id) initWithText:(NSString *)text
         createdDate:(NSDate *)createdDate;
 
+- (BOOL) isEqualToReportEntry:(ReportEntry *)other;
+
 
 @end

@@ -32,4 +32,7 @@
             address:(NSString *)address;
 
 
+- (BOOL) isEqualToLocation:(Location *)other;
+
+
 @end

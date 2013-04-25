@@ -99,16 +99,25 @@
 
 - (BOOL) isEqual:(id)other
 {
-    if ([other isKindOfClass: [self class]])
-    {
-        Ranger *otherRanger = (Ranger *)other;
+    if (other == self) {
+        return YES;
+    }
+    if (! other || ! [other isKindOfClass:self.class]) {
+        return NO;
+    }
+    return [self isEqualToRanger:other];
+}
 
-        if ([self.handle isEqualToString:otherRanger.handle]) {
-            return YES;
-        }
+
+- (BOOL) isEqualToRanger:(Ranger *)other
+{
+    if (self == other) {
+        return YES;
     }
 
-    return NO;
+    if ((self.handle != other.handle) && (! [self.handle isEqualToString: other.handle])) { return NO; }
+
+    return YES;
 }
 
 

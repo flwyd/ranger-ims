@@ -35,4 +35,7 @@
                  name:(NSString *)name;
 
 
+- (BOOL) isEqualToRanger:(Ranger *)other;
+
+
 @end

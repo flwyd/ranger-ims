@@ -33,6 +33,9 @@
             address:(NSString *)address
 {
     if (self = [super init]) {
+        if (! name   ) { name    = @""; }
+        if (! address) { address = @""; }
+
         self.name    = name;
         self.address = address;
     }
@@ -48,6 +51,31 @@
                           address:self.address];
     }
     return copy;
+}
+
+
+- (BOOL) isEqual:(id)other
+{
+    if (other == self) {
+        return YES;
+    }
+    if (! other || ! [other isKindOfClass:self.class]) {
+        return NO;
+    }
+    return [self isEqualToLocation:other];
+}
+
+
+- (BOOL) isEqualToLocation:(Location *)other
+{
+    if (self == other) {
+        return YES;
+    }
+
+    if ((self.name    != other.name   ) && (! [self.name    isEqualToString: other.name   ])) { return NO; }
+    if ((self.address != other.address) && (! [self.address isEqualToString: other.address])) { return NO; }
+
+    return YES;
 }
 
 

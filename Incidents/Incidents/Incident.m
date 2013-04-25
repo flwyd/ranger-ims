@@ -243,18 +243,18 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
         return YES;
     }
 
-    if (! [self.dataStore     isEqual: other.dataStore    ]) { return NO; }
-    if (! [self.number        isEqual: other.number       ]) { return NO; }
-    if (! [self.rangers       isEqual: other.rangers      ]) { return NO; }
-    if (! [self.location      isEqual: other.location     ]) { return NO; }
-    if (! [self.types         isEqual: other.types        ]) { return NO; }
-    if (! [self.summary       isEqual: other.summary      ]) { return NO; }
-    if (! [self.reportEntries isEqual: other.reportEntries]) { return NO; }
-    if (! [self.created       isEqual: other.created      ]) { return NO; }
-    if (! [self.dispatched    isEqual: other.dispatched   ]) { return NO; }
-    if (! [self.onScene       isEqual: other.onScene      ]) { return NO; }
-    if (! [self.closed        isEqual: other.closed       ]) { return NO; }
-    if (! [self.priority      isEqual: other.priority     ]) { return NO; }
+    if ((self.dataStore     != other.dataStore    ) && (! [self.dataStore     isEqual:           other.dataStore    ])) { return NO; }
+    if ((self.number        != other.number       ) && (! [self.number        isEqualToNumber:   other.number       ])) { return NO; }
+    if ((self.rangers       != other.rangers      ) && (! [self.rangers       isEqualToArray:    other.rangers      ])) { return NO; }
+    if ((self.location      != other.location     ) && (! [self.location      isEqualToLocation: other.location     ])) { return NO; }
+    if ((self.types         != other.types        ) && (! [self.types         isEqualToArray:    other.types        ])) { return NO; }
+    if ((self.summary       != other.summary      ) && (! [self.summary       isEqualToString:   other.summary      ])) { return NO; }
+    if ((self.reportEntries != other.reportEntries) && (! [self.reportEntries isEqualToArray:    other.reportEntries])) { return NO; }
+    if ((self.created       != other.created      ) && (! [self.created       isEqualToDate:     other.created      ])) { return NO; }
+    if ((self.dispatched    != other.dispatched   ) && (! [self.dispatched    isEqualToDate:     other.dispatched   ])) { return NO; }
+    if ((self.onScene       != other.onScene      ) && (! [self.onScene       isEqualToDate:     other.onScene      ])) { return NO; }
+    if ((self.closed        != other.closed       ) && (! [self.closed        isEqualToDate:     other.closed       ])) { return NO; }
+    if ((self.priority      != other.priority     ) && (! [self.priority      isEqualToNumber:   other.priority     ])) { return NO; }
 
     return YES;
 }

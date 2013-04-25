@@ -50,4 +50,29 @@
 }
 
 
+- (BOOL) isEqual:(id)other
+{
+    if (other == self) {
+        return YES;
+    }
+    if (! other || ! [other isKindOfClass:self.class]) {
+        return NO;
+    }
+    return [self isEqualToReportEntry:other];
+}
+
+
+- (BOOL) isEqualToReportEntry:(ReportEntry *)other
+{
+    if (self == other) {
+        return YES;
+    }
+
+    if ((self.text        != other.text       ) && (! [self.text        isEqualToString: other.text       ])) { return NO; }
+    if ((self.createdDate != other.createdDate) && (! [self.createdDate isEqualToDate:   other.createdDate])) { return NO; }
+
+    return YES;
+}
+
+
 @end
