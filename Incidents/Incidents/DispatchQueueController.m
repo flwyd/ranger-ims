@@ -182,8 +182,8 @@ NSString *formattedDateTimeShort(NSDate *date);
         if (notedController != incidentController) {
             performAlert(@"Closing incident controllers don't match: %@ != %@", notedController, incidentController);
         }
-        if (! [notedIncident isEqualToIncident:incident]) {
-            performAlert(@"Closing incidents don't match: %@ != %@", notedIncident, incident);
+        if (! [notedIncident.number isEqualToNumber:incident.number]) {
+            performAlert(@"Closing incidents don't match: %@ != %@", notedIncident.number, incident.number);
         }
 
         [self.incidentControllers removeObjectForKey:incident.number];
@@ -305,27 +305,6 @@ NSString *formattedDateTimeShort(NSDate *date);
     
     return incidents[(NSUInteger)rowIndex];
 }
-
-
-//- (void) commitIncident:(Incident *)incident
-//{
-//    NSLog(@"Committing incident: %@", incident);
-//
-//    NSNumber *oldNumber = incident.number;
-//    [self.dataStore commitIncident:incident];
-//    NSNumber *newNumber = incident.number;
-//
-//    [self loadTable];
-//
-//    IncidentController *controller = self.incidentControllers[oldNumber];
-//    if (controller) {
-//        if (! [newNumber isEqualToNumber:oldNumber]) {
-//            [self.incidentControllers removeObjectForKey:oldNumber];
-//            self.incidentControllers[newNumber] = controller;
-//        }
-//        [controller reloadIncident];
-//    }
-//}
 
 
 - (IBAction) loadIncidents:(id)sender
