@@ -75,4 +75,10 @@
 }
 
 
+- (NSString *) description
+{
+    return [NSString stringWithFormat:@"[%@]: %@", self.createdDate, self.text];
+}
+
+
 @end
