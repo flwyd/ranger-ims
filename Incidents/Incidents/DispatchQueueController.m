@@ -81,6 +81,9 @@ NSString *formattedDateTimeShort(NSDate *date);
 {
     [super windowDidLoad];
 
+    self.reloadButton.hidden = NO;
+    self.loadingIndicator.hidden = YES;
+
     NSTableView *dispatchTable = self.dispatchTable;
     dispatchTable.doubleAction = @selector(openClickedIncident);
     
