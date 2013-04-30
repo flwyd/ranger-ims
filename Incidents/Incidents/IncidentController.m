@@ -278,14 +278,14 @@ static NSDateFormatter *entryDateFormatter = nil;
         // Edited incident; commit changes
         edited = NO;
 
-        NSArray  *rangers    = nil; if (self.rangersDidChange  ) { edited = YES; rangers    = self.incident.rangersByHandle.allKeys; }
-        NSArray  *types      = nil; if (self.typesDidChange    ) { edited = YES; types      = self.incident.types;                   }
-        NSString *summary    = nil; if (self.summaryDidChange  ) { edited = YES; summary    = self.incident.summary;                 }
-        NSDate   *created    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.created;                 }
-        NSDate   *dispatched = nil; if (self.stateDidChange    ) { edited = YES; dispatched = self.incident.dispatched;              }
-        NSDate   *onScene    = nil; if (self.stateDidChange    ) { edited = YES; onScene    = self.incident.onScene;                 }
-        NSDate   *closed     = nil; if (self.stateDidChange    ) { edited = YES; closed     = self.incident.closed;                  }
-        NSNumber *priority   = nil; if (self.priorityDidChange ) { edited = YES; priority   = self.incident.priority;                }
+        NSArray  *rangers    = nil; if (self.rangersDidChange  ) { edited = YES; rangers    = self.incident.rangersByHandle.allValues; }
+        NSArray  *types      = nil; if (self.typesDidChange    ) { edited = YES; types      = self.incident.types;                     }
+        NSString *summary    = nil; if (self.summaryDidChange  ) { edited = YES; summary    = self.incident.summary;                   }
+        NSDate   *created    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.created;                   }
+        NSDate   *dispatched = nil; if (self.stateDidChange    ) { edited = YES; dispatched = self.incident.dispatched;                }
+        NSDate   *onScene    = nil; if (self.stateDidChange    ) { edited = YES; onScene    = self.incident.onScene;                   }
+        NSDate   *closed     = nil; if (self.stateDidChange    ) { edited = YES; closed     = self.incident.closed;                    }
+        NSNumber *priority   = nil; if (self.priorityDidChange ) { edited = YES; priority   = self.incident.priority;                  }
 
         Location *location = nil;
         if (self.locationDidChange) {
