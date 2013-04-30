@@ -75,6 +75,13 @@ class Incident(object):
 
     @classmethod
     def from_json_io(cls, io, number=None, validate=True):
+        # FIXME: For debugging
+        text = io.read()
+        print "*"*80
+        print text
+        print "*"*80
+        return cls.from_json_text(text, number, validate)
+
         root = from_json_io(io)
         return cls.from_json(root, number, validate)
 
