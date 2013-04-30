@@ -108,16 +108,26 @@ def edit_incident(request, number):
 
     for key in edits_json.keys():
         if key == "report_entries":
-            incident.report_entries += edits.report_entries
+            if edits.report_entries is not None:
+                incident.report_entries += edits.report_entries
+                print "Adding report entries:", edits.report_entries
         elif key == "location_name":
-            incident.location.name = edits.location.name
+            if edits.location.name is not None:
+                incident.location.name = edits.location.name
+                print "Editing location name:", edits.location.name
         elif key == "location_address":
-            incident.location.address = edits.location.address
+            if edits.location.address is not None:
+                incident.location.address = edits.location.address
+                print "Editing location address:", edits.location.address
         elif key == "ranger_handles":
-            incident.rangers = edits.rangers
+            if edits.rangers is not None:
+                incident.rangers = edits.rangers
+                print "Editing rangers:", edits.rangers
         else:
             attr_name = JSON.lookupByValue(key).name
-            setattr(incident, attr_name, getattr(edits, attr_name))
+            attr_value = getattr(edits, attr_name)
+            setattr(incident, attr_name, attr_value)
+            print "Editing", attr_name, ":", attr_value
 
     storage().write_incident(incident)
 

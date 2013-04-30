@@ -159,6 +159,15 @@ class Incident(object):
                 "Incident number but be natural, not {}".format(number)
             )
 
+        if rangers is not None:
+            rangers = tuple(rangers)
+
+        if incident_types is not None:
+            incident_types = tuple(incident_types)
+
+        if report_entries is not None:
+            report_entries = tuple(report_entries)
+
         if created is None:
             created = datetime.now()
 
@@ -166,11 +175,11 @@ class Incident(object):
             priority = 5
 
         self.number         = number
-        self.rangers        = tuple(rangers)
+        self.rangers        = rangers
         self.location       = location
-        self.incident_types = tuple(incident_types)
+        self.incident_types = incident_types
         self.summary        = summary
-        self.report_entries = tuple(report_entries)
+        self.report_entries = report_entries
         self.created        = created
         self.dispatched     = dispatched
         self.on_scene       = on_scene
@@ -188,19 +197,21 @@ class Incident(object):
         if self.location is not None:
             self.location.validate()
 
-        for incident_type in self.incident_types:
-            if type(incident_type) is not unicode:
-                raise InvalidDataError(
-                    "Incident type must be unicode, not {}".format(incident_type)
-                )
+        if self.incident_types is not None:
+            for incident_type in self.incident_types:
+                if type(incident_type) is not unicode:
+                    raise InvalidDataError(
+                        "Incident type must be unicode, not {}".format(incident_type)
+                    )
 
         if self.summary is not None and type(self.summary) is not unicode:
             raise InvalidDataError(
                 "Incident summary must be unicode, not {}".format(self.summary)
             )
 
-        for report_entry in self.report_entries:
-            report_entry.validate()
+        if self.report_entries is not None:
+            for report_entry in self.report_entries:
+                report_entry.validate()
 
         if self.created is not None and type(self.created) is not datetime:
             raise InvalidDataError(

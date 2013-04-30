@@ -184,9 +184,9 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
               priority:(NSNumber *)priority
 {
     if (self = [super init]) {
-        if (! location) {
-            location = [[Location alloc] initWithName:nil address:nil];
-        }
+//        if (! location) {
+//            location = [[Location alloc] initWithName:nil address:nil];
+//        }
 
         self.dataStore       = dataStore;
         self.number          = number;

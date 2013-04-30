@@ -57,6 +57,14 @@ static NSDateFormatter *entryDateFormatter = nil;
 @property (assign)            IBOutlet NSTextView    *reportEntriesView;
 @property (assign)            IBOutlet NSTextView    *reportEntryToAddView;
 
+@property (assign) BOOL stateDidChange;
+@property (assign) BOOL priorityDidChange;
+@property (assign) BOOL summaryDidChange;
+@property (assign) BOOL rangersDidChange;
+@property (assign) BOOL typesDidChange;
+@property (assign) BOOL locationDidChange;
+@property (assign) BOOL reportDidChange;
+
 @property (assign) BOOL amCompleting;
 @property (assign) BOOL amBackspacing;
 
@@ -103,10 +111,17 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     if (! self.incident.number.integerValue < 0) {
         self.incident = [[self.dispatchQueueController.dataStore incidentWithNumber:self.incident.number] copy];
+
+        self.stateDidChange    = NO;
+        self.priorityDidChange = NO;
+        self.summaryDidChange  = NO;
+        self.rangersDidChange  = NO;
+        self.typesDidChange    = NO;
+        self.locationDidChange = NO;
     }
+    self.window.documentEdited = NO;
 
     [self updateView];
-    self.window.documentEdited = NO;
 }
 
 
@@ -251,7 +266,58 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (void) commitIncident
 {
-    [self.dispatchQueueController.dataStore commitIncident:self.incident];
+    BOOL edited;
+    Incident *incidentToCommit;
+
+    if (self.incident.number.integerValue < 0) {
+        // New incident; commit the whole thing
+        edited = YES;
+        incidentToCommit = self.incident;
+    }
+    else {
+        // Edited incident; commit changes
+        edited = NO;
+
+        NSArray  *rangers    = nil; if (self.rangersDidChange  ) { edited = YES; rangers    = self.incident.rangersByHandle.allKeys; }
+        NSArray  *types      = nil; if (self.typesDidChange    ) { edited = YES; types      = self.incident.types;                   }
+        NSString *summary    = nil; if (self.summaryDidChange  ) { edited = YES; summary    = self.incident.summary;                 }
+        NSDate   *created    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.created;                 }
+        NSDate   *dispatched = nil; if (self.stateDidChange    ) { edited = YES; dispatched = self.incident.dispatched;              }
+        NSDate   *onScene    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.onScene;                 }
+        NSDate   *closed     = nil; if (self.stateDidChange    ) { edited = YES; closed     = self.incident.closed;                  }
+        NSNumber *priority   = nil; if (self.priorityDidChange ) { edited = YES; priority   = self.incident.priority;                }
+
+        Location *location = nil;
+        if (self.locationDidChange) {
+            edited = YES;
+            location = [[Location alloc] initWithName:self.incident.location.name
+                                              address:self.incident.location.address];
+        }
+
+        NSArray *reportEntries = nil;
+        if (self.reportDidChange) {
+            edited = YES;
+            reportEntries = @[self.incident.reportEntries.lastObject];
+        }
+
+        incidentToCommit = [[Incident alloc] initInDataStore:self.incident.dataStore
+                                                  withNumber:self.incident.number
+                                                     rangers:rangers
+                                                    location:location
+                                                       types:types
+                                                     summary:summary
+                                               reportEntries:reportEntries
+                                                     created:created
+                                                  dispatched:dispatched
+                                                     onScene:onScene
+                                                      closed:closed
+                                                    priority:priority];
+    }
+
+    if (edited) {
+        [self.dispatchQueueController.dataStore commitIncident:incidentToCommit];
+    }
+
     [self reloadIncident];
 }
 
@@ -331,8 +397,8 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     // Flush the text fields
     [self editSummary:self];
-    [self editState:self];
-    [self editPriority:self];
+    //[self editState:self];
+    //[self editPriority:self];
     [self editLocationName:self];
     [self editLocationAddress:self];
 
@@ -346,6 +412,9 @@ static NSDateFormatter *entryDateFormatter = nil;
     if (reportTextToAdd.length > 0) {
         ReportEntry *entry = [[ReportEntry alloc] initWithText:reportTextToAdd];
         [self.incident addEntryToReport:entry];
+
+        self.reportDidChange = YES;
+        self.window.documentEdited = YES;
     }
 
     // Commit the change
@@ -361,8 +430,9 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSTextField *summaryField = self.summaryField;
     NSString *summary = summaryField.stringValue;
 
-    if (! incident.summary || ! [summary isEqualToString:incident.summary]) {
+    if (! [summary isEqualToString:incident.summary ? incident.summary : @""]) {
         incident.summary = summary;
+        self.summaryDidChange = YES;
         self.window.documentEdited = YES;
     }
 }
@@ -400,6 +470,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         return;
     }
 
+    self.stateDidChange = YES;
     self.window.documentEdited = YES;
 }
 
@@ -412,6 +483,7 @@ static NSDateFormatter *entryDateFormatter = nil;
     if (! [priority isEqualToNumber:incident.priority]) {
         NSLog(@"Priority edited.");
         incident.priority = priority;
+        self.priorityDidChange = YES;
         self.window.documentEdited = YES;
     }
 }
@@ -422,9 +494,10 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSTextField *locationNameField = self.locationNameField;
     NSString *locationName = locationNameField.stringValue;
 
-    if (! [locationName isEqualToString:incident.location.name]) {
+    if (! [locationName isEqualToString:incident.location.name ? incident.location.name : @""]) {
         NSLog(@"Location name edited.");
         incident.location.name = locationName;
+        self.locationDidChange = YES;
         self.window.documentEdited = YES;
     }
 }
@@ -435,9 +508,10 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSTextField *locationAddressField = self.locationAddressField;
     NSString *locationAddress = locationAddressField.stringValue;
 
-    if (! [locationAddress isEqualToString:incident.location.address]) {
+    if (! [locationAddress isEqualToString:incident.location.address ? incident.location.address : @""]) {
         NSLog(@"Location address edited.");
         incident.location.address = locationAddress;
+        self.locationDidChange = YES;
         self.window.documentEdited = YES;
     }
 }
@@ -559,18 +633,19 @@ static NSDateFormatter *entryDateFormatter = nil;
 
         if (tableView == self.rangersTable) {
             [self.incident removeRanger:objectToDelete];
+            self.rangersDidChange = YES;
         }
         else if (tableView == self.typesTable) {
             [self.incident.types removeObject:objectToDelete];
+            self.typesDidChange = YES;
         }
         else {
             performAlert(@"Table view unknown to IncidentController: %@", tableView);
             return;
         }
-        
-        [self updateView];
-
         self.window.documentEdited = YES;
+
+        [self updateView];
     }
 }
 
@@ -683,6 +758,7 @@ static NSDateFormatter *entryDateFormatter = nil;
                         if (ranger) {
                             NSLog(@"Ranger added: %@", ranger);
                             [self.incident addRanger:ranger];
+                            self.rangersDidChange = YES;
                             self.window.documentEdited = YES;
                             rangerToAddField.stringValue = @"";
                             [self updateView];
@@ -703,6 +779,7 @@ static NSDateFormatter *entryDateFormatter = nil;
                         if ([self.dispatchQueueController.dataStore.allIncidentTypes containsObject:type]) {
                             NSLog(@"Type added: %@", type);
                             [self.incident.types addObject:type];
+                            self.typesDidChange = YES;
                             self.window.documentEdited = YES;
                             typeToAddField.stringValue = @"";
                             [self updateView];
