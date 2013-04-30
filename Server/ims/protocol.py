@@ -94,7 +94,16 @@ def get_incident(request, number):
     import time
     time.sleep(0.3) # FIXME: remove this
     set_content_type(request, ContentType.JSON)
-    return storage().read_incident_with_number_raw(number)
+
+    #
+    # This is faster, but doesn't benefit from any cleanup or
+    # validation code, so it's only OK if we know all data in the
+    # store is clean by this server version's standards.
+    #
+    # return storage().read_incident_with_number_raw(number)
+
+    incident = storage().read_incident_with_number(number)
+    return incident.as_json()
 
 
 @route("/incidents/<number>", methods=("POST",))

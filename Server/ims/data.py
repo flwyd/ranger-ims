@@ -90,6 +90,8 @@ class Incident(object):
     def from_json(cls, root, number=None, validate=True):
         if number is None:
             raise TypeError("Incident number may not be null")
+        else:
+            number = int(number)
 
         json_number = root.get(JSON.number.value, None)
 
@@ -158,7 +160,7 @@ class Incident(object):
     ):
         if type(number) is not int:
             raise InvalidDataError(
-                "Incident number must be an int, not {}".format(number)
+                "Incident number must be an int, not ({}){}".format(number.__class__.__name__, number)
             )
 
         if number < 0:
@@ -262,12 +264,17 @@ class Incident(object):
             else:
                 return date_time.strftime(rfc3339_date_time_format)
 
+        if self.incident_types is None:
+            incident_types = ()
+        else:
+            incident_types = self.incident_types
+
         root[JSON.number.value          ] = self.number
         root[JSON.priority.value        ] = self.priority
         root[JSON.summary.value         ] = self.summary
-        root[JSON.location_name.value   ] = self.location.name;
-        root[JSON.location_address.value] = self.location.address;
-        root[JSON.incident_types.value  ] = self.incident_types
+        root[JSON.location_name.value   ] = self.location.name
+        root[JSON.location_address.value] = self.location.address
+        root[JSON.incident_types.value  ] = incident_types
 
         root[JSON.created.value   ] = render_date(self.created)
         root[JSON.dispatched.value] = render_date(self.dispatched)
