@@ -283,7 +283,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         NSString *summary    = nil; if (self.summaryDidChange  ) { edited = YES; summary    = self.incident.summary;                 }
         NSDate   *created    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.created;                 }
         NSDate   *dispatched = nil; if (self.stateDidChange    ) { edited = YES; dispatched = self.incident.dispatched;              }
-        NSDate   *onScene    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.onScene;                 }
+        NSDate   *onScene    = nil; if (self.stateDidChange    ) { edited = YES; onScene    = self.incident.onScene;                 }
         NSDate   *closed     = nil; if (self.stateDidChange    ) { edited = YES; closed     = self.incident.closed;                  }
         NSNumber *priority   = nil; if (self.priorityDidChange ) { edited = YES; priority   = self.incident.priority;                }
 
