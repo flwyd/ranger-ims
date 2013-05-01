@@ -178,7 +178,7 @@ NSArray *getRangerHandles(void);
 }
 
 
-- (void) commitIncident:(Incident *)incident
+- (void) updateIncident:(Incident *)incident
 {
     if (! incident || ! incident.number) {
         performAlert(@"Cannot commit invalid incident: %@", incident);

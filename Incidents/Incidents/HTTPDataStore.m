@@ -108,7 +108,7 @@ static int nextTemporaryNumber = -1;
 }
 
 
-- (void) commitIncident:(Incident *)incident
+- (void) updateIncident:(Incident *)incident
 {
     if (! incident || ! incident.number) {
         performAlert(@"Cannot commit invalid incident: %@", incident);
@@ -126,47 +126,34 @@ static int nextTemporaryNumber = -1;
         }
     }
 
-    NSURL *url = [self.url URLByAppendingPathComponent:@"incidents/"];
+    NSURL *url = [[self.url URLByAppendingPathComponent:@"incidents/"] URLByAppendingPathComponent:incident.number.stringValue];
 
-    if (incident.number.integerValue < 0) {
-        incident.number = nil;
+    HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+        NSLog(@"Incident #%@ edit request completed.", incident.number);
 
-        //self.allIncidentsByNumber[incident.number] = incident;
+        if (connection.responseData.length != 0) {
+            NSLog(@"Incident #%@ edit request got response data (not expected): %@", incident.number, self.pingConnection.responseData);
+        }
 
-        performAlert(@"commitIncident: unimplemented for new incident.");
-        return;
-    } else {
-        url = [url URLByAppendingPathComponent:incident.number.stringValue];
-    }
+        if (connection.responseInfo.statusCode != 200) {
+            performAlert(@"Incident #%@ edit request got status %ld, expected 200.", incident.number, connection.responseInfo.statusCode);
+            return;
+        }
 
-    @synchronized(incident) {
-        HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
-            NSLog(@"Incident #%@ edit request completed.", incident.number);
+        [self loadIncidentNumber:incident.number];
+    };
 
-            if (connection.responseData.length != 0) {
-                NSLog(@"Incident #%@ edit request got response data (not expected): %@", incident.number, self.pingConnection.responseData);
-            }
+    HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
+        self.serverAvailable = NO;
 
-            if (connection.responseInfo.statusCode != 200) {
-                performAlert(@"Incident #%@ edit request got status %ld, expected 200.", incident.number, connection.responseInfo.statusCode);
-                return;
-            }
+        performAlert(@"Incident #%@ edit request failed: %@", incident.number, error.localizedDescription);
+        NSLog(@"Unable to connect to server: %@", error);
+    };
 
-            [self loadIncidentNumber:incident.number];
-        };
-
-        HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
-            self.serverAvailable = NO;
-
-            performAlert(@"Incident #%@ edit request failed: %@", incident.number, error.localizedDescription);
-            NSLog(@"Unable to connect to server: %@", error);
-        };
-
-        [HTTPConnection JSONPostConnectionWithURL:url
-                                             body:body
-                                  responseHandler:onSuccess
-                                     errorHandler:onError];
-    }
+    [HTTPConnection JSONPostConnectionWithURL:url
+                                         body:body
+                              responseHandler:onSuccess
+                                 errorHandler:onError];
 }
 
 

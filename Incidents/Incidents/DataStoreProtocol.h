@@ -48,7 +48,7 @@
 - (Incident *) incidentWithNumber:(NSNumber *)number;
 
 - (Incident *) createNewIncident;
-- (void) commitIncident:(Incident *)incident;
+- (void) updateIncident:(Incident *)incident;
 
 - (NSDictionary *) allRangersByHandle;
 

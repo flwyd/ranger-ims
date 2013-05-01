@@ -266,17 +266,14 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (void) commitIncident
 {
-    BOOL edited;
-    Incident *incidentToCommit;
-
     if (self.incident.number.integerValue < 0) {
-        // New incident; commit the whole thing
-        edited = YES;
-        incidentToCommit = self.incident;
+        // New incident
+
+        performAlert(@"commitIncident: unimplemented for new incidents.");
     }
     else {
-        // Edited incident; commit changes
-        edited = NO;
+        // Edited incident
+        BOOL edited = NO;
 
         NSArray  *rangers    = nil; if (self.rangersDidChange  ) { edited = YES; rangers    = self.incident.rangersByHandle.allValues; }
         NSArray  *types      = nil; if (self.typesDidChange    ) { edited = YES; types      = self.incident.types;                     }
@@ -300,25 +297,25 @@ static NSDateFormatter *entryDateFormatter = nil;
             reportEntries = @[self.incident.reportEntries.lastObject];
         }
 
-        incidentToCommit = [[Incident alloc] initInDataStore:self.incident.dataStore
-                                                  withNumber:self.incident.number
-                                                     rangers:rangers
-                                                    location:location
-                                                       types:types
-                                                     summary:summary
-                                               reportEntries:reportEntries
-                                                     created:created
-                                                  dispatched:dispatched
-                                                     onScene:onScene
-                                                      closed:closed
-                                                    priority:priority];
-    }
+        if (edited) {
+            Incident *incidentToCommit = [[Incident alloc] initInDataStore:self.incident.dataStore
+                                                                withNumber:self.incident.number
+                                                                   rangers:rangers
+                                                                  location:location
+                                                                     types:types
+                                                                   summary:summary
+                                                             reportEntries:reportEntries
+                                                                   created:created
+                                                                dispatched:dispatched
+                                                                   onScene:onScene
+                                                                    closed:closed
+                                                                  priority:priority];
 
-    if (edited) {
-        [self.dispatchQueueController.dataStore commitIncident:incidentToCommit];
-    }
+            [self.dispatchQueueController.dataStore updateIncident:incidentToCommit];
+        }
 
-    [self reloadIncident];
+        //[self reloadIncident];
+    }
 }
 
 
