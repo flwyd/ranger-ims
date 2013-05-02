@@ -128,15 +128,15 @@ static int nextTemporaryNumber = -1;
 
     NSURL *url = [[self.url URLByAppendingPathComponent:@"incidents/"] URLByAppendingPathComponent:incident.number.stringValue];
 
-    HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
-        NSLog(@"Incident #%@ edit request completed.", incident.number);
+    HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
+        NSLog(@"Incident #%@ update request completed.", incident.number);
 
         if (connection.responseData.length != 0) {
-            NSLog(@"Incident #%@ edit request got response data (not expected): %@", incident.number, self.pingConnection.responseData);
+            NSLog(@"Incident #%@ update request got response data (not expected): %@", incident.number, self.pingConnection.responseData);
         }
 
         if (connection.responseInfo.statusCode != 200) {
-            performAlert(@"Incident #%@ edit request got status %ld, expected 200.", incident.number, connection.responseInfo.statusCode);
+            performAlert(@"Incident #%@ update request got status %ld, expected 200.", incident.number, connection.responseInfo.statusCode);
             return;
         }
 
@@ -146,13 +146,13 @@ static int nextTemporaryNumber = -1;
     HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
         self.serverAvailable = NO;
 
-        performAlert(@"Incident #%@ edit request failed: %@", incident.number, error.localizedDescription);
+        performAlert(@"Incident #%@ update request failed: %@", incident.number, error.localizedDescription);
         NSLog(@"Unable to connect to server: %@", error);
     };
 
     [HTTPConnection JSONPostConnectionWithURL:url
                                          body:body
-                              responseHandler:onSuccess
+                              responseHandler:onResponse
                                  errorHandler:onError];
 }
 
@@ -187,7 +187,7 @@ static int nextTemporaryNumber = -1;
         if (! self.pingConnection.active) {
             NSURL *url = [self.url URLByAppendingPathComponent:@"ping/"];
 
-            HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+            HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
                 if (connection != self.pingConnection) {
                     performAlert(@"Ping response from unknown connection!?");
                     return;
@@ -227,7 +227,7 @@ static int nextTemporaryNumber = -1;
             };
 
             self.pingConnection = [HTTPConnection JSONQueryConnectionWithURL:url
-                                                             responseHandler:onSuccess
+                                                             responseHandler:onResponse
                                                                 errorHandler:onError];
         }
     }
@@ -260,7 +260,7 @@ static int nextTemporaryNumber = -1;
         if (! self.loadIncidentNumbersConnection.active) {
             NSURL *url = [self.url URLByAppendingPathComponent:@"incidents/"];
 
-            HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+            HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
                 if (connection != self.loadIncidentNumbersConnection) {
                     performAlert(@"Load incident numbers response from unknown connection!?");
                     return;
@@ -307,7 +307,7 @@ static int nextTemporaryNumber = -1;
             };
 
             self.loadIncidentNumbersConnection = [HTTPConnection JSONQueryConnectionWithURL:url
-                                                                            responseHandler:onSuccess
+                                                                            responseHandler:onResponse
                                                                                errorHandler:onError];
         }
     }
@@ -339,7 +339,7 @@ static int nextTemporaryNumber = -1;
                     path = [NSString stringWithFormat:@"incidents/%@", number];
                     NSURL *url = [self.url URLByAppendingPathComponent:path];
 
-                    HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                    HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
                         if (connection != self.loadIncidentConnection) {
                             performAlert(@"Load incident #%@ request from unknown connection!?", number);
                             return;
@@ -389,7 +389,7 @@ static int nextTemporaryNumber = -1;
                     };
 
                     self.loadIncidentConnection = [HTTPConnection JSONQueryConnectionWithURL:url
-                                                                             responseHandler:onSuccess
+                                                                             responseHandler:onResponse
                                                                                 errorHandler:onError];
 
                     [self.delegate dataStoreWillUpdateIncidents:self];
@@ -411,7 +411,7 @@ static int nextTemporaryNumber = -1;
             if (! self.loadRangersConnection.active) {
                 NSURL *url = [self.url URLByAppendingPathComponent:@"rangers/"];
 
-                HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
                     if (connection != self.loadRangersConnection) {
                         performAlert(@"Load Rangers response from unknown connection!?");
                         return;
@@ -453,7 +453,7 @@ static int nextTemporaryNumber = -1;
                 };
 
                 self.loadRangersConnection = [HTTPConnection JSONQueryConnectionWithURL:url
-                                                                        responseHandler:onSuccess
+                                                                        responseHandler:onResponse
                                                                            errorHandler:onError];
             }
         }
@@ -478,7 +478,7 @@ static int nextTemporaryNumber = -1;
             if (! self.loadIncidentTypesConnection.active) {
                 NSURL *url = [self.url URLByAppendingPathComponent:@"incident_types/"];
 
-                HTTPResponseHandler onSuccess = ^(HTTPConnection *connection) {
+                HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
                     if (connection != self.loadIncidentTypesConnection) {
                         performAlert(@"Load Rangers response from unknown connection!?");
                         return;
@@ -520,7 +520,7 @@ static int nextTemporaryNumber = -1;
                 };
 
                 self.loadIncidentTypesConnection = [HTTPConnection JSONQueryConnectionWithURL:url
-                                                                              responseHandler:onSuccess
+                                                                              responseHandler:onResponse
                                                                                  errorHandler:onError];
             }
         }
