@@ -115,10 +115,14 @@ class Incident(object):
             address = root.get(JSON.location_address.value, None),
         )
 
-        rangers = tuple(
-            Ranger(handle)
-            for handle in root.get(JSON.ranger_handles.value, ())
-        )
+        ranger_handles = root.get(JSON.ranger_handles.value, None)
+        if ranger_handles is None:
+            rangers = None
+        else:
+            rangers = tuple(
+                Ranger(handle)
+                for handle in ranger_handles
+            )
 
         report_entries = tuple(
             ReportEntry(
@@ -134,7 +138,7 @@ class Incident(object):
             summary        = root.get(JSON.summary.value, None),
             location       = location,
             rangers        = rangers,
-            incident_types = root.get(JSON.incident_types.value, ()),
+            incident_types = root.get(JSON.incident_types.value, None),
             report_entries = report_entries,
             created        = parse_date(root.get(JSON.created.value, None)),
             dispatched     = parse_date(root.get(JSON.dispatched.value, None)),
