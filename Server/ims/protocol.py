@@ -91,8 +91,9 @@ def list_incidents(request):
 @route("/incidents/<number>", methods=("GET",))
 @http_sauce
 def get_incident(request, number):
-    import time
-    time.sleep(0.3) # FIXME: remove this
+    #import time
+    #time.sleep(0.3) # FIXME: remove this
+
     set_content_type(request, ContentType.JSON)
 
     #
