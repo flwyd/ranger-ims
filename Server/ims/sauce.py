@@ -35,6 +35,7 @@ from twisted.web import http
 from klein.interfaces import IKleinRequest
 
 from ims.data import InvalidDataError
+from ims.store import NoSuchIncidentError
 
 
 
@@ -52,6 +53,11 @@ def http_sauce(f):
     def wrapper(request, *args, **kwargs):
         try:
             return f(request, *args, **kwargs)
+
+        except NoSuchIncidentError as e:
+            request.setResponseCode(http.NOT_FOUND)
+            set_content_type(request, ContentType.plain)
+            return "No such incident: {}\n".format(e)
 
         except InvalidDataError as e:
             request.setResponseCode(http.BAD_REQUEST)
