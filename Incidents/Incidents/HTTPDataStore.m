@@ -127,6 +127,7 @@ static int nextTemporaryNumber = -1;
     }
 
     NSURL *url = [[self.url URLByAppendingPathComponent:@"incidents/"] URLByAppendingPathComponent:incident.number.stringValue];
+    __block NSError *connectionError = nil;
 
     HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
         NSLog(@"Incident #%@ update request completed.", incident.number);
@@ -140,14 +141,16 @@ static int nextTemporaryNumber = -1;
             return;
         }
 
+        if (connectionError) {
+            performAlert(@"Incident #%@ update request failed: %@", incident.number, connectionError.localizedDescription);
+            NSLog(@"Unable to connect to server: %@", connectionError);
+        }
+
         [self loadIncidentNumber:incident.number];
     };
 
     HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
-        self.serverAvailable = NO;
-
-        performAlert(@"Incident #%@ update request failed: %@", incident.number, error.localizedDescription);
-        NSLog(@"Unable to connect to server: %@", error);
+        connectionError = error;
     };
 
     [HTTPConnection JSONPostConnectionWithURL:url

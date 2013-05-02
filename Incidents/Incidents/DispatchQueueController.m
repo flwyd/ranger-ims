@@ -156,7 +156,6 @@ NSString *formattedDateTimeShort(NSDate *date);
 - (void) openIncident:(Incident *)incident
 {
     if (! incident) {
-        performAlert(@"Unable to open nil incident.");
         return;
     }
 
