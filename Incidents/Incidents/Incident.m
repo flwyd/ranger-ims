@@ -331,30 +331,41 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
 - (NSArray *) rangers
 {
+    if (! self.rangersByHandle) { return nil; }
+
     return self.rangersByHandle.allValues;
 }
 
 
 - (void) setRangers:(NSArray *)rangers
 {
-    NSMutableDictionary *rangersByHandle = [NSMutableDictionary dictionaryWithCapacity:rangers.count];
+    if (rangers) {
+        NSMutableDictionary *rangersByHandle = [NSMutableDictionary dictionaryWithCapacity:rangers.count];
 
-    for (Ranger *ranger in rangers) {
-        rangersByHandle[ranger.handle] = ranger;
+        for (Ranger *ranger in rangers) {
+            rangersByHandle[ranger.handle] = ranger;
+        }
+
+        self.rangersByHandle = rangersByHandle;
     }
-
-    self.rangersByHandle = rangersByHandle;
+    else {
+        self.rangersByHandle = nil;
+    }
 }
 
 
 - (void) addRanger:(Ranger *)ranger
 {
+    if (! self.rangersByHandle) { self.rangers = @[]; }
+
     ((NSMutableDictionary*)self.rangersByHandle)[ranger.handle] = ranger;
 }
 
 
 - (void) removeRanger:(Ranger *)ranger
 {
+    if (! self.rangersByHandle) { return; }
+
     [(NSMutableDictionary *)self.rangersByHandle removeObjectForKey:ranger.handle];
 }
 
