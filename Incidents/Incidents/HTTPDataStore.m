@@ -115,6 +115,23 @@ static int nextTemporaryNumber = -1;
         return;
     }
 
+    NSURL *url = [self.url URLByAppendingPathComponent:@"incidents/"];
+    NSInteger expectedStatusCode;
+
+    if (incident.number.integerValue < 0) {
+        // This is a temporary incident, upload as a new one (without an assigned number).
+        incident = [incident copy];
+        incident.number = nil;
+
+        expectedStatusCode = 201;
+    }
+    else {
+        // We're updating an existing incident; POST to it directly.
+        url = [url URLByAppendingPathComponent:incident.number.stringValue];
+
+        expectedStatusCode = 200;
+    }
+
     // Option: NSJSONWritingPrettyPrinted
     NSData *body;
     {
@@ -126,25 +143,39 @@ static int nextTemporaryNumber = -1;
         }
     }
 
-    NSURL *url = [[self.url URLByAppendingPathComponent:@"incidents/"] URLByAppendingPathComponent:incident.number.stringValue];
     __block NSError *connectionError = nil;
 
     HTTPResponseHandler onResponse = ^(HTTPConnection *connection) {
+        if (! incident.number) {
+            // This was a new incident. Find the number assigned to it in the reponse headers.
+            NSString *numberHeader = connection.responseInfo.allHeaderFields[@"Incident-Number"];
+            if (! numberHeader) {
+                performAlert(@"No number provided for new incident.");
+                return;
+            }
+            incident.number = [NSNumber numberWithInteger:numberHeader.integerValue];
+        }
+
         NSLog(@"Incident #%@ update request completed.", incident.number);
 
         if (connection.responseData.length != 0) {
             NSLog(@"Incident #%@ update request got response data (not expected): %@", incident.number, self.pingConnection.responseData);
         }
 
-        if (connection.responseInfo.statusCode != 200) {
-            performAlert(@"Incident #%@ update request got status %ld, expected 200.", incident.number, connection.responseInfo.statusCode);
+        if (connection.responseInfo.statusCode != expectedStatusCode) {
+            performAlert(@"Incident #%@ update request got status %ld, expected %ld.\n%@",
+                         incident.number, connection.responseInfo.statusCode, expectedStatusCode, connection.errorFromServer);
             return;
         }
 
         if (connectionError) {
-            performAlert(@"Incident #%@ update request failed: %@", incident.number, connectionError.localizedDescription);
+            performAlert(@"Incident #%@ update request failed: %@\n----\n%@",
+                         incident.number, connectionError.localizedDescription, connection.errorFromServer);
             NSLog(@"Unable to connect to server: %@", connectionError);
+            return;
         }
+
+        NSLog(@"Updated incident #%@.", incident.number);
 
         [self loadIncidentNumber:incident.number];
     };
@@ -196,8 +227,6 @@ static int nextTemporaryNumber = -1;
                     return;
                 }
 
-                //NSLog(@"Ping request completed.");
-
                 NSError *error = nil;
                 NSString *jsonACK = [NSJSONSerialization JSONObjectWithData:connection.responseData
                                                                     options:NSJSONReadingAllowFragments
@@ -206,6 +235,7 @@ static int nextTemporaryNumber = -1;
                 if (jsonACK) {
                     if ([jsonACK isEqualToString:@"ack"]) {
                         self.serverAvailable = YES;
+                        NSLog(@"Ping request succeeded.");
                     }
                     else {
                         performAlert(@"Unexpected response to ping: %@", jsonACK);
@@ -364,8 +394,8 @@ static int nextTemporaryNumber = -1;
                                 self.allIncidentsByNumber[number] = incident;
                                 self.incidentETagsByNumber[number] = loadIncidentETag;
 
-                                [self.delegate dataStore:self didUpdateIncident:incident];
                                 NSLog(@"Loaded incident #%@.", number);
+                                [self.delegate dataStore:self didUpdateIncident:incident];
                             }
                             else {
                                 performAlert(@"Got incident #%@ when I asked for incident #%@.  I'm confused.",
