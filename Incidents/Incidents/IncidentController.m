@@ -266,46 +266,52 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (void) commitIncident
 {
-    // Edited incident
-    BOOL edited = NO;
-
-    NSArray  *rangers    = nil; if (self.rangersDidChange  ) { edited = YES; rangers    = self.incident.rangersByHandle.allValues; }
-    NSArray  *types      = nil; if (self.typesDidChange    ) { edited = YES; types      = self.incident.types;                     }
-    NSString *summary    = nil; if (self.summaryDidChange  ) { edited = YES; summary    = self.incident.summary;                   }
-    NSDate   *created    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.created;                   }
-    NSDate   *dispatched = nil; if (self.stateDidChange    ) { edited = YES; dispatched = self.incident.dispatched;                }
-    NSDate   *onScene    = nil; if (self.stateDidChange    ) { edited = YES; onScene    = self.incident.onScene;                   }
-    NSDate   *closed     = nil; if (self.stateDidChange    ) { edited = YES; closed     = self.incident.closed;                    }
-    NSNumber *priority   = nil; if (self.priorityDidChange ) { edited = YES; priority   = self.incident.priority;                  }
-
-    Location *location = nil;
-    if (self.locationDidChange) {
-        edited = YES;
-        location = [[Location alloc] initWithName:self.incident.location.name
-                                          address:self.incident.location.address];
+    if (self.incident.number.integerValue < 0) {
+        // New incident
+        [self.dispatchQueueController.dataStore updateIncident:self.incident];
     }
+    else {
+        // Edited incident
+        BOOL edited = NO;
 
-    NSArray *reportEntries = nil;
-    if (self.reportDidChange) {
-        edited = YES;
-        reportEntries = @[self.incident.reportEntries.lastObject];
-    }
+        NSArray  *rangers    = nil; if (self.rangersDidChange  ) { edited = YES; rangers    = self.incident.rangersByHandle.allValues; }
+        NSArray  *types      = nil; if (self.typesDidChange    ) { edited = YES; types      = self.incident.types;                     }
+        NSString *summary    = nil; if (self.summaryDidChange  ) { edited = YES; summary    = self.incident.summary;                   }
+        NSDate   *created    = nil; if (self.stateDidChange    ) { edited = YES; created    = self.incident.created;                   }
+        NSDate   *dispatched = nil; if (self.stateDidChange    ) { edited = YES; dispatched = self.incident.dispatched;                }
+        NSDate   *onScene    = nil; if (self.stateDidChange    ) { edited = YES; onScene    = self.incident.onScene;                   }
+        NSDate   *closed     = nil; if (self.stateDidChange    ) { edited = YES; closed     = self.incident.closed;                    }
+        NSNumber *priority   = nil; if (self.priorityDidChange ) { edited = YES; priority   = self.incident.priority;                  }
 
-    if (edited) {
-        Incident *incidentToCommit = [[Incident alloc] initInDataStore:self.incident.dataStore
-                                                            withNumber:self.incident.number
-                                                               rangers:rangers
-                                                              location:location
-                                                                 types:types
-                                                               summary:summary
-                                                         reportEntries:reportEntries
-                                                               created:created
-                                                            dispatched:dispatched
-                                                               onScene:onScene
-                                                                closed:closed
-                                                              priority:priority];
+        Location *location = nil;
+        if (self.locationDidChange) {
+            edited = YES;
+            location = [[Location alloc] initWithName:self.incident.location.name
+                                              address:self.incident.location.address];
+        }
 
-        [self.dispatchQueueController.dataStore updateIncident:incidentToCommit];
+        NSArray *reportEntries = nil;
+        if (self.reportDidChange) {
+            edited = YES;
+            reportEntries = @[self.incident.reportEntries.lastObject];
+        }
+
+        if (edited) {
+            Incident *incidentToCommit = [[Incident alloc] initInDataStore:self.incident.dataStore
+                                                                withNumber:self.incident.number
+                                                                   rangers:rangers
+                                                                  location:location
+                                                                     types:types
+                                                                   summary:summary
+                                                             reportEntries:reportEntries
+                                                                   created:created
+                                                                dispatched:dispatched
+                                                                   onScene:onScene
+                                                                    closed:closed
+                                                                  priority:priority];
+
+            [self.dispatchQueueController.dataStore updateIncident:incidentToCommit];
+        }
     }
 }
 
