@@ -161,7 +161,7 @@
     if (! [responseInfo isKindOfClass:NSHTTPURLResponse.class]) {
         whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-HTTP) response: %@", responseInfo];
     }
-    else if (! [responseInfo.MIMEType isEqualToString:@"application/json"]) {
+    else if (! [responseInfo.MIMEType isEqualToString:@"application/json"] && responseInfo.statusCode != 201) {
         whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-JSON) MIME type: %@", responseInfo.MIMEType];
     }
 
