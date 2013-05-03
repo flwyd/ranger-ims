@@ -204,6 +204,9 @@ class Incident(object):
         """
         Validate this incident.
         """
+        if self.rangers is None:
+            raise InvalidDataError("Rangers may not be None.")
+
         for ranger in self.rangers:
             ranger.validate()
 
