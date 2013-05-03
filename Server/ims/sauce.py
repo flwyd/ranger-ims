@@ -76,8 +76,9 @@ def http_sauce(f):
 
 
 class HeaderName (Values):
-    contentType = ValueConstant("Content-Type")
-    location    = ValueConstant("Location")
+    contentType    = ValueConstant("Content-Type")
+    location       = ValueConstant("Location")
+    incidentNumber = ValueConstant("Incident-Number")
 
 
 

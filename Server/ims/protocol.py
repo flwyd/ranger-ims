@@ -166,6 +166,10 @@ def new_incident(request):
     request.setResponseCode(http.CREATED)
 
     request.setHeader(
+        HeaderName.incidentNumber.value,
+        incident.number
+    )
+    request.setHeader(
         HeaderName.location.value,
         url_for(request, "get_incident", {"number": incident.number})
     )
