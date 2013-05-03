@@ -119,6 +119,27 @@
 }
 
 
+- (NSAttributedString*) errorFromServer
+{
+    if (self.active) { return nil; }
+
+    if (self.responseData.length == 0) { return [[NSAttributedString alloc] initWithString:@""]; }
+
+    if ([self.responseInfo.MIMEType isEqualToString:@"text/plain"]) {
+        // FIXME: We're assuming UTF-8;, could try to get the encoding from the MIME hooey or something.  Whatevs.
+        NSString *message = [[NSString alloc] initWithBytes:self.responseData.bytes length:self.responseData.length encoding:NSUTF8StringEncoding];
+        return [[NSAttributedString alloc] initWithString:message];
+    }
+
+    if ([self.responseInfo.MIMEType isEqualToString:@"text/html"]) {
+        return [[NSAttributedString alloc] initWithHTML:self.responseData documentAttributes:NULL];
+    }
+
+    NSString *message = [NSString stringWithFormat:@"(Unable to read error content of type: %@)", self.responseInfo.MIMEType];
+    return [[NSAttributedString alloc] initWithString:message];
+}
+
+
 @end
 
 
@@ -126,36 +147,33 @@
 @implementation HTTPConnection (NSConnectionDelegate)
 
 
-- (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response
+- (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)responseInfo
 {
     if (! [connection isEqual:self.urlConnection]) {
         NSLog(@"Got response from unknown connection?!?!");
         return;
     }
 
-    self.responseInfo = response;
+    self.responseInfo = responseInfo;
 
     NSString *whyIDontLikeThisResponse = nil;
 
-    if (! [response isKindOfClass:NSHTTPURLResponse.class]) {
-        whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-HTTP) response: %@", response];
+    if (! [responseInfo isKindOfClass:NSHTTPURLResponse.class]) {
+        whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-HTTP) response: %@", responseInfo];
     }
-    else if (! [response.MIMEType isEqualToString:@"application/json"]) {
-        whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-JSON) MIME type: %@", response.MIMEType];
+    else if (! [responseInfo.MIMEType isEqualToString:@"application/json"]) {
+        whyIDontLikeThisResponse = [NSString stringWithFormat:@"Unexpected (non-JSON) MIME type: %@", responseInfo.MIMEType];
     }
 
     if (whyIDontLikeThisResponse) {
-        self.responseData = nil;
-
         NSError *error = [[NSError alloc] initWithDomain:@"HTTPConnection"
-                                                    code:response.statusCode
+                                                    code:responseInfo.statusCode
                                                 userInfo:@{NSLocalizedDescriptionKey: whyIDontLikeThisResponse}];
 
         [self reportError:error];
     }
-    else {
-        [(NSMutableData *)self.responseData setLength:0];
-    }
+
+    [(NSMutableData *)self.responseData setLength:0];
 }
 
 

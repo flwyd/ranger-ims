@@ -50,5 +50,7 @@ typedef void (^HTTPErrorHandler)(HTTPConnection *, NSError *);
        responseHandler:(HTTPResponseHandler)onSuccess
           errorHandler:(HTTPErrorHandler)onError;
 
+- (NSAttributedString*) errorFromServer;
+
 
 @end
