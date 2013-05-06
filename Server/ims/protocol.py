@@ -24,7 +24,7 @@ __all__ = [
 from twisted.python.filepath import FilePath
 from twisted.web import http
 
-from klein import route
+from klein import Klein
 
 from ims.store import Storage
 from ims.data import Incident, JSON, to_json, from_json_io
@@ -33,157 +33,162 @@ from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
 
 
-protocol_version = "0.0"
+class IncidentManagementSystem(object):
+    """
+    Incident Management System
+    """
+    app = Klein()
+
+    protocol_version = "0.0"
 
 
-@route("/ping/", methods=("GET",))
-@http_sauce
-def ping(request):
-    set_content_type(request, ContentType.JSON)
-    return to_json("ack")
+    @app.route("/ping/", methods=("GET",))
+    @http_sauce
+    def ping(self, request):
+        set_content_type(request, ContentType.JSON)
+        return to_json("ack")
 
 
-@route("/rangers/", methods=("GET",))
-@http_sauce
-def list_rangers(request):
-    set_content_type(request, ContentType.JSON)
-    return to_json(tuple(
-        {
-            "handle": handle,
-            "name": None,
-        }
-        for handle in allRangers
-    ))
+    @app.route("/rangers/", methods=("GET",))
+    @http_sauce
+    def list_rangers(self, request):
+        set_content_type(request, ContentType.JSON)
+        return to_json(tuple(
+            {
+                "handle": handle,
+                "name": None,
+            }
+            for handle in allRangers
+        ))
 
 
-@route("/incident_types/", methods=("GET",))
-@http_sauce
-def list_incident_types(request):
-    set_content_type(request, ContentType.JSON)
-    return to_json((
-        "Admin",
-        "Art",
-        "Echelon",
-        "Eviction",
-        "Fire",
-        "Gate",
-        "Green Dot",
-        "HQ",
-        "Law Enforcement",
-        "Medical",
-        "Mental Health",
-        "SITE",
-        "Staff",
-        "Theme Camp",
-        "Vehicle",
+    @app.route("/incident_types/", methods=("GET",))
+    @http_sauce
+    def list_incident_types(self, request):
+        set_content_type(request, ContentType.JSON)
+        return to_json((
+            "Admin",
+            "Art",
+            "Echelon",
+            "Eviction",
+            "Fire",
+            "Gate",
+            "Green Dot",
+            "HQ",
+            "Law Enforcement",
+            "Medical",
+            "Mental Health",
+            "SITE",
+            "Staff",
+            "Theme Camp",
+            "Vehicle",
 
-        "Junk",
-    ))
-
-
-@route("/incidents/", methods=("GET",))
-@http_sauce
-def list_incidents(request):
-    set_content_type(request, ContentType.JSON)
-    return to_json(tuple(storage().list_incidents()))
+            "Junk",
+        ))
 
 
-@route("/incidents/<number>", methods=("GET",))
-@http_sauce
-def get_incident(request, number):
-    #import time
-    #time.sleep(0.3) # FIXME: remove this
-
-    set_content_type(request, ContentType.JSON)
-
-    #
-    # This is faster, but doesn't benefit from any cleanup or
-    # validation code, so it's only OK if we know all data in the
-    # store is clean by this server version's standards.
-    #
-    # return storage().read_incident_with_number_raw(number)
-
-    incident = storage().read_incident_with_number(number)
-    return incident.as_json()
+    @app.route("/incidents/", methods=("GET",))
+    @http_sauce
+    def list_incidents(self, request):
+        set_content_type(request, ContentType.JSON)
+        return to_json(tuple(self.storage().list_incidents()))
 
 
-@route("/incidents/<number>", methods=("POST",))
-@http_sauce
-def edit_incident(request, number):
-    number = int(number)
-    incident = storage().read_incident_with_number(number)
+    @app.route("/incidents/<number>", methods=("GET",))
+    @http_sauce
+    def get_incident(self, request, number):
+        #import time
+        #time.sleep(0.3) # FIXME: remove this
 
-    edits_json = from_json_io(request.content)
-    edits = Incident.from_json(edits_json, number=number, validate=False)
+        set_content_type(request, ContentType.JSON)
 
-    print "-"*80
-    print edits_json
-    print "-"*80
+        #
+        # This is faster, but doesn't benefit from any cleanup or
+        # validation code, so it's only OK if we know all data in the
+        # store is clean by this server version's standards.
+        #
+        # return storage().read_incident_with_number_raw(number)
 
-    for key in edits_json.keys():
-        if key == "report_entries":
-            if edits.report_entries is not None:
-                incident.report_entries += edits.report_entries
-                print "Adding report entries:", edits.report_entries
-        elif key == "location_name":
-            if edits.location.name is not None:
-                incident.location.name = edits.location.name
-                print "Editing location name:", edits.location.name
-        elif key == "location_address":
-            if edits.location.address is not None:
-                incident.location.address = edits.location.address
-                print "Editing location address:", edits.location.address
-        elif key == "ranger_handles":
-            if edits.rangers is not None:
-                incident.rangers = edits.rangers
-                print "Editing rangers:", edits.rangers
-        elif key == "incident_types":
-            if edits.incident_types is not None:
-                incident.incident_types = edits.incident_types
-                print "Editing incident types:", edits.incident_types
-        else:
-            attr_name = JSON.lookupByValue(key).name
-            attr_value = getattr(edits, attr_name)
-            setattr(incident, attr_name, attr_value)
-            print "Editing", attr_name, ":", attr_value
-
-    storage().write_incident(incident)
-
-    set_content_type(request, ContentType.JSON)
-    request.setResponseCode(http.OK)
-
-    return "";
+        incident = self.storage().read_incident_with_number(number)
+        return incident.as_json()
 
 
-@route("/incidents/", methods=("POST",))
-@http_sauce
-def new_incident(request):
-    store = storage()
+    @app.route("/incidents/<number>", methods=("POST",))
+    @http_sauce
+    def edit_incident(self, request, number):
+        number = int(number)
+        incident = self.storage().read_incident_with_number(number)
 
-    incident = Incident.from_json_io(request.content, number=store.next_incident_number())
-    store.write_incident(incident)
+        edits_json = from_json_io(request.content)
+        edits = Incident.from_json(edits_json, number=number, validate=False)
 
-    request.setResponseCode(http.CREATED)
+        print "-"*80
+        print edits_json
+        print "-"*80
 
-    request.setHeader(
-        HeaderName.incidentNumber.value,
-        incident.number
-    )
-    request.setHeader(
-        HeaderName.location.value,
-        url_for(request, "get_incident", {"number": incident.number})
-    )
+        for key in edits_json.keys():
+            if key == "report_entries":
+                if edits.report_entries is not None:
+                    incident.report_entries += edits.report_entries
+                    print "Adding report entries:", edits.report_entries
+            elif key == "location_name":
+                if edits.location.name is not None:
+                    incident.location.name = edits.location.name
+                    print "Editing location name:", edits.location.name
+            elif key == "location_address":
+                if edits.location.address is not None:
+                    incident.location.address = edits.location.address
+                    print "Editing location address:", edits.location.address
+            elif key == "ranger_handles":
+                if edits.rangers is not None:
+                    incident.rangers = edits.rangers
+                    print "Editing rangers:", edits.rangers
+            elif key == "incident_types":
+                if edits.incident_types is not None:
+                    incident.incident_types = edits.incident_types
+                    print "Editing incident types:", edits.incident_types
+            else:
+                attr_name = JSON.lookupByValue(key).name
+                attr_value = getattr(edits, attr_name)
+                setattr(incident, attr_name, attr_value)
+                print "Editing", attr_name, ":", attr_value
 
-    return "";
+        self.storage().write_incident(incident)
+
+        set_content_type(request, ContentType.JSON)
+        request.setResponseCode(http.OK)
+
+        return "";
 
 
-def storage():
-    global _storage
-    if _storage is None:
-        _storage = Storage(FilePath(__file__).parent().parent().child("data"))
-        _storage.provision()
-    return _storage
-_storage = None
+    @app.route("/incidents/", methods=("POST",))
+    @http_sauce
+    def new_incident(self, request):
+        store = self.storage()
+
+        incident = Incident.from_json_io(request.content, number=store.next_incident_number())
+        store.write_incident(incident)
+
+        request.setResponseCode(http.CREATED)
+
+        request.setHeader(
+            HeaderName.incidentNumber.value,
+            incident.number
+        )
+        request.setHeader(
+            HeaderName.location.value,
+            url_for(request, "get_incident", {"number": incident.number})
+        )
+
+        return "";
+
+
+    def storage(self):
+        if not hasattr(self, "_storage"):
+            storage = Storage(FilePath(__file__).parent().parent().child("data"))
+            storage.provision()
+            self._storage = storage
+        return self._storage
 
 
 
