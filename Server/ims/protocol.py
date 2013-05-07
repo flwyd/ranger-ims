@@ -24,13 +24,14 @@ __all__ = [
 from twisted.python.filepath import FilePath
 from twisted.web import http
 
-from klein import Klein
+from klein import Klein, resource as KleinResource
 
 from ims.store import Storage
 from ims.data import Incident, JSON, to_json, from_json_io
 from ims.sauce import url_for, set_content_type
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
+
 
 
 class IncidentManagementSystem(object):
@@ -189,6 +190,10 @@ class IncidentManagementSystem(object):
             storage.provision()
             self._storage = storage
         return self._storage
+
+
+
+Resource = KleinResource
 
 
 

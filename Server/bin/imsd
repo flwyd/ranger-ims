@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/bin/sh
 ##
 # See the file COPYRIGHT for copyright information.
 # 
@@ -15,17 +15,7 @@
 # limitations under the License.
 ##
 
-"""
-IMS Server
-"""
+set -e
+set -u
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-from ims.protocol import IncidentManagementSystem
-
-
-if __name__ == '__main__':
-    ims = IncidentManagementSystem()
-    ims.app.run("localhost", 8080)
+twistd --nodaemon web --class=ims.protocol.Resource
