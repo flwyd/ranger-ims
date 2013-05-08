@@ -19,9 +19,11 @@ Protocol bits
 """
 
 __all__ = [
+    "IncidentManagementSystem",
 ]
 
 from twisted.python.filepath import FilePath
+from twisted.cred.checkers import FilePasswordDB
 from twisted.web import http
 
 from klein import Klein, resource as KleinResource
@@ -31,6 +33,7 @@ from ims.data import Incident, JSON, to_json, from_json_io
 from ims.sauce import url_for, set_content_type
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
+from ims.auth import guard
 
 
 
@@ -193,7 +196,13 @@ class IncidentManagementSystem(object):
 
 
 
-Resource = KleinResource
+Resource = guard(
+    KleinResource,
+    "Ranger Incident Management System",
+    (
+        FilePasswordDB(FilePath(__file__).parent().parent().child("conf").child("users.pwdb").path),
+    ),
+)
 
 
 
