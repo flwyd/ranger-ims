@@ -120,7 +120,7 @@ class Incident(object):
             rangers = None
         else:
             rangers = tuple(
-                Ranger(handle)
+                Ranger(handle, None)
                 for handle in ranger_handles
             )
 
@@ -339,17 +339,23 @@ class Ranger(object):
     Ranger
     """
 
-    def __init__(self, handle):
+    def __init__(self, handle, name):
         if not handle:
             raise InvalidDataError("Ranger handle required.")
 
         self.handle = handle
+        self.name   = name
 
 
     def validate(self):
         if type(self.handle) is not unicode:
             raise InvalidDataError(
                 "Ranger handle must be unicode, not {}".format(self.handle)
+            )
+
+        if self.name is not None and type(self.name) is not unicode:
+            raise InvalidDataError(
+                "Ranger name must be unicode, not {}".format(self.handle)
             )
 
 
