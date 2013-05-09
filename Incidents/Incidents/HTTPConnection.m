@@ -188,6 +188,26 @@
 }
 
 
+- (void) connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    if ([challenge previousFailureCount] == 0) {
+        NSLog(@"Authentication requested.");
+        NSURLCredential *newCredential = [NSURLCredential credentialWithUser:@"test"
+                                                                    password:@"test"
+                                                                 persistence:NSURLCredentialPersistenceForSession];
+
+        [[challenge sender] useCredential:newCredential forAuthenticationChallenge:challenge];
+    }
+    else {
+        NSError *error = [[NSError alloc] initWithDomain:@"HTTPConnection"
+                                                    code:0
+                                                userInfo:@{NSLocalizedDescriptionKey: @"Authentication failed."}];
+
+        [self reportError:error];
+    }
+}
+
+
 - (void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
     if (! [connection isEqual:self.urlConnection]) {
