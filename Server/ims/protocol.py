@@ -55,6 +55,24 @@ class IncidentManagementSystem(object):
         self.dms = DutyManagementSystem()
 
 
+    @app.route("/", methods=("GET",))
+    def root(self, request):
+        set_content_type(request, ContentType.HTML)
+        return (
+"""
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Ranger Incident Management System</title>
+ </head>
+ <body>
+  <p>This is the Ranger Incident Management System.</p>
+ </body>
+</html>
+"""
+        )
+
+
     @app.route("/ping/", methods=("GET",))
     @http_sauce
     def ping(self, request):
@@ -203,10 +221,14 @@ class IncidentManagementSystem(object):
 
     def storage(self):
         if not hasattr(self, "_storage"):
-            storage = Storage(FilePath(__file__).parent().parent().child("data"))
+            storage = Storage(sourceRoot.child("data"))
             storage.provision()
             self._storage = storage
         return self._storage
+
+
+
+sourceRoot = FilePath(__file__).parent().parent()
 
 
 
@@ -214,7 +236,7 @@ Resource = guard(
     KleinResource,
     "Ranger Incident Management System",
     (
-        FilePasswordDB(FilePath(__file__).parent().parent().child("conf").child("users.pwdb").path),
+        FilePasswordDB(sourceRoot.child("conf").child("users.pwdb").path),
     ),
 )
 
