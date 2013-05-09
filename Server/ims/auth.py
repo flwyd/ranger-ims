@@ -45,6 +45,7 @@ def guard(resourceClass, realmName, checkers):
 
     portal = Portal(IMSRealm(), checkers)
 
+    return resourceClass
     return lambda: HTTPAuthSessionWrapper(
         portal,
         (
