@@ -45,7 +45,6 @@ def guard(kleinFactory, realmName, checkers):
 
     portal = Portal(Realm(), checkers)
 
-    return kleinFactory().app.resource
     return lambda: HTTPAuthSessionWrapper(
         portal,
         (
