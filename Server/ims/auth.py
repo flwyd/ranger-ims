@@ -30,22 +30,22 @@ from twisted.web.guard import HTTPAuthSessionWrapper, DigestCredentialFactory
 
 
 
-def guard(resourceClass, realmName, checkers):
-    class IMSRealm(object):
+def guard(kleinFactory, realmName, checkers):
+    class Realm(object):
         implements(IRealm)
 
         def requestAvatar(self, avatarId, mind, *interfaces):
             if IResource not in interfaces:
                 raise NotImplementedError()
 
-            resource = resourceClass()
-            resource.avatarId = avatarId
+            kleinContainer = kleinFactory()
+            kleinContainer.avatarId = avatarId
 
-            return (IResource, resource, lambda: None)
+            return (IResource, kleinContainer.app.resource(), lambda: None)
 
-    portal = Portal(IMSRealm(), checkers)
+    portal = Portal(Realm(), checkers)
 
-    return resourceClass
+    return kleinFactory().app.resource
     return lambda: HTTPAuthSessionWrapper(
         portal,
         (

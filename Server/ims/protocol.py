@@ -31,7 +31,7 @@ from twisted.python.filepath import FilePath
 from twisted.cred.checkers import FilePasswordDB
 from twisted.web import http
 
-from klein import Klein, resource as KleinResource
+from klein import Klein
 
 from ims.store import Storage
 from ims.data import Incident, JSON, to_json, from_json_io
@@ -52,6 +52,7 @@ class IncidentManagementSystem(object):
     protocol_version = "0.0"
 
     def __init__(self):
+        self.avatarId = None
         self.dms = DutyManagementSystem()
 
 
@@ -233,7 +234,7 @@ sourceRoot = FilePath(__file__).parent().parent()
 
 
 Resource = guard(
-    KleinResource,
+    IncidentManagementSystem,
     "Ranger Incident Management System",
     (
         FilePasswordDB(sourceRoot.child("conf").child("users.pwdb").path),
