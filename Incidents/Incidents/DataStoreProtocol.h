@@ -28,6 +28,7 @@
 - (void) dataStoreWillUpdateIncidents:(id)dataStore;
 - (void) dataStore:(id)dataStore didUpdateIncident:(Incident *)incident;
 
+- (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge;
 
 @end
 
@@ -39,7 +40,7 @@
 @property (strong,readonly) NSArray      *allIncidentTypes;
 @property (strong,readonly) NSDictionary *allRangersByHandle;
 
-@property (unsafe_unretained) id <DataStoreDelegate> delegate;
+@property (weak) id <DataStoreDelegate> delegate;
 
 
 - (BOOL) load;

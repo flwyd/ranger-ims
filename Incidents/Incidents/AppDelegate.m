@@ -23,6 +23,7 @@
 #import "HTTPServerInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
+#import "PasswordController.h"
 #import "AppDelegate.h"
 
 
@@ -31,9 +32,10 @@
 
 @property (strong,nonatomic) DispatchQueueController *dispatchQueueController;
 @property (strong,nonatomic) PreferencesController   *preferencesController;
+@property (strong,nonatomic) PasswordController      *passwordController;
 
-@property (unsafe_unretained) IBOutlet NSMenuItem *httpStoreMenuItem;
-@property (unsafe_unretained) IBOutlet NSMenuItem *fileStoreMenuItem;
+@property (weak) IBOutlet NSMenuItem *httpStoreMenuItem;
+@property (weak) IBOutlet NSMenuItem *fileStoreMenuItem;
 
 @property (strong,nonatomic) NSString *dataStoreType;
 
@@ -52,6 +54,7 @@
         connectionInfo.serverPort = 8080;
 
         self.connectionInfo = connectionInfo;
+        self.loginCredentials = nil;
     }
     return self;
 }
@@ -89,14 +92,17 @@
 - (void) setDataStoreType:(NSString *)type
 {
     if (! [_dataStoreType isEqualToString:type]) {
-        self.httpStoreMenuItem.state = NSOffState;
-        self.fileStoreMenuItem.state = NSOffState;
+        NSMenuItem *httpStoreMenuItem = self.httpStoreMenuItem;
+        httpStoreMenuItem.state = NSOffState;
+
+        NSMenuItem *fileStoreMenuItem = self.fileStoreMenuItem;
+        fileStoreMenuItem.state = NSOffState;
 
         if ([self.dataStoreType isEqualToString:@"HTTP"]) {
-            self.httpStoreMenuItem.state = NSOnState;
+            httpStoreMenuItem.state = NSOnState;
         }
         else if (! [self.dataStoreType isEqualToString:@"File"]) {
-            self.fileStoreMenuItem.state = NSOnState;
+            fileStoreMenuItem.state = NSOnState;
         }
 
         _dataStoreType = type;
@@ -143,6 +149,27 @@
 - (IBAction) showPreferences:(id)sender
 {
     [self.preferencesController showWindow:self];
+}
+
+
+- (PasswordController *) passwordController
+{
+    if (! _passwordController) {
+        _passwordController = [[PasswordController alloc] initWithAppDelegate:self];
+    }
+    return _passwordController;
+}
+
+
+- (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    if (! self.loginCredential) {
+        [self.passwordController showWindow:self];
+        [self.passwordController.window makeKeyAndOrderFront:self];
+
+        [NSApp runModalForWindow:self.passwordController.window];
+    }
+    return self.loginCredential;
 }
 
 

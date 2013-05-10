@@ -30,7 +30,7 @@
 @interface Incident : NSObject <NSCopying>
 
 
-@property (unsafe_unretained) id <DataStoreProtocol> dataStore;
+@property (weak) id <DataStoreProtocol> dataStore;
 
 @property (strong) NSNumber       *number;
 @property (strong) NSDictionary   *rangersByHandle;

@@ -25,10 +25,10 @@
 
 @interface PreferencesController ()
 
-@property (unsafe_unretained) AppDelegate *appDelegate;
+@property (weak) AppDelegate *appDelegate;
 
-@property (unsafe_unretained) IBOutlet NSTextField *serverNameField;
-@property (unsafe_unretained) IBOutlet NSTextField *serverPortField;
+@property (weak) IBOutlet NSTextField *serverNameField;
+@property (weak) IBOutlet NSTextField *serverPortField;
 
 @end
 
@@ -50,22 +50,29 @@
 {
     [super windowDidLoad];
 
-    self.serverNameField.stringValue = self.appDelegate.connectionInfo.serverName;
-    self.serverPortField.integerValue = self.appDelegate.connectionInfo.serverPort;
+    AppDelegate *appDelegate = self.appDelegate;
+
+    NSTextField *serverNameField = self.serverNameField;
+    serverNameField.stringValue = appDelegate.connectionInfo.serverName;
+
+    NSTextField *serverPortField = self.serverPortField;
+    serverPortField.integerValue = appDelegate.connectionInfo.serverPort;
 }
 
 
 - (IBAction) editServerName:(id)sender
 {
+    AppDelegate *appDelegate = self.appDelegate;
     NSTextField *field = sender;
-    self.appDelegate.connectionInfo.serverName = field.stringValue;
+    appDelegate.connectionInfo.serverName = field.stringValue;
 }
 
 
 - (IBAction) editServerPort:(id)sender
 {
+    AppDelegate *appDelegate = self.appDelegate;
     NSTextField *field = sender;
-    self.appDelegate.connectionInfo.serverPort = field.integerValue;
+    appDelegate.connectionInfo.serverPort = field.integerValue;
 }
 
 

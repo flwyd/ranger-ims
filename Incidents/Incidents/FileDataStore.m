@@ -144,7 +144,8 @@ NSArray *getRangerHandles(void);
 
         self.allIncidentsByNumber[incident.number] = incident;
 
-        [self.delegate dataStore:self didUpdateIncident:incident];
+        id <DataStoreDelegate> delegate = self.delegate;
+        [delegate dataStore:self didUpdateIncident:incident];
         NSLog(@"Loaded: %@", incident);
     }
 

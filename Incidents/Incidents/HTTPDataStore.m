@@ -90,6 +90,20 @@
 }
 
 
+- (HTTPAuthenticationHandler) authenticationHandler {
+    id <DataStoreDelegate> delegate = self.delegate;
+
+    if (delegate) {
+        return ^(HTTPConnection *connection, NSURLAuthenticationChallenge *challenge) {
+            return [delegate credentialForChallenge:challenge];
+        };
+    }
+    else {
+        return nil;
+    }
+}
+
+
 static int nextTemporaryNumber = -1;
 
 - (Incident *) createNewIncident
@@ -187,6 +201,7 @@ static int nextTemporaryNumber = -1;
     [HTTPConnection JSONPostConnectionWithURL:url
                                          body:body
                               responseHandler:onResponse
+                        authenticationHandler:self.authenticationHandler
                                  errorHandler:onError];
 }
 
@@ -261,6 +276,7 @@ static int nextTemporaryNumber = -1;
 
             self.pingConnection = [HTTPConnection JSONQueryConnectionWithURL:url
                                                              responseHandler:onResponse
+                                                       authenticationHandler:self.authenticationHandler
                                                                 errorHandler:onError];
         }
     }
@@ -341,6 +357,7 @@ static int nextTemporaryNumber = -1;
 
             self.loadIncidentNumbersConnection = [HTTPConnection JSONQueryConnectionWithURL:url
                                                                             responseHandler:onResponse
+                                                                      authenticationHandler:self.authenticationHandler
                                                                                errorHandler:onError];
         }
     }
@@ -367,6 +384,8 @@ static int nextTemporaryNumber = -1;
             else {
                 NSString *path = nil;
                 for (NSNumber *number in self.incidentsNumbersToLoad) {
+                    id <DataStoreDelegate> delegate = self.delegate;
+
                     //NSLog(@"Loading queued incident: %@", number);
 
                     path = [NSString stringWithFormat:@"incidents/%@", number];
@@ -395,7 +414,7 @@ static int nextTemporaryNumber = -1;
                                 self.incidentETagsByNumber[number] = loadIncidentETag;
 
                                 NSLog(@"Loaded incident #%@.", number);
-                                [self.delegate dataStore:self didUpdateIncident:incident];
+                                [delegate dataStore:self didUpdateIncident:incident];
                             }
                             else {
                                 performAlert(@"Got incident #%@ when I asked for incident #%@.  I'm confused.",
@@ -423,9 +442,10 @@ static int nextTemporaryNumber = -1;
 
                     self.loadIncidentConnection = [HTTPConnection JSONQueryConnectionWithURL:url
                                                                              responseHandler:onResponse
+                                                                       authenticationHandler:self.authenticationHandler
                                                                                 errorHandler:onError];
 
-                    [self.delegate dataStoreWillUpdateIncidents:self];
+                    [delegate dataStoreWillUpdateIncidents:self];
 
                     break;
                 }
@@ -487,6 +507,7 @@ static int nextTemporaryNumber = -1;
 
                 self.loadRangersConnection = [HTTPConnection JSONQueryConnectionWithURL:url
                                                                         responseHandler:onResponse
+                                                                  authenticationHandler:self.authenticationHandler
                                                                            errorHandler:onError];
             }
         }
@@ -554,6 +575,7 @@ static int nextTemporaryNumber = -1;
 
                 self.loadIncidentTypesConnection = [HTTPConnection JSONQueryConnectionWithURL:url
                                                                               responseHandler:onResponse
+                                                                        authenticationHandler:self.authenticationHandler
                                                                                  errorHandler:onError];
             }
         }

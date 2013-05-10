@@ -42,14 +42,14 @@ NSString *formattedDateTimeShort(NSDate *date);
     DataStoreDelegate
 >
 
-@property (unsafe_unretained) AppDelegate *appDelegate;
+@property (weak) AppDelegate *appDelegate;
 
-@property (unsafe_unretained) IBOutlet NSSearchField       *searchField;
-@property (unsafe_unretained) IBOutlet NSTableView         *dispatchTable;
-@property (unsafe_unretained) IBOutlet NSProgressIndicator *loadingIndicator;
-@property (unsafe_unretained) IBOutlet NSButton            *reloadButton;
-@property (unsafe_unretained) IBOutlet NSButton            *showClosed;
-@property (unsafe_unretained) IBOutlet NSTextField         *updatedLabel;
+@property (weak) IBOutlet NSSearchField       *searchField;
+@property (weak) IBOutlet NSTableView         *dispatchTable;
+@property (weak) IBOutlet NSProgressIndicator *loadingIndicator;
+@property (weak) IBOutlet NSButton            *reloadButton;
+@property (weak) IBOutlet NSButton            *showClosed;
+@property (weak) IBOutlet NSTextField         *updatedLabel;
 
 @property (strong,nonatomic) NSArray *sortedIncidents;
 @property (strong,nonatomic) NSArray *sortedOpenIncidents;
@@ -81,8 +81,11 @@ NSString *formattedDateTimeShort(NSDate *date);
 {
     [super windowDidLoad];
 
-    self.reloadButton.hidden = NO;
-    self.loadingIndicator.hidden = YES;
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = NO;
+
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    loadingIndicator.hidden = YES;
 
     NSTableView *dispatchTable = self.dispatchTable;
     dispatchTable.doubleAction = @selector(openClickedIncident);
@@ -333,14 +336,17 @@ NSString *formattedDateTimeShort(NSDate *date);
 - (void) dataStoreWillUpdateIncidents:(id)dataStore
 {
     // Hide the reload button…
-    self.reloadButton.hidden = YES;
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = YES;
 
     // Spin the progress indicator...
-    self.loadingIndicator.hidden = NO;
-    [self.loadingIndicator startAnimation:self];
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    loadingIndicator.hidden = NO;
+    [loadingIndicator startAnimation:self];
 
     // Display the update time
-    self.updatedLabel.stringValue = @"Updating…";
+    NSTextField *updatedLabel = self.updatedLabel;
+    updatedLabel.stringValue = @"Updating…";
 }
 
 
@@ -354,14 +360,24 @@ NSString *formattedDateTimeShort(NSDate *date);
     }
 
     // Stop the progress indicator.
-    [self.loadingIndicator stopAnimation:self];
-    self.loadingIndicator.hidden = YES;
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    [loadingIndicator stopAnimation:self];
+    loadingIndicator.hidden = YES;
 
     // Show the reload button…
-    self.reloadButton.hidden = NO;
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = NO;
 
     // Display the update time
-    self.updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
+    NSTextField *updatedLabel = self.updatedLabel;
+    updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
+}
+
+
+- (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    AppDelegate *appDelegate = self.appDelegate;
+    return [appDelegate credentialForChallenge:challenge];
 }
 
 

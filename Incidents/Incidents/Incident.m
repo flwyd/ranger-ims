@@ -243,7 +243,9 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
         return YES;
     }
 
-    if ((self.dataStore     != other.dataStore    ) && (! [self.dataStore     isEqual:           other.dataStore    ])) { return NO; }
+    id <DataStoreProtocol> dataStore = self.dataStore;
+
+    if ((     dataStore     != other.dataStore    ) && (! [     dataStore     isEqual:           other.dataStore    ])) { return NO; }
     if ((self.number        != other.number       ) && (! [self.number        isEqualToNumber:   other.number       ])) { return NO; }
     if ((self.rangers       != other.rangers      ) && (! [self.rangers       isEqualToArray:    other.rangers      ])) { return NO; }
     if ((self.location      != other.location     ) && (! [self.location      isEqualToLocation: other.location     ])) { return NO; }

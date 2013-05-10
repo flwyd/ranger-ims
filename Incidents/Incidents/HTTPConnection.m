@@ -32,8 +32,9 @@
 
 @property (strong) NSURLConnection *urlConnection;
 
-@property (strong) HTTPResponseHandler onSuccess;
-@property (strong) HTTPErrorHandler    onError;
+@property (strong) HTTPResponseHandler       onSuccess;
+@property (strong) HTTPAuthenticationHandler onAuthenticationChallenge;
+@property (strong) HTTPErrorHandler          onError;
 
 @end
 
@@ -44,6 +45,7 @@
 
 + (HTTPConnection *) JSONQueryConnectionWithURL:(NSURL *)url
                                 responseHandler:(HTTPResponseHandler)onSuccess
+                          authenticationHandler:(HTTPAuthenticationHandler)onAuthenticationChallenge
                                    errorHandler:(HTTPErrorHandler)onError
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
@@ -53,6 +55,7 @@
 
     return [[HTTPConnection alloc] initWithRequest:request
                                    responseHandler:onSuccess
+                             authenticationHandler:onAuthenticationChallenge
                                       errorHandler:onError];
 }
 
@@ -60,6 +63,7 @@
 + (HTTPConnection *) JSONPostConnectionWithURL:(NSURL *)url
                                           body:(NSData *)body
                                responseHandler:(HTTPResponseHandler)onSuccess
+                         authenticationHandler:(HTTPAuthenticationHandler)onAuthenticationChallenge
                                   errorHandler:(HTTPErrorHandler)onError
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
@@ -70,12 +74,14 @@
 
     return [[HTTPConnection alloc] initWithRequest:request
                                    responseHandler:onSuccess
+                             authenticationHandler:onAuthenticationChallenge
                                       errorHandler:onError];
 }
 
 
 - (id) initWithRequest:(NSURLRequest *)request
        responseHandler:(HTTPResponseHandler)onSuccess
+ authenticationHandler:(HTTPAuthenticationHandler)onAuthenticationChallenge
           errorHandler:(HTTPErrorHandler)onError
 {
     if (self = [super init]) {
@@ -87,8 +93,9 @@
 
         self.urlConnection = [NSURLConnection connectionWithRequest:request delegate:self];
 
-        self.onSuccess = onSuccess;
-        self.onError   = onError;
+        self.onSuccess                 = onSuccess;
+        self.onAuthenticationChallenge = onAuthenticationChallenge;
+        self.onError                   = onError;
 
         if (! self.urlConnection) {
             NSError *error = [[NSError alloc] initWithDomain:@"HTTPConnection"
@@ -192,9 +199,7 @@
 {
     if ([challenge previousFailureCount] == 0) {
         NSLog(@"Authentication requested.");
-        NSURLCredential *newCredential = [NSURLCredential credentialWithUser:@"test"
-                                                                    password:@"test"
-                                                                 persistence:NSURLCredentialPersistenceForSession];
+        NSURLCredential *newCredential = self.onAuthenticationChallenge(self, challenge);
 
         [[challenge sender] useCredential:newCredential forAuthenticationChallenge:challenge];
     }

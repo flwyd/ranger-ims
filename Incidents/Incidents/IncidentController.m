@@ -44,16 +44,16 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 @property (strong) DispatchQueueController *dispatchQueueController;
 
-@property (unsafe_unretained) IBOutlet NSTextField   *numberField;
-@property (unsafe_unretained) IBOutlet NSPopUpButton *statePopUp;
-@property (unsafe_unretained) IBOutlet NSPopUpButton *priorityPopUp;
-@property (unsafe_unretained) IBOutlet NSTextField   *summaryField;
-@property (unsafe_unretained) IBOutlet NSTableView   *rangersTable;
-@property (unsafe_unretained) IBOutlet NSTextField   *rangerToAddField;
-@property (unsafe_unretained) IBOutlet NSTableView   *typesTable;
-@property (unsafe_unretained) IBOutlet NSTextField   *typeToAddField;
-@property (unsafe_unretained) IBOutlet NSTextField   *locationNameField;
-@property (unsafe_unretained) IBOutlet NSTextField   *locationAddressField;
+@property (weak) IBOutlet NSTextField   *numberField;
+@property (weak) IBOutlet NSPopUpButton *statePopUp;
+@property (weak) IBOutlet NSPopUpButton *priorityPopUp;
+@property (weak) IBOutlet NSTextField   *summaryField;
+@property (weak) IBOutlet NSTableView   *rangersTable;
+@property (weak) IBOutlet NSTextField   *rangerToAddField;
+@property (weak) IBOutlet NSTableView   *typesTable;
+@property (weak) IBOutlet NSTextField   *typeToAddField;
+@property (weak) IBOutlet NSTextField   *locationNameField;
+@property (weak) IBOutlet NSTextField   *locationAddressField;
 @property (assign)            IBOutlet NSTextView    *reportEntriesView;
 @property (assign)            IBOutlet NSTextView    *reportEntryToAddView;
 

@@ -23,8 +23,9 @@
 
 
 
-typedef void (^HTTPResponseHandler)(HTTPConnection *);
-typedef void (^HTTPErrorHandler)(HTTPConnection *, NSError *);
+typedef void             (^HTTPResponseHandler)(HTTPConnection *);
+typedef NSURLCredential *(^HTTPAuthenticationHandler)(HTTPConnection *, NSURLAuthenticationChallenge *);
+typedef void             (^HTTPErrorHandler)(HTTPConnection *, NSError *);
 
 
 
@@ -39,15 +40,18 @@ typedef void (^HTTPErrorHandler)(HTTPConnection *, NSError *);
 
 + (HTTPConnection *) JSONQueryConnectionWithURL:(NSURL *)url
                                 responseHandler:(HTTPResponseHandler)onSuccess
+                          authenticationHandler:(HTTPAuthenticationHandler)onAuthenticationChallenge
                                    errorHandler:(HTTPErrorHandler)onError;
 
 + (HTTPConnection *) JSONPostConnectionWithURL:(NSURL *)url
                                           body:(NSData *)body
                                responseHandler:(HTTPResponseHandler)onSuccess
+                         authenticationHandler:(HTTPAuthenticationHandler)onAuthenticationChallenge
                                   errorHandler:(HTTPErrorHandler)onError;
 
 - (id) initWithRequest:(NSURLRequest *)request
        responseHandler:(HTTPResponseHandler)onSuccess
+ authenticationHandler:(HTTPAuthenticationHandler)onAuthenticationChallenge
           errorHandler:(HTTPErrorHandler)onError;
 
 - (NSAttributedString*) errorFromServer;
