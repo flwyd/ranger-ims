@@ -163,7 +163,12 @@
 
 - (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    if (! self.loginCredential) {
+    if (challenge.proposedCredential) {
+        self.loginCredential = challenge.proposedCredential;
+    }
+
+    if (! self.loginCredential || ! self.loginCredential.hasPassword || challenge.previousFailureCount > 0)
+    {
         [self.passwordController showWindow:self];
         [self.passwordController.window makeKeyAndOrderFront:self];
 

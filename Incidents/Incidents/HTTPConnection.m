@@ -197,19 +197,10 @@
 
 - (void) connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    if ([challenge previousFailureCount] == 0) {
-        NSLog(@"Authentication requested.");
-        NSURLCredential *newCredential = self.onAuthenticationChallenge(self, challenge);
+    NSLog(@"Authentication requested.");
+    NSURLCredential *newCredential = self.onAuthenticationChallenge(self, challenge);
 
-        [[challenge sender] useCredential:newCredential forAuthenticationChallenge:challenge];
-    }
-    else {
-        NSError *error = [[NSError alloc] initWithDomain:@"HTTPConnection"
-                                                    code:0
-                                                userInfo:@{NSLocalizedDescriptionKey: @"Authentication failed."}];
-
-        [self reportError:error];
-    }
+    [[challenge sender] useCredential:newCredential forAuthenticationChallenge:challenge];
 }
 
 

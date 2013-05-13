@@ -185,7 +185,7 @@ static int nextTemporaryNumber = -1;
         if (connectionError) {
             performAlert(@"Incident #%@ update request failed: %@\n----\n%@",
                          incident.number, connectionError.localizedDescription, connection.errorFromServer);
-            NSLog(@"Unable to connect to server: %@", connectionError);
+            NSLog(@"Unable to connect to server to update incident #%@: %@", incident.number, connectionError);
             return;
         }
 
