@@ -33,8 +33,10 @@
             address:(NSString *)address
 {
     if (self = [super init]) {
-        if (! name   ) { name    = @""; }
-        if (! address) { address = @""; }
+        id nsnull = [NSNull null];
+
+        if (! name    || name == nsnull) { name    = @""; }
+        if (! address || name == nsnull) { address = @""; }
 
         self.name    = name;
         self.address = address;
