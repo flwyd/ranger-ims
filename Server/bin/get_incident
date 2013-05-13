@@ -25,6 +25,7 @@ if [ $# != 0 ]; then
 fi;
 
 curl                                            \
+    --digest --user test:test                   \
     --silent                                    \
     --request "GET"                             \
     --data ""                                   \
