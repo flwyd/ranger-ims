@@ -54,7 +54,7 @@
         connectionInfo.serverPort = 8080;
 
         self.connectionInfo = connectionInfo;
-        self.loginCredentials = nil;
+        self.loginCredential = nil;
     }
     return self;
 }
