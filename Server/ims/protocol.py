@@ -22,13 +22,6 @@ __all__ = [
     "IncidentManagementSystem",
 ]
 
-if __name__ == "__main__":
-    import sys
-    import os
-    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-from twisted.python.filepath import FilePath
-from twisted.cred.checkers import FilePasswordDB
 from twisted.web import http
 
 from klein import Klein
@@ -39,7 +32,6 @@ from ims.sauce import url_for, set_content_type
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
 from ims.dms import DutyManagementSystem
-from ims.auth import guard
 
 
 
@@ -51,7 +43,8 @@ class IncidentManagementSystem(object):
 
     protocol_version = "0.0"
 
-    def __init__(self):
+    def __init__(self, storageDirectory):
+        self.storageDirectory = storageDirectory
         self.avatarId = None
         self.dms = DutyManagementSystem()
 
@@ -222,27 +215,7 @@ class IncidentManagementSystem(object):
 
     def storage(self):
         if not hasattr(self, "_storage"):
-            storage = Storage(sourceRoot.child("data"))
+            storage = Storage(self.storageDirectory)
             storage.provision()
             self._storage = storage
         return self._storage
-
-
-
-sourceRoot = FilePath(__file__).parent().parent()
-
-
-
-Resource = guard(
-    IncidentManagementSystem,
-    "Ranger Incident Management System",
-    (
-        FilePasswordDB(sourceRoot.child("conf").child("users.pwdb").path),
-    ),
-)
-
-
-
-if __name__ == "__main__":
-    ims = IncidentManagementSystem()
-    ims.app.run("localhost", 8080)

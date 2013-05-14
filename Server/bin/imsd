@@ -55,4 +55,4 @@ if [ $# != 0 ]; then usage "Unrecognized arguments:" "$@"; fi;
 # Do The Right THing
 #
 
-twistd ${opt_nodaemon} web --class=ims.protocol.Resource;
+twistd ${opt_nodaemon} web --class=ims.server.Resource;
