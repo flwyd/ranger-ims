@@ -131,10 +131,12 @@ static int nextTemporaryNumber = -1;
 
     NSURL *url = [self.url URLByAppendingPathComponent:@"incidents/"];
     NSInteger expectedStatusCode;
+    NSNumber *incidentNumberToReplace = nil;
 
     if (incident.number.integerValue < 0) {
         // This is a temporary incident, upload as a new one (without an assigned number).
         incident = [incident copy];
+        incidentNumberToReplace = incident.number;
         incident.number = nil;
 
         expectedStatusCode = 201;
@@ -192,6 +194,11 @@ static int nextTemporaryNumber = -1;
         NSLog(@"Updated incident #%@.", incident.number);
 
         [self loadIncidentNumber:incident.number];
+
+        if (incidentNumberToReplace) {
+            id <DataStoreDelegate> delegate = self.delegate;
+            [delegate dataStore:self didReplaceIncidentNumbered:incidentNumberToReplace withIncidentNumbered:incident.number];
+        }
     };
 
     HTTPErrorHandler onError = ^(HTTPConnection *connection, NSError *error) {
@@ -370,6 +377,7 @@ static int nextTemporaryNumber = -1;
         [self loadQueuedIncidents];
     }
 }
+
 
 - (void) loadQueuedIncidents {
     @synchronized(self) {

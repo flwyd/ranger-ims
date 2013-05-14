@@ -54,6 +54,8 @@ NSString *formattedDateTimeShort(NSDate *date);
 @property (strong,nonatomic) NSArray *sortedIncidents;
 @property (strong,nonatomic) NSArray *sortedOpenIncidents;
 
+@property (strong,nonatomic) NSMutableDictionary *incidentControllersToReplace;
+
 @end
 
 
@@ -72,6 +74,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         self.incidentControllers = [NSMutableDictionary dictionary];
         self.sortedIncidents = nil;
         self.sortedOpenIncidents = nil;
+        self.incidentControllersToReplace = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -184,7 +187,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         if (notedController != incidentController) {
             performAlert(@"Closing incident controllers don't match: %@ != %@", notedController, incidentController);
         }
-        if (! [notedIncident.number isEqualToNumber:incident.number]) {
+        if (incident.number.integerValue > 0 && ! [notedIncident.number isEqualToNumber:incident.number]) {
             performAlert(@"Closing incidents don't match: %@ != %@", notedIncident.number, incident.number);
         }
 
@@ -354,9 +357,21 @@ NSString *formattedDateTimeShort(NSDate *date);
 {
     [self loadTable];
 
-    IncidentController *controller = self.incidentControllers[incident.number];
+    // Check for an existing controller with a temporary (new) incident that needs to be replaced
+    IncidentController *controller = self.incidentControllersToReplace[incident.number];
     if (controller) {
+        // Update the controller with the new incident
+        controller.incident = [incident copy];
         [controller reloadIncident];
+
+        // Add to known controllers
+        self.incidentControllers[incident.number] = controller;
+    }
+    else {
+        controller = self.incidentControllers[incident.number];
+        if (controller) {
+            [controller reloadIncident];
+        }
     }
 
     // Stop the progress indicator.
@@ -371,6 +386,18 @@ NSString *formattedDateTimeShort(NSDate *date);
     // Display the update time
     NSTextField *updatedLabel = self.updatedLabel;
     updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
+}
+
+
+- (void) dataStore:(id)dataStore didReplaceIncidentNumbered:(NSNumber *)oldNumber withIncidentNumbered:(NSNumber *)newNumber
+{
+    IncidentController *controller = self.incidentControllers[oldNumber];
+    if (controller) {
+        // This number is no longer valid; remove from cache.
+        [self.incidentControllers removeObjectForKey:oldNumber];
+
+        self.incidentControllersToReplace[newNumber] = controller;
+    }
 }
 
 

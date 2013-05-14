@@ -27,6 +27,7 @@
 
 - (void) dataStoreWillUpdateIncidents:(id)dataStore;
 - (void) dataStore:(id)dataStore didUpdateIncident:(Incident *)incident;
+- (void) dataStore:(id)dataStore didReplaceIncidentNumbered:(NSNumber *)oldNumber withIncidentNumbered:(NSNumber *)newNumber;
 
 - (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge;
 
