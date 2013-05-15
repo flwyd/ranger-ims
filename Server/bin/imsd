@@ -22,7 +22,10 @@ set -u
 # Handle args
 #
 
+wd="$(cd "$(dirname "$0")/.." && pwd)";
+
 opt_nodaemon="";
+kill="false";
 
 usage ()
 {
@@ -34,16 +37,18 @@ usage ()
     echo "Options:";
     echo "        -h Print this help and exit";
     echo "        -X Do not daemonize";
+    echo "        -k Kill the server";
 
     if [ "${1-}" == "-" ]; then return 0; fi;
     exit 64;
 }
 
-while getopts 'hXLu:g:f:T:P:t:p:R:o:' option; do
+while getopts 'hXk' option; do
     case "${option}" in
         '?') usage; ;;
         'h') usage -; exit 0; ;;
         'X') opt_nodaemon="--nodaemon"; ;;
+        'k') kill="true"; ;;
     esac;
 done;
 
@@ -52,7 +57,24 @@ shift $((${OPTIND} - 1));
 if [ $# != 0 ]; then usage "Unrecognized arguments:" "$@"; fi;
 
 #
-# Do The Right THing
+# Do The Right Thing
 #
 
-twistd ${opt_nodaemon} web --class=ims.server.Resource;
+if "${kill}"; then
+    pid="$(cat "${wd}/log/imsd.pid")";
+    if [ -n "${pid}" ]; then
+        kill -TERM "${pid}";
+    fi;
+    exit;
+fi;
+
+mkdir -p "${wd}/log";
+
+twistd                              \
+  --rundir="${wd}"                  \
+  --pidfile="${wd}/log/imsd.pid"    \
+  --logfile="${wd}/log/imsd.log"    \
+  ${opt_nodaemon} web               \
+  --notracebacks                    \
+  --logfile="${wd}/log/access.log"  \
+  --class=ims.server.Resource;
