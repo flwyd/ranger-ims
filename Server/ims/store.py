@@ -59,7 +59,7 @@ class Storage(object):
 
         if not self.path.exists():
             log.msg(
-                "Creating storage directory: {}"
+                "Creating storage directory: {0}"
                 .format(self.path)
             )
             self.path.createDirectory()
@@ -67,7 +67,7 @@ class Storage(object):
 
         if not self.path.isdir():
             raise StorageError(
-                "Storage location must be a directory: {}"
+                "Storage location must be a directory: {0}"
                 .format(self.path)
             )
 
@@ -94,7 +94,7 @@ class Storage(object):
                 number = int(name)
             except ValueError:
                 log.err(
-                    "Invalid filename in data store: {}"
+                    "Invalid filename in data store: {0}"
                     .format(name)
                 )
                 continue

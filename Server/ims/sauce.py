@@ -57,12 +57,12 @@ def http_sauce(f):
         except NoSuchIncidentError as e:
             request.setResponseCode(http.NOT_FOUND)
             set_content_type(request, ContentType.plain)
-            return "No such incident: {}\n".format(e)
+            return "No such incident: {0}\n".format(e)
 
         except InvalidDataError as e:
             request.setResponseCode(http.BAD_REQUEST)
             set_content_type(request, ContentType.plain)
-            return "Invalid data: {}\n".format(e)
+            return "Invalid data: {0}\n".format(e)
 
         except Exception as e:
             raise

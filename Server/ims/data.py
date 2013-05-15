@@ -97,7 +97,7 @@ class Incident(object):
 
         if json_number is not None:
             if json_number != number:
-                raise InvalidDataError("Incident number may not be modified: {} != {}".format(json_number, number))
+                raise InvalidDataError("Incident number may not be modified: {0} != {1}".format(json_number, number))
 
             root[JSON.number.value] = number
 
@@ -164,12 +164,12 @@ class Incident(object):
     ):
         if type(number) is not int:
             raise InvalidDataError(
-                "Incident number must be an int, not ({}){}".format(number.__class__.__name__, number)
+                "Incident number must be an int, not ({0}){1}".format(number.__class__.__name__, number)
             )
 
         if number < 0:
             raise InvalidDataError(
-                "Incident number but be natural, not {}".format(number)
+                "Incident number but be natural, not {0}".format(number)
             )
 
         if rangers is not None:
@@ -217,12 +217,12 @@ class Incident(object):
             for incident_type in self.incident_types:
                 if type(incident_type) is not unicode:
                     raise InvalidDataError(
-                        "Incident type must be unicode, not {}".format(incident_type)
+                        "Incident type must be unicode, not {0}".format(incident_type)
                     )
 
         if self.summary is not None and type(self.summary) is not unicode:
             raise InvalidDataError(
-                "Incident summary must be unicode, not {}".format(self.summary)
+                "Incident summary must be unicode, not {0}".format(self.summary)
             )
 
         if self.report_entries is not None:
@@ -231,32 +231,32 @@ class Incident(object):
 
         if self.created is not None and type(self.created) is not datetime:
             raise InvalidDataError(
-                "Incident created date must be a datetime, not {}".format(self.created)
+                "Incident created date must be a datetime, not {0}".format(self.created)
             )
 
         if self.dispatched is not None and type(self.dispatched) is not datetime:
             raise InvalidDataError(
-                "Incident dispatched date must be a datetime, not {}".format(self.dispatched)
+                "Incident dispatched date must be a datetime, not {0}".format(self.dispatched)
             )
 
         if self.on_scene is not None and type(self.on_scene) is not datetime:
             raise InvalidDataError(
-                "Incident on_scene date must be a datetime, not {}".format(self.on_scene)
+                "Incident on_scene date must be a datetime, not {0}".format(self.on_scene)
             )
 
         if self.closed is not None and type(self.closed) is not datetime:
             raise InvalidDataError(
-                "Incident closed date must be a datetime, not {}".format(self.closed)
+                "Incident closed date must be a datetime, not {0}".format(self.closed)
             )
 
         if type(self.priority) is not int:
             raise InvalidDataError(
-                "Incident priority must be an int, not {}".format(self.priority)
+                "Incident priority must be an int, not {0}".format(self.priority)
             )
 
         if not 1 <= self.priority <= 5:
             raise InvalidDataError(
-                "Incident priority must be an int, not {}".format(self.priority)
+                "Incident priority must be an int, not {0}".format(self.priority)
             )
 
         return self
@@ -302,7 +302,7 @@ class Incident(object):
             return to_json(root)
         except TypeError:
             raise AssertionError(
-                "{}.as_json() generated unserializable data: {}"
+                "{0}.as_json() generated unserializable data: {1}"
                 .format(self.__class__.__name__, root)
             )
 
@@ -324,12 +324,12 @@ class ReportEntry(object):
     def validate(self):
         if type(self.text) is not unicode:
             raise InvalidDataError(
-                "Report entry text must be unicode, not {}".format(self.text)
+                "Report entry text must be unicode, not {0}".format(self.text)
             )
 
         if type(self.created) is not datetime:
             raise InvalidDataError(
-                "Report entry created date must be a datetime, not {}".format(self.created)
+                "Report entry created date must be a datetime, not {0}".format(self.created)
             )
 
 
@@ -350,12 +350,12 @@ class Ranger(object):
     def validate(self):
         if type(self.handle) is not unicode:
             raise InvalidDataError(
-                "Ranger handle must be unicode, not {}".format(self.handle)
+                "Ranger handle must be unicode, not {0}".format(self.handle)
             )
 
         if self.name is not None and type(self.name) is not unicode:
             raise InvalidDataError(
-                "Ranger name must be unicode, not {}".format(self.handle)
+                "Ranger name must be unicode, not {0}".format(self.handle)
             )
 
 
@@ -373,12 +373,12 @@ class Location(object):
     def validate(self):
         if self.name and type(self.name) is not unicode:
             raise InvalidDataError(
-                "Location name must be unicode, not {}".format(self.handle)
+                "Location name must be unicode, not {0}".format(self.handle)
             )
 
         if self.address and type(self.address) is not unicode:
             raise InvalidDataError(
-                "Location address must be unicode, not {}".format(self.handle)
+                "Location address must be unicode, not {0}".format(self.handle)
             )
 
 
