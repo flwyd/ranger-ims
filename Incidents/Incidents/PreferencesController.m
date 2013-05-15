@@ -17,7 +17,6 @@
 // limitations under the License.
 ////
 
-#import "HTTPServerInfo.h"
 #import "AppDelegate.h"
 #import "PreferencesController.h"
 
@@ -53,10 +52,10 @@
     AppDelegate *appDelegate = self.appDelegate;
 
     NSTextField *serverNameField = self.serverNameField;
-    serverNameField.stringValue = appDelegate.connectionInfo.serverName;
+    serverNameField.stringValue = appDelegate.serverHostName;
 
     NSTextField *serverPortField = self.serverPortField;
-    serverPortField.integerValue = appDelegate.connectionInfo.serverPort;
+    serverPortField.integerValue = appDelegate.serverPort.integerValue;
 }
 
 
@@ -64,7 +63,7 @@
 {
     AppDelegate *appDelegate = self.appDelegate;
     NSTextField *field = sender;
-    appDelegate.connectionInfo.serverName = field.stringValue;
+    appDelegate.serverHostName = field.stringValue;
 }
 
 
@@ -72,7 +71,7 @@
 {
     AppDelegate *appDelegate = self.appDelegate;
     NSTextField *field = sender;
-    appDelegate.connectionInfo.serverPort = field.integerValue;
+    appDelegate.serverPort = [NSNumber numberWithInteger:field.integerValue];
 }
 
 

@@ -20,7 +20,6 @@
 #import "utilities.h"
 #import "FileDataStore.h"
 #import "HTTPDataStore.h"
-#import "HTTPServerInfo.h"
 #import "DispatchQueueController.h"
 #import "PreferencesController.h"
 #import "PasswordController.h"
@@ -49,14 +48,51 @@
 - (id) init
 {
     if (self = [super init]) {
-        HTTPServerInfo *connectionInfo = [[HTTPServerInfo alloc] init];
-        connectionInfo.serverName = @"localhost";
-        connectionInfo.serverPort = 8080;
-
-        self.connectionInfo = connectionInfo;
         self.loginCredential = nil;
     }
     return self;
+}
+
+
+- (NSString *) serverHostName
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString  *serverHostName = [defaults stringForKey:@"IMSServerHostName"];
+    return serverHostName ? serverHostName : @"localhost";
+}
+
+
+- (void) setServerHostName:(NSString *)serverHostName
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([serverHostName isEqualToString:@"localhost"]) {
+        [defaults removeObjectForKey:@"IMSServerHostName"];
+    }
+    else {
+        [defaults setObject:serverHostName forKey:@"IMSServerHostName"];
+    }
+    [defaults synchronize];
+}
+
+
+- (NSNumber *) serverPort
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSInteger serverPort = [defaults integerForKey:@"IMSServerPort"];
+    return serverPort ? [NSNumber numberWithInteger:serverPort] : @8080;
+}
+
+
+- (void) setServerPort:(NSNumber *)serverPort
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([serverPort isEqualToNumber:@8080]) {
+        [defaults removeObjectForKey:@"IMSServerPort"];
+    }
+    else {
+        [defaults setObject:serverPort forKey:@"IMSServerPort"];
+    }
+    [defaults synchronize];
 }
 
 
@@ -69,11 +105,8 @@
             dataStore = [[FileDataStore alloc] init];
         }
         else if ([self.dataStoreType isEqualToString:@"HTTP"]) {
-            HTTPServerInfo *connectionInfo = self.connectionInfo;
-            NSString *host = [NSString stringWithFormat:@"%@:%lu",
-                              connectionInfo.serverName,
-                              (unsigned long)connectionInfo.serverPort];
-            NSURL* url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/"];
+            NSString *hostAndPort = [NSString stringWithFormat:@"%@:%@", self.serverHostName, self.serverPort];
+            NSURL* url = [[NSURL alloc] initWithScheme:@"http" host:hostAndPort path:@"/"];
             dataStore = [[HTTPDataStore alloc] initWithURL:url];
         }
         else {

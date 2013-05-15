@@ -26,7 +26,9 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 
-@property (strong) HTTPServerInfo  *connectionInfo;
+@property (strong) NSString *serverHostName;
+@property (strong) NSNumber *serverPort;
+
 @property (strong) NSURLCredential *loginCredential;
 
 
