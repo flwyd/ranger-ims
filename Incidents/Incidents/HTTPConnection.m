@@ -39,8 +39,22 @@
 @end
 
 
-
 @implementation HTTPConnection
+
+
++ (NSString *) userAgent {
+    NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    if (! version) {
+        version = @"UNKNOWN";
+    }
+    //NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+    return [NSString stringWithFormat:
+            @"Incidents IMS/%@",
+            version
+            //[processInfo operatingSystemName],
+            //[processInfo operatingSystemVersionString]
+            ];
+}
 
 
 + (HTTPConnection *) JSONQueryConnectionWithURL:(NSURL *)url
@@ -51,12 +65,13 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"GET"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setValue:[self userAgent] forHTTPHeaderField:@"User-Agent"];
     [request setHTTPBody:[NSData data]];
 
-    return [[HTTPConnection alloc] initWithRequest:request
-                                   responseHandler:onSuccess
-                             authenticationHandler:onAuthenticationChallenge
-                                      errorHandler:onError];
+    return [[self alloc] initWithRequest:request
+                         responseHandler:onSuccess
+                   authenticationHandler:onAuthenticationChallenge
+                            errorHandler:onError];
 }
 
 
@@ -70,12 +85,13 @@
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setValue:[self userAgent] forHTTPHeaderField:@"User-Agent"];
     [request setHTTPBody:body];
 
-    return [[HTTPConnection alloc] initWithRequest:request
-                                   responseHandler:onSuccess
-                             authenticationHandler:onAuthenticationChallenge
-                                      errorHandler:onError];
+    return [[self alloc] initWithRequest:request
+                         responseHandler:onSuccess
+                   authenticationHandler:onAuthenticationChallenge
+                            errorHandler:onError];
 }
 
 
