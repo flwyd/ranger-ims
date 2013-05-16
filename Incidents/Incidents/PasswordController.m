@@ -49,17 +49,21 @@
 {
     [super windowDidLoad];
 
-    self.window.backgroundColor = [NSColor colorWithSRGBRed:218.0f/256.0f green:187.0f/256.0f blue:154.0f/256.0f alpha:1.0f];
+    self.window.backgroundColor = [NSColor colorWithSRGBRed:218.0f/256.0f
+                                                      green:187.0f/256.0f
+                                                       blue:154.0f/256.0f
+                                                      alpha:1.0f];
+
+    AppDelegate *appDelegate = self.appDelegate;
 
     NSTextField *userNameField = self.userNameField;
-    userNameField.stringValue = @"";
+    userNameField.stringValue = appDelegate.serverUserName;
 
     NSTextField *passwordField = self.passwordField;
     passwordField.stringValue = @"";
 
-    AppDelegate *appDelegate = self.appDelegate;
-    if (appDelegate.loginCredential) {
-        userNameField.stringValue = appDelegate.loginCredential.user;
+    if (userNameField.stringValue.length > 0) {
+        [self.window makeFirstResponder:passwordField];
     }
 }
 
@@ -87,9 +91,8 @@
     NSString *password = passwordField.stringValue;
 
     if (userName.length > 0 && password.length > 0) {
-        appDelegate.loginCredential = [NSURLCredential credentialWithUser:userName
-                                                                 password:password
-                                                              persistence:NSURLCredentialPersistenceForSession];
+        appDelegate.serverUserName = userName;
+        appDelegate.serverPassword = password;
 
         [self.window close];
         [NSApp stopModal];

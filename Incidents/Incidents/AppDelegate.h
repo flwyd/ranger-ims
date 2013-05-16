@@ -28,8 +28,8 @@
 
 @property (strong) NSString *serverHostName;
 @property (strong) NSNumber *serverPort;
-
-@property (strong) NSURLCredential *loginCredential;
+@property (strong) NSString *serverUserName;
+@property (strong) NSString *serverPassword;
 
 
 - (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge;

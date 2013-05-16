@@ -48,7 +48,6 @@
 - (id) init
 {
     if (self = [super init]) {
-        self.loginCredential = nil;
     }
     return self;
 }
@@ -92,6 +91,36 @@
         [defaults setObject:serverPort forKey:@"IMSServerPort"];
     }
 }
+
+
+- (NSString *) serverUserName
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString  *serverUserName = [defaults stringForKey:@"IMSServerUserName"];
+    return serverUserName ? serverUserName : @"";
+}
+
+
+- (void) setServerUserName:(NSString *)serverUserName
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:serverUserName forKey:@"IMSServerUserName"];
+}
+
+
+//- (NSString *) serverPassword
+//{
+//    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+//    NSString  *serverPassword = [defaults stringForKey:@"IMSServerPassword"];
+//    return serverPassword ? serverPassword : @"";
+//}
+//
+//
+//- (void) setServerPassword:(NSString *)serverPassword
+//{
+//    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+//    [defaults setObject:serverPassword forKey:@"IMSServerPassword"];
+//}
 
 
 - (DispatchQueueController *) dispatchQueueController
@@ -194,18 +223,18 @@
 
 - (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    if (challenge.proposedCredential) {
-        self.loginCredential = challenge.proposedCredential;
-    }
-
-    if (! self.loginCredential || ! self.loginCredential.hasPassword || challenge.previousFailureCount > 0)
+    if (! challenge.proposedCredential || ! challenge.proposedCredential.hasPassword ||
+        challenge.previousFailureCount > 0)
     {
         [self.passwordController showWindow:self];
         [self.passwordController.window makeKeyAndOrderFront:self];
 
         [NSApp runModalForWindow:self.passwordController.window];
     }
-    return self.loginCredential;
+
+    return [NSURLCredential credentialWithUser:self.serverUserName
+                                      password:self.serverPassword
+                                   persistence:NSURLCredentialPersistenceForSession];
 }
 
 
