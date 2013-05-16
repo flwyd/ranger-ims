@@ -21,6 +21,7 @@
 #import "FileDataStore.h"
 #import "HTTPDataStore.h"
 #import "DispatchQueueController.h"
+#import "IncidentController.h"
 #import "PreferencesController.h"
 #import "PasswordController.h"
 #import "AppDelegate.h"
@@ -63,13 +64,18 @@
 
 - (void) setServerHostName:(NSString *)serverHostName
 {
+    if ([self.serverHostName isEqualToString:serverHostName]) { return; }
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
     if ([serverHostName isEqualToString:@"localhost"]) {
         [defaults removeObjectForKey:@"IMSServerHostName"];
     }
     else {
         [defaults setObject:serverHostName forKey:@"IMSServerHostName"];
     }
+
+    self.dispatchQueueController = nil;
 }
 
 
@@ -83,6 +89,8 @@
 
 - (void) setServerPort:(NSNumber *)serverPort
 {
+    if ([self.serverPort isEqualToNumber:serverPort]) { return; }
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if ([serverPort isEqualToNumber:@8080]) {
         [defaults removeObjectForKey:@"IMSServerPort"];
@@ -90,6 +98,8 @@
     else {
         [defaults setObject:serverPort forKey:@"IMSServerPort"];
     }
+
+    self.dispatchQueueController = nil;
 }
 
 
@@ -103,6 +113,8 @@
 
 - (void) setServerUserName:(NSString *)serverUserName
 {
+    if ([self.serverUserName isEqualToString:serverUserName]) { return; }
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:serverUserName forKey:@"IMSServerUserName"];
 }
@@ -118,6 +130,8 @@
 //
 //- (void) setServerPassword:(NSString *)serverPassword
 //{
+//    if ([self.serverPassword isEqualToString:serverPassword]) { return; }
+//
 //    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 //    [defaults setObject:serverPassword forKey:@"IMSServerPassword"];
 //}
@@ -146,6 +160,21 @@
         _dispatchQueueController = [[DispatchQueueController alloc] initWithDataStore:dataStore appDelegate:self];
     }
     return _dispatchQueueController;
+}
+@synthesize dispatchQueueController=_dispatchQueueController;
+
+
+- (void) setDispatchQueueController:(DispatchQueueController *)dispatchQueueController
+{
+    if (! dispatchQueueController && _dispatchQueueController) {
+        // Better clean house
+        for (IncidentController *incidentController in _dispatchQueueController.incidentControllers) {
+            [incidentController.window close];
+        }
+        [_dispatchQueueController.window close];
+    }
+
+    _dispatchQueueController = dispatchQueueController;
 }
 
 
