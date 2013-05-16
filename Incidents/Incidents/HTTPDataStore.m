@@ -226,9 +226,6 @@ static int nextTemporaryNumber = -1;
 
         if (available) {
             NSLog(@"Server connection is available.");
-            [self loadIncidentTypes];
-            [self loadRangers];
-            [self loadIncidents];
         }
         else {
             NSLog(@"Server connection is no longer available.");
@@ -258,6 +255,9 @@ static int nextTemporaryNumber = -1;
                     if ([jsonACK isEqualToString:@"ack"]) {
                         self.serverAvailable = YES;
                         NSLog(@"Ping request succeeded.");
+                        [self loadIncidentTypes];
+                        [self loadRangers];
+                        [self loadIncidents];
                     }
                     else {
                         performAlert(@"Unexpected response to ping: %@", jsonACK);
