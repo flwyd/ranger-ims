@@ -44,7 +44,7 @@
 @property (weak) id <DataStoreDelegate> delegate;
 
 
-- (BOOL) load;
+- (void) load;
 
 - (NSArray *) incidents;
 - (Incident *) incidentWithNumber:(NSNumber *)number;

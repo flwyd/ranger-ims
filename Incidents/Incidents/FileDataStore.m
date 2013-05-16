@@ -86,7 +86,7 @@ NSArray *getRangerHandles(void);
 }
 
 
-- (BOOL) load
+- (void) load
 {
     NSError *error;
 
@@ -102,7 +102,7 @@ NSArray *getRangerHandles(void);
                                 attributes:nil
                                      error:&error]) {
         performAlert(@"Can't create data directory: %@", error);
-        return NO;
+        return;
     }
 
     NSArray *childURLs = [fileManager contentsOfDirectoryAtURL:queueDataDirectory
@@ -112,7 +112,7 @@ NSArray *getRangerHandles(void);
 
     if (! childURLs) {
         performAlert(@"Unable to enumerate data directory: %@", error);
-        return NO;
+        return;
     }
 
     NSInteger maxNumber = 0;
@@ -127,7 +127,7 @@ NSArray *getRangerHandles(void);
 
         if (! data) {
             performAlert(@"Unable to read file: %@", error);
-            return NO;
+            return;
         }
 
         NSDictionary *incidentJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
@@ -135,7 +135,7 @@ NSArray *getRangerHandles(void);
         Incident *incident = [Incident incidentInDataStore:self fromJSON:incidentJSON error:&error];
         if (! incident || error) {
             performAlert(@"Unable to deserialize incident: %@", error);
-            return NO;
+            return;
         }
 
         if (incident.number.intValue > maxNumber) {
@@ -151,7 +151,7 @@ NSArray *getRangerHandles(void);
 
     self.nextIncidentNumber = (NSUInteger)maxNumber + 1;
 
-    return YES;
+    return;
 }
 
 

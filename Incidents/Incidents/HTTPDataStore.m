@@ -290,11 +290,9 @@ static int nextTemporaryNumber = -1;
 }
 
 
-- (BOOL) load
+- (void) load
 {
     [self pingServer];
-
-    return NO;
 }
 
 
