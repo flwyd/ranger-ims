@@ -71,7 +71,6 @@
     else {
         [defaults setObject:serverHostName forKey:@"IMSServerHostName"];
     }
-    [defaults synchronize];
 }
 
 
@@ -92,7 +91,6 @@
     else {
         [defaults setObject:serverPort forKey:@"IMSServerPort"];
     }
-    [defaults synchronize];
 }
 
 
