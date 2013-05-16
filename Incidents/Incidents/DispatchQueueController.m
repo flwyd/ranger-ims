@@ -336,7 +336,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 ////
 
 
-- (void) dataStoreWillUpdateIncidents:(id)dataStore
+- (void) dataStore:(id)dataStore willUpdateIncidentNumbered:(NSNumber *)number;
 {
     // Hide the reload button…
     NSButton *reloadButton = self.reloadButton;
@@ -349,7 +349,24 @@ NSString *formattedDateTimeShort(NSDate *date);
 
     // Display the update time
     NSTextField *updatedLabel = self.updatedLabel;
-    updatedLabel.stringValue = @"Updating…";
+    updatedLabel.stringValue = [NSString stringWithFormat:@"Updating incident #%@…", number];
+}
+
+
+- (void) dataStoreDidUpdateIncidents:(id)dataStore
+{
+    // Stop the progress indicator.
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    [loadingIndicator stopAnimation:self];
+    loadingIndicator.hidden = YES;
+
+    // Show the reload button…
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = NO;
+
+    // Display the update time
+    NSTextField *updatedLabel = self.updatedLabel;
+    updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
 }
 
 
@@ -373,19 +390,6 @@ NSString *formattedDateTimeShort(NSDate *date);
             [controller reloadIncident];
         }
     }
-
-    // Stop the progress indicator.
-    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
-    [loadingIndicator stopAnimation:self];
-    loadingIndicator.hidden = YES;
-
-    // Show the reload button…
-    NSButton *reloadButton = self.reloadButton;
-    reloadButton.hidden = NO;
-
-    // Display the update time
-    NSTextField *updatedLabel = self.updatedLabel;
-    updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
 }
 
 

@@ -388,10 +388,9 @@ static int nextTemporaryNumber = -1;
                 NSLog(@"Already loading incidents... we shouldn't be here.");
             }
             else {
+                id <DataStoreDelegate> delegate = self.delegate;
                 NSString *path = nil;
                 for (NSNumber *number in self.incidentsNumbersToLoad) {
-                    id <DataStoreDelegate> delegate = self.delegate;
-
                     //NSLog(@"Loading queued incident: %@", number);
 
                     path = [NSString stringWithFormat:@"incidents/%@", number];
@@ -451,12 +450,13 @@ static int nextTemporaryNumber = -1;
                                                                        authenticationHandler:self.authenticationHandler
                                                                                 errorHandler:onError];
 
-                    [delegate dataStoreWillUpdateIncidents:self];
+                    [delegate dataStore:self willUpdateIncidentNumbered:number];
 
                     break;
                 }
                 if (! path) {
                     NSLog(@"Done loading queued incidents.");
+                    [delegate dataStoreDidUpdateIncidents:self];
                 }
             }
         }
