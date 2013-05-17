@@ -140,36 +140,36 @@ class IncidentManagementSystem(object):
         edits_json = from_json_io(request.content)
         edits = Incident.from_json(edits_json, number=number, validate=False)
 
-        print "-"*80
-        print edits_json
-        print "-"*80
+        #print "-"*80
+        #print edits_json
+        #print "-"*80
 
         for key in edits_json.keys():
             if key == "report_entries":
                 if edits.report_entries is not None:
                     incident.report_entries += edits.report_entries
-                    print "Adding report entries:", edits.report_entries
+                    #print "Adding report entries:", edits.report_entries
             elif key == "location_name":
                 if edits.location.name is not None:
                     incident.location.name = edits.location.name
-                    print "Editing location name:", edits.location.name
+                    #print "Editing location name:", edits.location.name
             elif key == "location_address":
                 if edits.location.address is not None:
                     incident.location.address = edits.location.address
-                    print "Editing location address:", edits.location.address
+                    #print "Editing location address:", edits.location.address
             elif key == "ranger_handles":
                 if edits.rangers is not None:
                     incident.rangers = edits.rangers
-                    print "Editing rangers:", edits.rangers
+                    #print "Editing rangers:", edits.rangers
             elif key == "incident_types":
                 if edits.incident_types is not None:
                     incident.incident_types = edits.incident_types
-                    print "Editing incident types:", edits.incident_types
+                    #print "Editing incident types:", edits.incident_types
             else:
                 attr_name = JSON.lookupByValue(key).name
                 attr_value = getattr(edits, attr_name)
                 setattr(incident, attr_name, attr_value)
-                print "Editing", attr_name, ":", attr_value
+                #print "Editing", attr_name, ":", attr_value
 
         self.storage().write_incident(incident)
 
