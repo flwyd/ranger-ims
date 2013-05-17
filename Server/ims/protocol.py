@@ -28,7 +28,7 @@ from klein import Klein
 
 from ims.store import Storage
 from ims.data import Incident, JSON, to_json, from_json_io
-from ims.sauce import url_for, set_content_type
+from ims.sauce import url_for, set_response_header
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
 from ims.dms import DutyManagementSystem
@@ -51,21 +51,23 @@ class IncidentManagementSystem(object):
 
     @app.route("/", methods=("GET",))
     def root(self, request):
-        set_content_type(request, ContentType.XHTML)
+        set_response_header(request, HeaderName.contentType, ContentType.XHTML)
         return HomePageElement("Ranger Incident Management System")
 
 
     @app.route("/ping/", methods=("GET",))
     @http_sauce
     def ping(self, request):
-        set_content_type(request, ContentType.JSON)
+        set_response_header(request, HeaderName.etag, "ack")
+        set_response_header(request, HeaderName.contentType, ContentType.JSON)
         return to_json("ack")
 
 
     @app.route("/rangers/", methods=("GET",))
     @http_sauce
     def list_rangers(self, request):
-        set_content_type(request, ContentType.JSON)
+        #set_response_header(request, HeaderName.etag, "*") # FIXME
+        set_response_header(request, HeaderName.contentType, ContentType.JSON)
 
         d = self.dms.allRangers()
         d.addCallback(lambda rangers:
@@ -83,7 +85,8 @@ class IncidentManagementSystem(object):
     @app.route("/incident_types/", methods=("GET",))
     @http_sauce
     def list_incident_types(self, request):
-        set_content_type(request, ContentType.JSON)
+        #set_response_header(request, HeaderName.etag, "*") # FIXME
+        set_response_header(request, HeaderName.contentType, ContentType.JSON)
         return to_json((
             "Admin",
             "Art",
@@ -108,27 +111,37 @@ class IncidentManagementSystem(object):
     @app.route("/incidents/", methods=("GET",))
     @http_sauce
     def list_incidents(self, request):
-        set_content_type(request, ContentType.JSON)
+        #set_response_header(request, HeaderName.etag, "*") # FIXME
+        set_response_header(request, HeaderName.contentType, ContentType.JSON)
         return to_json(tuple(self.storage().list_incidents()))
 
 
     @app.route("/incidents/<number>", methods=("GET",))
     @http_sauce
     def get_incident(self, request, number):
+        # FIXME: For debugging
         #import time
-        #time.sleep(0.3) # FIXME: remove this
+        #time.sleep(0.3)
 
-        set_content_type(request, ContentType.JSON)
+        store = self.storage()
 
-        #
-        # This is faster, but doesn't benefit from any cleanup or
-        # validation code, so it's only OK if we know all data in the
-        # store is clean by this server version's standards.
-        #
-        # return storage().read_incident_with_number_raw(number)
+        set_response_header(request, HeaderName.etag, store.etag_for_incident_with_number(number))
+        set_response_header(request, HeaderName.contentType, ContentType.JSON)
 
-        incident = self.storage().read_incident_with_number(number)
-        return incident.as_json()
+        if False:
+            #
+            # This is faster, but doesn't benefit from any cleanup or
+            # validation code, so it's only OK if we know all data in the
+            # store is clean by this server version's standards.
+            #
+            return store.read_incident_with_number_raw(number)
+        else:
+            #
+            # This parses the data from the store, validates it, then
+            # re-serializes it.
+            #
+            incident = store.read_incident_with_number(number)
+            return incident.as_json()
 
 
     @app.route("/incidents/<number>", methods=("POST",))
@@ -173,7 +186,7 @@ class IncidentManagementSystem(object):
 
         self.storage().write_incident(incident)
 
-        set_content_type(request, ContentType.JSON)
+        set_response_header(request, HeaderName.contentType, ContentType.JSON)
         request.setResponseCode(http.OK)
 
         return "";
