@@ -339,10 +339,23 @@ static int nextTemporaryNumber = -1;
                         performAlert(@"Unable to read incident number from server.");
                         return;
                     }
+
                     // jsonNumber is (number, etag)
-                    if (! [jsonNumber[1] isEqualToString: self.incidentETagsByNumber[jsonNumber[0]]]) {
-                        [self.incidentsNumbersToLoad addObject:jsonNumber[0]];
+                    NSNumber *number = jsonNumber[0];
+                    NSString *etag   = jsonNumber[1];
+
+                    NSString *lastETag = self.incidentETagsByNumber[jsonNumber[0]];
+
+                    if (lastETag && etag && [lastETag isEqualToString:etag]) {
+                        //NSLog(@"Not loading incident #%@; already have it, etag = %@", number, etag);
+                        continue;
                     }
+
+                    if (! etag) {
+                        NSLog(@"Load incident numbers reponse did not include an etag for incident #%@.", number);
+                    }
+
+                    [self.incidentsNumbersToLoad addObject:number];
                 }
 
                 // FIXME: Run through self.allIncidentsByNumber and verify that all are in self.incidentsNumbersToLoad.
@@ -412,11 +425,15 @@ static int nextTemporaryNumber = -1;
 
                         if (incident) {
                             if ([incident.number isEqualToNumber:number]) {
-                                // FIXME: Acquire from connection.response.headers
-                                NSString *loadIncidentETag = @"*** WE SHOULD SET THIS HERE ***";
-
+                                NSString *etag = connection.responseInfo.allHeaderFields[@"ETag"];
+                                if (etag) {
+                                    self.incidentETagsByNumber[number] = etag;
+                                }
+                                else {
+                                    NSLog(@"Load incident #%@ response did not include an etag.", number);
+                                    [self.incidentETagsByNumber removeObjectForKey:etag];
+                                }
                                 self.allIncidentsByNumber[number] = incident;
-                                self.incidentETagsByNumber[number] = loadIncidentETag;
 
                                 NSLog(@"Loaded incident #%@.", number);
                                 [delegate dataStore:self didUpdateIncident:incident];
