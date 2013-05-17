@@ -56,6 +56,10 @@ NSString *formattedDateTimeShort(NSDate *date);
 
 @property (strong,nonatomic) NSMutableDictionary *incidentControllersToReplace;
 
+@property (assign) NSTimeInterval reloadInterval;
+@property (strong) NSTimer *reloadTimer;
+@property (strong) NSDate *lastLoadedDate;
+
 @end
 
 
@@ -75,6 +79,9 @@ NSString *formattedDateTimeShort(NSDate *date);
         self.sortedIncidents = nil;
         self.sortedOpenIncidents = nil;
         self.incidentControllersToReplace = [NSMutableDictionary dictionary];
+        self.reloadInterval = 10;
+        self.reloadTimer = nil;
+        self.lastLoadedDate = [NSDate distantPast];
     }
     return self;
 }
@@ -94,6 +101,18 @@ NSString *formattedDateTimeShort(NSDate *date);
     dispatchTable.doubleAction = @selector(openClickedIncident);
     
     [self load];
+}
+
+
+- (void) startLoadTimerWithInterval:(NSTimeInterval)interval
+{
+    if (! self.reloadTimer || ! self.reloadTimer.isValid) {
+        self.reloadTimer = [NSTimer scheduledTimerWithTimeInterval:interval
+                                                            target:self
+                                                          selector:NSSelectorFromString(@"loadIncidents:")
+                                                          userInfo:nil
+                                                           repeats:NO];
+    }
 }
 
 
@@ -355,6 +374,8 @@ NSString *formattedDateTimeShort(NSDate *date);
 
 - (void) dataStoreDidUpdateIncidents:(id)dataStore
 {
+    self.lastLoadedDate = [NSDate date];
+
     // Stop the progress indicator.
     NSProgressIndicator *loadingIndicator = self.loadingIndicator;
     [loadingIndicator stopAnimation:self];
@@ -366,7 +387,9 @@ NSString *formattedDateTimeShort(NSDate *date);
 
     // Display the update time
     NSTextField *updatedLabel = self.updatedLabel;
-    updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
+    updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong(self.lastLoadedDate)];
+
+    [self startLoadTimerWithInterval:self.reloadInterval];
 }
 
 
