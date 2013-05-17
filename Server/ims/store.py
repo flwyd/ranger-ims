@@ -101,6 +101,8 @@ class Storage(object):
     def list_incidents(self):
         for child in self.path.children():
             name = child.basename()
+            if name.startswith("."):
+                continue
             try:
                 number = int(name)
             except ValueError:
