@@ -85,4 +85,5 @@ class HeaderName (Values):
 class ContentType (Values):
     plain = ValueConstant("text/plain")
     HTML  = ValueConstant("text/html")
+    XHTML = ValueConstant("application/xhtml+xml")
     JSON  = ValueConstant("application/json")

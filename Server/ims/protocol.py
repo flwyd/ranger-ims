@@ -32,7 +32,7 @@ from ims.sauce import url_for, set_content_type
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
 from ims.dms import DutyManagementSystem
-
+from ims.elements import HomePageElement
 
 
 class IncidentManagementSystem(object):
@@ -51,20 +51,8 @@ class IncidentManagementSystem(object):
 
     @app.route("/", methods=("GET",))
     def root(self, request):
-        set_content_type(request, ContentType.HTML)
-        return (
-"""
-<!DOCTYPE html>
-<html>
- <head>
-  <title>Ranger Incident Management System</title>
- </head>
- <body>
-  <p>This is the Ranger Incident Management System.</p>
- </body>
-</html>
-"""
-        )
+        set_content_type(request, ContentType.XHTML)
+        return HomePageElement("Ranger Incident Management System")
 
 
     @app.route("/ping/", methods=("GET",))
