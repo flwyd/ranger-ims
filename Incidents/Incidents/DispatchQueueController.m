@@ -480,7 +480,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         return formattedDateTimeShort(incident.closed);
     }
     else if ([identifier isEqualToString:@"rangers"]) {
-        return [self joinedStrings:incident.rangersByHandle.allKeys withSeparator:@", "];
+        return incident.summaryOfRangers;
     }
     else if ([identifier isEqualToString:@"locationName"]) {
         return incident.location.name;

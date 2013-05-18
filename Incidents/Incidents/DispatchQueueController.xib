@@ -377,6 +377,11 @@
 													<int key="NSResizingMask">3</int>
 													<bool key="NSIsResizeable">YES</bool>
 													<reference key="NSTableView" ref="201294916"/>
+													<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+														<string key="NSKey">summaryOfRangers</string>
+														<bool key="NSAscending">YES</bool>
+														<string key="NSSelector">caseInsensitiveCompare:</string>
+													</object>
 												</object>
 												<object class="NSTableColumn" id="278139064">
 													<string key="NSIdentifier">locationName</string>
@@ -406,7 +411,7 @@
 													<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
 														<string key="NSKey">location.name</string>
 														<bool key="NSAscending">YES</bool>
-														<string key="NSSelector">compare:</string>
+														<string key="NSSelector">caseInsensitiveCompare:</string>
 													</object>
 												</object>
 												<object class="NSTableColumn" id="822919358">
@@ -434,6 +439,11 @@
 													<int key="NSResizingMask">3</int>
 													<bool key="NSIsResizeable">YES</bool>
 													<reference key="NSTableView" ref="201294916"/>
+													<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+														<string key="NSKey">summaryOfTypes</string>
+														<bool key="NSAscending">YES</bool>
+														<string key="NSSelector">caseInsensitiveCompare:</string>
+													</object>
 												</object>
 												<object class="NSTableColumn" id="23135800">
 													<string key="NSIdentifier">summary</string>
@@ -463,7 +473,7 @@
 													<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
 														<string key="NSKey">summaryFromReport</string>
 														<bool key="NSAscending">YES</bool>
-														<string key="NSSelector">compare:</string>
+														<string key="NSSelector">caseInsensitiveCompare:</string>
 													</object>
 												</object>
 											</array>
@@ -1603,20 +1613,17 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">DispatchQueueController</string>
 					<string key="superclassName">NSWindowController</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="loadIncidents:">id</string>
-						<string key="loadTable:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="loadIncidents:">
-							<string key="name">loadIncidents:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="loadTable:">
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">loadTable:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">loadTable:</string>
+						<object class="IBActionInfo" key="NS.object.0">
 							<string key="name">loadTable:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-					</dictionary>
+					</object>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="dispatchTable">NSTableView</string>
 						<string key="loadingIndicator">NSProgressIndicator</string>

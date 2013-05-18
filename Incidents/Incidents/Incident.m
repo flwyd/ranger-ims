@@ -398,6 +398,18 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 }
 
 
+- (NSString *) summaryOfRangers
+{
+    return [self.rangersByHandle.allKeys componentsJoinedByString:@", "];
+}
+
+
+- (NSString *) summaryOfTypes
+{
+    return [self.types componentsJoinedByString:@", "];
+}
+
+
 @end
 
 

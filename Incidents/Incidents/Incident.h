@@ -74,5 +74,7 @@
 - (NSUInteger) addEntryToReport:(ReportEntry *)entry;
 
 - (NSString *) summaryFromReport;
+- (NSString *) summaryOfRangers;
+- (NSString *) summaryOfTypes;
 
 @end
