@@ -274,6 +274,12 @@ NSArray *getRangerHandles(void);
 }
 
 
+- (NSArray *) allLocationNames
+{
+    return @[];
+}
+
+
 @end
 
 

@@ -20,6 +20,7 @@
 #import "utilities.h"
 #import "Ranger.h"
 #import "Incident.h"
+#import "Location.h"
 #import "HTTPConnection.h"
 #import "HTTPDataStore.h"
 
@@ -614,6 +615,22 @@ static int nextTemporaryNumber = -1;
     return _allIncidentTypes;
 }
 @synthesize allIncidentTypes=_allIncidentTypes;
+
+
+- (NSArray *) allLocationNames
+{
+    NSArray *incidents = self.incidents;
+    NSMutableSet *locationNames = [NSMutableSet setWithCapacity:incidents.count];
+
+    for (Incident *incident in incidents) {
+        NSString *locationName = incident.location.name;
+        if (locationName && locationName.length > 0) {
+            [locationNames addObject:locationName];
+        }
+    }
+
+    return locationNames.allObjects;
+}
 
 
 @end

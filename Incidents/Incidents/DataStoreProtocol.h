@@ -41,6 +41,7 @@
 
 @property (strong,readonly) NSArray      *allIncidentTypes;
 @property (strong,readonly) NSDictionary *allRangersByHandle;
+@property (strong,readonly) NSArray      *allLocationNames;
 
 @property (unsafe_unretained) id <DataStoreDelegate> delegate;
 
