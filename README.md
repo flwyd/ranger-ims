@@ -14,14 +14,12 @@ incident information.
 
 The components are in the following directories:
 
- * `Server/`
-   The server application.
+ * `Server/` — The server application.
 
    Written in [Python](http://www.python.org/), should be portable to
    any platform with Python 2.6, or a greater version of Python 2 (but
    not Python 3).
 
- * `Incidents/`
-   Mac OS client application.
+ * `Incidents/` — Mac OS client application.
 
    Requires Mac OS 10.7 or greater.
