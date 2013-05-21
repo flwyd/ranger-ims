@@ -432,7 +432,7 @@ static int nextTemporaryNumber = -1;
                                 }
                                 else {
                                     NSLog(@"Load incident #%@ response did not include an etag.", number);
-                                    [self.incidentETagsByNumber removeObjectForKey:etag];
+                                    [self.incidentETagsByNumber removeObjectForKey:number];
                                 }
                                 self.allIncidentsByNumber[number] = incident;
 
