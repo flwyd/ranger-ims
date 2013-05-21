@@ -56,6 +56,10 @@ NSString *formattedDateTimeShort(NSDate *date);
 
 @property (strong,nonatomic) NSMutableDictionary *incidentControllersToReplace;
 
+@property (assign) NSTimeInterval reloadInterval;
+@property (strong) NSTimer *reloadTimer;
+@property (strong) NSDate *lastLoadedDate;
+
 @end
 
 
@@ -75,6 +79,9 @@ NSString *formattedDateTimeShort(NSDate *date);
         self.sortedIncidents = nil;
         self.sortedOpenIncidents = nil;
         self.incidentControllersToReplace = [NSMutableDictionary dictionary];
+        self.reloadInterval = 10;
+        self.reloadTimer = nil;
+        self.lastLoadedDate = [NSDate distantPast];
     }
     return self;
 }
@@ -94,6 +101,18 @@ NSString *formattedDateTimeShort(NSDate *date);
     dispatchTable.doubleAction = @selector(openClickedIncident);
     
     [self load];
+}
+
+
+- (void) startLoadTimerWithInterval:(NSTimeInterval)interval
+{
+    if (! self.reloadTimer || ! self.reloadTimer.isValid) {
+        self.reloadTimer = [NSTimer scheduledTimerWithTimeInterval:interval
+                                                            target:self
+                                                          selector:NSSelectorFromString(@"loadIncidents:")
+                                                          userInfo:nil
+                                                           repeats:NO];
+    }
 }
 
 
@@ -336,7 +355,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 ////
 
 
-- (void) dataStoreWillUpdateIncidents:(id)dataStore
+- (void) dataStore:(id)dataStore willUpdateIncidentNumbered:(NSNumber *)number;
 {
     // Hide the reload button…
     NSButton *reloadButton = self.reloadButton;
@@ -349,7 +368,28 @@ NSString *formattedDateTimeShort(NSDate *date);
 
     // Display the update time
     NSTextField *updatedLabel = self.updatedLabel;
-    updatedLabel.stringValue = @"Updating…";
+    updatedLabel.stringValue = [NSString stringWithFormat:@"Updating incident #%@…", number];
+}
+
+
+- (void) dataStoreDidUpdateIncidents:(id)dataStore
+{
+    self.lastLoadedDate = [NSDate date];
+
+    // Stop the progress indicator.
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    [loadingIndicator stopAnimation:self];
+    loadingIndicator.hidden = YES;
+
+    // Show the reload button…
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = NO;
+
+    // Display the update time
+    NSTextField *updatedLabel = self.updatedLabel;
+    updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong(self.lastLoadedDate)];
+
+    [self startLoadTimerWithInterval:self.reloadInterval];
 }
 
 
@@ -373,19 +413,6 @@ NSString *formattedDateTimeShort(NSDate *date);
             [controller reloadIncident];
         }
     }
-
-    // Stop the progress indicator.
-    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
-    [loadingIndicator stopAnimation:self];
-    loadingIndicator.hidden = YES;
-
-    // Show the reload button…
-    NSButton *reloadButton = self.reloadButton;
-    reloadButton.hidden = NO;
-
-    // Display the update time
-    NSTextField *updatedLabel = self.updatedLabel;
-    updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong([NSDate date])];
 }
 
 
@@ -453,7 +480,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         return formattedDateTimeShort(incident.closed);
     }
     else if ([identifier isEqualToString:@"rangers"]) {
-        return [self joinedStrings:incident.rangersByHandle.allKeys withSeparator:@", "];
+        return incident.summaryOfRangers;
     }
     else if ([identifier isEqualToString:@"locationName"]) {
         return incident.location.name;

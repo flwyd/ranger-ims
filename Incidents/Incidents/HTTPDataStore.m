@@ -20,6 +20,7 @@
 #import "utilities.h"
 #import "Ranger.h"
 #import "Incident.h"
+#import "Location.h"
 #import "HTTPConnection.h"
 #import "HTTPDataStore.h"
 
@@ -339,10 +340,23 @@ static int nextTemporaryNumber = -1;
                         performAlert(@"Unable to read incident number from server.");
                         return;
                     }
+
                     // jsonNumber is (number, etag)
-                    if (! [jsonNumber[1] isEqualToString: self.incidentETagsByNumber[jsonNumber[0]]]) {
-                        [self.incidentsNumbersToLoad addObject:jsonNumber[0]];
+                    NSNumber *number = jsonNumber[0];
+                    NSString *etag   = jsonNumber[1];
+
+                    NSString *lastETag = self.incidentETagsByNumber[jsonNumber[0]];
+
+                    if (lastETag && etag && [lastETag isEqualToString:etag]) {
+                        //NSLog(@"Not loading incident #%@; already have it, etag = %@", number, etag);
+                        continue;
                     }
+
+                    if (! etag) {
+                        NSLog(@"Load incident numbers reponse did not include an etag for incident #%@.", number);
+                    }
+
+                    [self.incidentsNumbersToLoad addObject:number];
                 }
 
                 // FIXME: Run through self.allIncidentsByNumber and verify that all are in self.incidentsNumbersToLoad.
@@ -388,10 +402,9 @@ static int nextTemporaryNumber = -1;
                 NSLog(@"Already loading incidents... we shouldn't be here.");
             }
             else {
+                id <DataStoreDelegate> delegate = self.delegate;
                 NSString *path = nil;
                 for (NSNumber *number in self.incidentsNumbersToLoad) {
-                    id <DataStoreDelegate> delegate = self.delegate;
-
                     //NSLog(@"Loading queued incident: %@", number);
 
                     path = [NSString stringWithFormat:@"incidents/%@", number];
@@ -413,11 +426,15 @@ static int nextTemporaryNumber = -1;
 
                         if (incident) {
                             if ([incident.number isEqualToNumber:number]) {
-                                // FIXME: Acquire from connection.response.headers
-                                NSString *loadIncidentETag = @"*** WE SHOULD SET THIS HERE ***";
-
+                                NSString *etag = connection.responseInfo.allHeaderFields[@"ETag"];
+                                if (etag) {
+                                    self.incidentETagsByNumber[number] = etag;
+                                }
+                                else {
+                                    NSLog(@"Load incident #%@ response did not include an etag.", number);
+                                    [self.incidentETagsByNumber removeObjectForKey:etag];
+                                }
                                 self.allIncidentsByNumber[number] = incident;
-                                self.incidentETagsByNumber[number] = loadIncidentETag;
 
                                 NSLog(@"Loaded incident #%@.", number);
                                 [delegate dataStore:self didUpdateIncident:incident];
@@ -451,12 +468,13 @@ static int nextTemporaryNumber = -1;
                                                                        authenticationHandler:self.authenticationHandler
                                                                                 errorHandler:onError];
 
-                    [delegate dataStoreWillUpdateIncidents:self];
+                    [delegate dataStore:self willUpdateIncidentNumbered:number];
 
                     break;
                 }
                 if (! path) {
                     NSLog(@"Done loading queued incidents.");
+                    [delegate dataStoreDidUpdateIncidents:self];
                 }
             }
         }
@@ -597,6 +615,22 @@ static int nextTemporaryNumber = -1;
     return _allIncidentTypes;
 }
 @synthesize allIncidentTypes=_allIncidentTypes;
+
+
+- (NSArray *) allLocationNames
+{
+    NSArray *incidents = self.incidents;
+    NSMutableSet *locationNames = [NSMutableSet setWithCapacity:incidents.count];
+
+    for (Incident *incident in incidents) {
+        NSString *locationName = incident.location.name;
+        if (locationName && locationName.length > 0) {
+            [locationNames addObject:locationName];
+        }
+    }
+
+    return locationNames.allObjects;
+}
 
 
 @end

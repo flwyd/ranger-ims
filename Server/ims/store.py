@@ -78,8 +78,19 @@ class Storage(object):
         self._max_incident_number = max
 
 
+    def _incident_fp(self, number, ext=""):
+        if ext:
+            ext    = ".{0}".format(ext)
+            prefix = "."
+        else:
+            ext    = ""
+            prefix = ""
+
+        return self.path.child("{0}{1}{2}".format(prefix, number, ext))
+
+
     def _open_incident(self, number, mode):
-        incident_fp = self.path.child(str(number))
+        incident_fp = self._incident_fp(number)
         try:
             incident_fh = incident_fp.open(mode)
         except (IOError, OSError):
@@ -90,6 +101,8 @@ class Storage(object):
     def list_incidents(self):
         for child in self.path.children():
             name = child.basename()
+            if name.startswith("."):
+                continue
             try:
                 number = int(name)
             except ValueError:
@@ -103,8 +116,18 @@ class Storage(object):
 
 
     def etag_for_incident_with_number(self, number):
-        data = self.read_incident_with_number_raw(number)
-        return etag_hash(data).hexdigest()
+        etag_fp = self._incident_fp(number, "etag")
+        try:
+            etag = etag_fp.getContent()
+        except (IOError, OSError):
+            data = self.read_incident_with_number_raw(number)
+            etag = etag_hash(data).hexdigest()
+            try:
+                etag_fp.setContent(etag)
+            except (IOError, OSError) as e:
+                log.err("Unable to store etag for incident {0}: {1}".format(number, e))
+        else:
+            return etag
 
 
     def read_incident_with_number_raw(self, number):
@@ -136,6 +159,9 @@ class Storage(object):
             incident_fh.write(incident.as_json())
         finally:
             incident_fh.close()
+
+        etag_fp = self._incident_fp(number, "etag")
+        etag_fp.remove()
 
         self.incidents[number] = incident
 

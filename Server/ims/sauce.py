@@ -44,8 +44,10 @@ def url_for(request, endpoint, *args, **kwargs):
     return IKleinRequest(request).url_for(endpoint, *args, **kwargs)
 
 
-def set_content_type(request, content_type):
-    request.setHeader(HeaderName.contentType.value, content_type.value)
+def set_response_header(request, name, value):
+    if isinstance(value, ValueConstant):
+        value = value.value
+    request.setHeader(name.value, value)
 
 
 def http_sauce(f):
@@ -77,12 +79,14 @@ def http_sauce(f):
 
 class HeaderName (Values):
     contentType    = ValueConstant("Content-Type")
-    location       = ValueConstant("Location")
+    etag           = ValueConstant("ETag")
     incidentNumber = ValueConstant("Incident-Number")
+    location       = ValueConstant("Location")
 
 
 
 class ContentType (Values):
-    plain = ValueConstant("text/plain")
     HTML  = ValueConstant("text/html")
     JSON  = ValueConstant("application/json")
+    XHTML = ValueConstant("application/xhtml+xml")
+    plain = ValueConstant("text/plain")

@@ -25,9 +25,10 @@
 @protocol DataStoreDelegate <NSObject>
 
 
-- (void) dataStoreWillUpdateIncidents:(id)dataStore;
+- (void) dataStore:(id)dataStore willUpdateIncidentNumbered:(NSNumber *)number;
 - (void) dataStore:(id)dataStore didUpdateIncident:(Incident *)incident;
 - (void) dataStore:(id)dataStore didReplaceIncidentNumbered:(NSNumber *)oldNumber withIncidentNumbered:(NSNumber *)newNumber;
+- (void) dataStoreDidUpdateIncidents:(id)dataStore;
 
 - (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge;
 
@@ -40,6 +41,7 @@
 
 @property (strong,readonly) NSArray      *allIncidentTypes;
 @property (strong,readonly) NSDictionary *allRangersByHandle;
+@property (strong,readonly) NSArray      *allLocationNames;
 
 @property (unsafe_unretained) id <DataStoreDelegate> delegate;
 

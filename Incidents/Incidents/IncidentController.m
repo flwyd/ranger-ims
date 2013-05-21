@@ -666,6 +666,10 @@ static NSDateFormatter *entryDateFormatter = nil;
         return self.dispatchQueueController.dataStore.allIncidentTypes;
     }
 
+    if (control == self.locationNameField) {
+        return self.dispatchQueueController.dataStore.allLocationNames;
+    }
+
     return nil;
 }
 
@@ -736,7 +740,7 @@ static NSDateFormatter *entryDateFormatter = nil;
              textView:(NSTextView *)textView
   doCommandBySelector:(SEL)command
 {
-    if (control == self.rangerToAddField || control == self.typeToAddField) {
+    if (control == self.rangerToAddField || control == self.typeToAddField || control == self.locationNameField) {
         if (command == NSSelectorFromString(@"deleteBackward:")) {
             self.amBackspacing = YES;
         }
