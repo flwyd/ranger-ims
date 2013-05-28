@@ -19,6 +19,7 @@ Server
 """
 
 __all__ = [
+    "Resource",
 ]
 
 if __name__ == "__main__":
@@ -26,59 +27,18 @@ if __name__ == "__main__":
     import os
     sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
-
-from twisted.python import log
 from twisted.python.filepath import FilePath
 from twisted.cred.checkers import FilePasswordDB
 
+from ims.config import Configuration
 from ims.auth import guard
 from ims.protocol import IncidentManagementSystem
 
 
 
 def Resource():
-    configParser = SafeConfigParser()
-
-    def readConfig(configFile):
-        for okFile in configParser.read((configFile.path,)):
-            log.msg("Read configuration file: {0}".format(configFile.path))
-
-    def filePathFromConfig(section, option, root, segments):
-        if section is None:
-            path = None
-        else:
-            try:
-                path = configParser.get(section, option)
-            except (NoSectionError, NoOptionError):
-                path = None
-
-        if path is None:
-            fp = root
-            for segment in segments:
-                fp = fp.child(segment)
-        else:
-            fp = FilePath(path)
-
-        return fp
-
-    class Config(object):
-        pass
-
-    config = Config()
-
-    config.ServerRoot = FilePath(__file__).parent().parent()
-    readConfig(config.ServerRoot.child("conf").child("imsd.conf"))
-
-    config.ServerRoot = filePathFromConfig(None, None, config.ServerRoot, ())
-    log.msg("Server root: {0}".format(config.ServerRoot.path))
-
-    config.ConfigRoot = filePathFromConfig("Core", "ConfigRoot", config.ServerRoot, ("conf",))
-    readConfig(config.ConfigRoot.child("imsd.conf"))
-
-    config.UserDB = filePathFromConfig("Core", "UserDB", config.ConfigRoot, ("users.pwdb",))
-
-    config.DataRoot = filePathFromConfig("Core", "DataRoot", config.ServerRoot, ("data",))
+    configFile = FilePath(__file__).parent().parent().child("conf").child("imsd.conf")
+    config = Configuration(configFile)
     
     return guard(
         lambda: IncidentManagementSystem(config.DataRoot),
