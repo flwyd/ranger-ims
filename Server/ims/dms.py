@@ -22,7 +22,10 @@ __all__ = [
     "DutyManagementSystem",
 ]
 
+#from mysql.connector import Error as MySQLError
+
 from twisted.internet.defer import succeed
+from twisted.enterprise import adbapi
 
 from ims.data import Ranger
 
@@ -32,10 +35,11 @@ class DutyManagementSystem(object):
     """
     Duty Management System
     """
-    def __init__(self):
+    def __init__(self, host, database, username, password):
         pass
+        #self.dbpool = adbapi.ConnectionPool("mysql.connector", host=host, database=database, username=username, password=password)
 
-    
+
     def allRangers(self):
         return succeed(
             Ranger(handle, None)

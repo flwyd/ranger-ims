@@ -60,6 +60,12 @@ class Configuration (object):
 
             return fp
 
+        def getConfig(section, option, default):
+            try:
+                return configParser.get(section, option)
+            except (NoSectionError, NoOptionError):
+                return default
+
         readConfig(self.configFile)
 
         self.ServerRoot = filePathFromConfig(
@@ -77,3 +83,8 @@ class Configuration (object):
 
         self.DataRoot = filePathFromConfig("Core", "DataRoot", self.ServerRoot, ("data",))
         log.msg("Data root: {0}".format(self.DataRoot.path))
+
+        self.DMSHost     = getConfig("DMS", "Hostname", "localhost")
+        self.DMSDatabase = getConfig("DMS", "Database", "rangers")
+        self.DMSUsername = getConfig("DMS", "Username", None)
+        self.DMSPassword = getConfig("DMS", "Password", None)

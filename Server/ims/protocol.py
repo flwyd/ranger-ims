@@ -31,7 +31,6 @@ from ims.data import Incident, JSON, to_json, from_json_io
 from ims.sauce import url_for, set_response_header
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
-from ims.dms import DutyManagementSystem
 from ims.elements import HomePageElement
 
 
@@ -43,10 +42,10 @@ class IncidentManagementSystem(object):
 
     protocol_version = "0.0"
 
-    def __init__(self, storageDirectory):
+    def __init__(self, storageDirectory, dms):
         self.storageDirectory = storageDirectory
         self.avatarId = None
-        self.dms = DutyManagementSystem()
+        self.dms = dms
 
 
     @app.route("/", methods=("GET",))
