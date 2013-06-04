@@ -32,42 +32,18 @@ from twisted.cred.checkers import FilePasswordDB
 
 from ims.config import Configuration
 from ims.auth import guard
-from ims.dms import DutyManagementSystem
 from ims.protocol import IncidentManagementSystem
 
 
 
-# FIXME: Is this janky?  It feels janky.
-class GlobalState(object):
-    @property
-    def config(self):
-        if not hasattr(self, "_config"):
-            configFile = FilePath(__file__).parent().parent().child("conf").child("imsd.conf")
-            self._config = Configuration(configFile)
-        return self._config
-
-
-    @property
-    def dms(self):
-        if not hasattr(self, "_dms"):
-            self._dms = DutyManagementSystem(
-                host     = self.config.DMSHost,
-                database = self.config.DMSDatabase,
-                username = self.config.DMSUsername,
-                password = self.config.DMSPassword,
-            )
-        return self._dms
-
-
-TheGlobalState = GlobalState()
-
-
-
 def Resource():
+    configFile = FilePath(__file__).parent().parent().child("conf").child("imsd.conf")
+    config = Configuration(configFile)
+
     return guard(
-        lambda: IncidentManagementSystem(TheGlobalState.config.DataRoot, TheGlobalState.dms),
+        lambda: IncidentManagementSystem(config),
         "Ranger Incident Management System",
         (
-            FilePasswordDB(TheGlobalState.config.UserDB.path),
+            FilePasswordDB(config.UserDB.path),
         ),
     )

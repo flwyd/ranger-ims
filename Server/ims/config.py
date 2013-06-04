@@ -35,6 +35,20 @@ class Configuration (object):
         self.load()
 
 
+    def __str__(self):
+        return (
+            "Core.ServerRoot: %(ServerRoot)s\n"
+            "Core.ConfigRoot: %(ConfigRoot)s\n"
+            "Core.UserDB: %(UserDB)s\n"
+            "Core.DataRoot: %(DataRoot)s\n"
+            "\n"
+            "DMS.Hostname: $(DMSHost)\n"
+            "DMS.Database: $(DMSDatabase)\n"
+            "DMS.Username: $(DMSUsername)\n"
+            "DMS.Password: $(DMSPassword)\n"
+        ) % self.__dict__
+
+
     def load(self):
         configParser = SafeConfigParser()
 

@@ -27,11 +27,13 @@ from twisted.web import http
 from klein import Klein
 
 from ims.store import Storage
+from ims.dms import DutyManagementSystem
 from ims.data import Incident, JSON, to_json, from_json_io
 from ims.sauce import url_for, set_response_header
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
 from ims.elements import HomePageElement
+
 
 
 class IncidentManagementSystem(object):
@@ -42,10 +44,16 @@ class IncidentManagementSystem(object):
 
     protocol_version = "0.0"
 
-    def __init__(self, storageDirectory, dms):
-        self.storageDirectory = storageDirectory
+    def __init__(self, config):
+        self.config = config
+        self.storageDirectory = config.DataRoot
         self.avatarId = None
-        self.dms = dms
+        self.dms = DutyManagementSystem(
+            host     = config.DMSHost,
+            database = config.DMSDatabase,
+            username = config.DMSUsername,
+            password = config.DMSPassword,
+        )
 
 
     @app.route("/", methods=("GET",))
