@@ -104,12 +104,15 @@ class IncidentManagementSystem(object):
             "Green Dot",
             "HQ",
             "Law Enforcement",
+            "Lost Child",
             "Medical",
             "Mental Health",
             "SITE",
             "Staff",
             "Theme Camp",
             "Vehicle",
+
+            # FIXME: Look at must report list
 
             "Junk",
         ))
