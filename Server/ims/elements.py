@@ -32,6 +32,7 @@ class HomePageElement(Element):
 <html xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
  <head>
   <title><span t:render="name" /></title>
+  <link rel="icon" href="/resources/ranger.png" type="image/png" />
  </head>
  <body>
   <h1><span t:render="name" /></h1>

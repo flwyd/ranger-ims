@@ -23,6 +23,7 @@ __all__ = [
 ]
 
 from twisted.web import http
+from twisted.web.static import File
 
 from klein import Klein
 
@@ -58,8 +59,14 @@ class IncidentManagementSystem(object):
 
     @app.route("/", methods=("GET",))
     def root(self, request):
-        set_response_header(request, HeaderName.contentType, ContentType.XHTML)
+        set_response_header(request, HeaderName.contentType, ContentType.HTML)
         return HomePageElement("Ranger Incident Management System")
+
+
+    @app.route("/resources/", branch=True)
+    def favicon(self, request):
+        #set_response_header(request, HeaderName.contentType, ContentType.HTML)
+        return File(self.config.Resources.path)
 
 
     @app.route("/ping/", methods=("GET",))
