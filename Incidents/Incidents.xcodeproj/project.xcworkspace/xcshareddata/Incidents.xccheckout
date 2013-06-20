@@ -3,46 +3,34 @@
 <plist version="1.0">
 <dict>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>EF5C41E2-D4FF-4753-94D4-1EC6995599E2</string>
+	<string>700CFC8F-C16E-451C-9F31-5391E53290AD</string>
 	<key>IDESourceControlProjectName</key>
 	<string>Incidents</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>239BE256-79F1-4CF2-B155-D43A3E91EA98</key>
+		<key>DAA745CE-792E-4663-BC11-F427489ABAA9</key>
 		<string>ssh://github.com/burningmantech/ranger-ims.git</string>
-		<key>485693E8-9659-4D18-BCFB-DDCD6E6434E9</key>
-		<string>git@github.com:burningmantech/ranger-ims.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Incidents/Incidents.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>239BE256-79F1-4CF2-B155-D43A3E91EA98</key>
-		<string>../../..</string>
-		<key>485693E8-9659-4D18-BCFB-DDCD6E6434E9</key>
+		<key>DAA745CE-792E-4663-BC11-F427489ABAA9</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>/Volumes/data/Users/wsanchez/Developer/IMS/Incidents/Incidents.xcodeproj/project.xcworkspace</string>
+	<string>ssh://github.com/burningmantech/ranger-ims.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>105</integer>
+	<integer>108</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>485693E8-9659-4D18-BCFB-DDCD6E6434E9</string>
+	<string>DAA745CE-792E-4663-BC11-F427489ABAA9</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>485693E8-9659-4D18-BCFB-DDCD6E6434E9</string>
-			<key>IDESourceControlWCCName</key>
-			<string>IMS</string>
-		</dict>
-		<dict>
-			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
-			<string>public.vcs.git</string>
-			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>239BE256-79F1-4CF2-B155-D43A3E91EA98</string>
+			<string>DAA745CE-792E-4663-BC11-F427489ABAA9</string>
 			<key>IDESourceControlWCCName</key>
 			<string>IMS</string>
 		</dict>

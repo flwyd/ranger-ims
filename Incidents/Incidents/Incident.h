@@ -77,4 +77,5 @@
 - (NSString *) summaryOfRangers;
 - (NSString *) summaryOfTypes;
 
+
 @end

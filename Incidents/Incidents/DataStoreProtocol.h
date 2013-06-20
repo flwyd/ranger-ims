@@ -32,6 +32,7 @@
 
 - (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge;
 
+
 @end
 
 
@@ -55,5 +56,6 @@
 - (void) updateIncident:(Incident *)incident;
 
 - (NSDictionary *) allRangersByHandle;
+
 
 @end
