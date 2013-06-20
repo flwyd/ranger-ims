@@ -5,5 +5,5 @@ setup(
     version="0.1",
     packages=["ims",],
     license="Apache License Version 2.0, January 2004",
-    long_description=open("../README").read(),
+    long_description=open("../README.md").read(),
 )
