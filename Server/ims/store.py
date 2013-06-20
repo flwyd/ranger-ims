@@ -161,7 +161,10 @@ class Storage(object):
             incident_fh.close()
 
         etag_fp = self._incident_fp(number, "etag")
-        etag_fp.remove()
+        try:
+            etag_fp.remove()
+        except (IOError, OSError):
+            pass
 
         self.incidents[number] = incident
 
