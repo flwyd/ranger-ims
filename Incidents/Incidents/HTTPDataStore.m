@@ -28,6 +28,7 @@
 
 @interface HTTPDataStore ()
 
+
 @property (strong) NSURL *url;
 
 @property (assign) BOOL serverAvailable;
