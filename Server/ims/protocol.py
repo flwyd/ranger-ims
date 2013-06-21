@@ -90,6 +90,7 @@ class IncidentManagementSystem(object):
                 {
                     "handle": ranger.handle,
                     "name"  : ranger.name,
+                    "status": ranger.status,
                 }
                 for ranger in rangers
             ))

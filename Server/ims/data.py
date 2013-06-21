@@ -340,12 +340,13 @@ class Ranger(object):
     Ranger
     """
 
-    def __init__(self, handle, name):
+    def __init__(self, handle, name, status):
         if not handle:
             raise InvalidDataError("Ranger handle required.")
 
         self.handle = handle
         self.name   = name
+        self.status = status
 
 
     def validate(self):

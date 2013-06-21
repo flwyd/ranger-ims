@@ -22,6 +22,8 @@ __all__ = [
     "DutyManagementSystem",
 ]
 
+from time import time
+
 from twisted.python import log
 from twisted.python.failure import Failure
 from twisted.internet.defer import succeed
@@ -42,15 +44,46 @@ class DutyManagementSystem(object):
     """
     Duty Management System
     """
+    rangers_cache_interval = 60 * 60 * 1 # 1 hour
+
     def __init__(self, host, database, username, password):
-        self.dbpool = adbapi.ConnectionPool("mysql.connector", host=host, database=database, user=username, password=password)
+        if host is None:
+            self.dbpool = None
+        else:
+            self.dbpool = adbapi.ConnectionPool(
+                "mysql.connector",
+                host=host, database=database,
+                user=username, password=password,
+            )
 
 
     def allRangers(self):
-        return succeed(
-            Ranger(handle, None)
-            for handle in allRangerHandles
-        )
+        #
+        # No self.dbpool means no database was configured.
+        # Return a dummy set for testing.
+        #
+        if self.dbpool is None:
+            return succeed(
+                Ranger(handle, None, None)
+                for handle in allRangerHandles
+            )
+
+        #
+        # If we've cached the list of Rangers and the cache is not
+        # older than self.rangers_cache_interval, return the cached
+        # value.
+        #
+        if hasattr(self, "_rangers") and hasattr(self, "_rangers_updated"):
+            log.msg("...have cached Rangers")
+            now = time()
+            if now - self._rangers_updated <= self.rangers_cache_interval:
+                log.msg("Returning Rangers from cache.")
+                return self._rangers
+
+        #
+        # Ask the Ranger database for a list of Rangers.
+        #
+        log.msg("{0} Retrieving Rangers from Duty Management System...".format(self))
 
         d = self.dbpool.runQuery("""
             select callsign, first_name, mi, last_name, status
@@ -64,16 +97,22 @@ class DutyManagementSystem(object):
 
         def onError(f):
             log.err(f)
-            return Failure(DatabaseError(f))
+            return Failure(DatabaseError(f.value))
 
         d.addErrback(onError)
 
         def onData(results):
-            return (
-                Ranger(handle, fullName(first, middle, last))
+            rangers = [
+                Ranger(handle, fullName(first, middle, last), status)
                 for handle, first, middle, last, status
                 in results
-            )
+            ]
+
+            self._rangers = rangers
+            self._rangers_updated = time()
+
+            log.msg("Returning Rangers from db.")
+            return self._rangers
 
         d.addCallback(onData)
 
@@ -605,15 +644,4 @@ allRangerHandles = (
     "mindscrye",
     "natural",
     "ultra",
-
-    "Intercept",
-    "Khaki",
-    "Operator",
-    "Operations Manager",
-    "Officer of the Day",
-    "Logistics Managers",
-    "Personnel Manager",
-    "Captain Hook",
-    "ESD 911 Dispatch",
-    "DPW Dispatch",
 )
