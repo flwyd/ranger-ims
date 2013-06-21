@@ -47,7 +47,8 @@ class DutyManagementSystem(object):
     rangers_cache_interval = 60 * 60 * 1 # 1 hour
 
     def __init__(self, host, database, username, password):
-        if host is None:
+        if not host or not database or not username or not password:
+            log.msg("Unsufficient database connection information for Duty Management System.")
             self.dbpool = None
         else:
             self.dbpool = adbapi.ConnectionPool(
@@ -78,7 +79,7 @@ class DutyManagementSystem(object):
             now = time()
             if now - self._rangers_updated <= self.rangers_cache_interval:
                 log.msg("Returning Rangers from cache.")
-                return self._rangers
+                return succeed(self._rangers)
 
         #
         # Ask the Ranger database for a list of Rangers.
