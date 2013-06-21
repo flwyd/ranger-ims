@@ -22,12 +22,19 @@ __all__ = [
     "DutyManagementSystem",
 ]
 
-#from mysql.connector import Error as MySQLError
-
+from twisted.python import log
+from twisted.python.failure import Failure
 from twisted.internet.defer import succeed
 from twisted.enterprise import adbapi
 
 from ims.data import Ranger
+
+
+
+class DatabaseError(Exception):
+    """
+    Database error.
+    """
 
 
 
@@ -36,14 +43,52 @@ class DutyManagementSystem(object):
     Duty Management System
     """
     def __init__(self, host, database, username, password):
-        pass
-        #self.dbpool = adbapi.ConnectionPool("mysql.connector", host=host, database=database, username=username, password=password)
+        self.dbpool = adbapi.ConnectionPool("mysql.connector", host=host, database=database, user=username, password=password)
 
 
     def allRangers(self):
         return succeed(
             Ranger(handle, None)
             for handle in allRangerHandles
+        )
+
+        d = self.dbpool.runQuery("""
+            select callsign, first_name, mi, last_name, status
+            from person
+            where status not in (
+                'prospective', 'alpha',
+                'bonked', 'uberbonked',
+                'deceased'
+            )
+        """)
+
+        def onError(f):
+            log.err(f)
+            return Failure(DatabaseError(f))
+
+        d.addErrback(onError)
+
+        def onData(results):
+            return (
+                Ranger(handle, fullName(first, middle, last))
+                for handle, first, middle, last, status
+                in results
+            )
+
+        d.addCallback(onData)
+
+        return d
+
+
+
+def fullName(first, middle, last):
+    if middle:
+        return "{first} {middle}. {last}".format(
+            first=first, middle=middle, last=last
+        )
+    else:
+        return "{first} {last}".format(
+            first=first, middle=middle, last=last
         )
 
 

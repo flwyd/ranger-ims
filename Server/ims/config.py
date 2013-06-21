@@ -37,16 +37,17 @@ class Configuration (object):
 
     def __str__(self):
         return (
-            "Core.ServerRoot: %(ServerRoot)s\n"
-            "Core.ConfigRoot: %(ConfigRoot)s\n"
-            "Core.UserDB: %(UserDB)s\n"
-            "Core.DataRoot: %(DataRoot)s\n"
+            "Core.ServerRoot: {ServerRoot}\n"
+            "Core.ConfigRoot: {ConfigRoot}\n"
+            "Core.UserDB: {UserDB}\n"
+            "Core.DataRoot: {DataRoot}\n"
+            "Core.Resources: {Resources}\n"
             "\n"
-            "DMS.Hostname: $(DMSHost)\n"
-            "DMS.Database: $(DMSDatabase)\n"
-            "DMS.Username: $(DMSUsername)\n"
-            "DMS.Password: $(DMSPassword)\n"
-        ) % self.__dict__
+            "DMS.Hostname: {DMSHost}\n"
+            "DMS.Database: {DMSDatabase}\n"
+            "DMS.Username: {DMSUsername}\n"
+            "DMS.Password: {DMSPassword}\n"
+        ).format(**self.__dict__)
 
 
     def load(self):

@@ -20,7 +20,7 @@ Protocol utilities
 
 __all__ = [
     "url_for",
-    "set_content_type",
+    "set_response_header",
     "http_sauce",
     "HeaderName",
     "ContentType",
@@ -36,7 +36,7 @@ from klein.interfaces import IKleinRequest
 
 from ims.data import InvalidDataError
 from ims.store import NoSuchIncidentError
-
+from ims.dms import DatabaseError
 
 
 def url_for(request, endpoint, *args, **kwargs):
@@ -58,18 +58,24 @@ def http_sauce(f):
 
         except NoSuchIncidentError as e:
             request.setResponseCode(http.NOT_FOUND)
-            set_content_type(request, ContentType.plain)
+            set_response_header(request, HeaderName.contenttype, ContentType.plain)
             return "No such incident: {0}\n".format(e)
 
         except InvalidDataError as e:
             request.setResponseCode(http.BAD_REQUEST)
-            set_content_type(request, ContentType.plain)
+            set_response_header(request, HeaderName.contenttype, ContentType.plain)
             return "Invalid data: {0}\n".format(e)
+
+        except DatabaseError as e:
+            request.setResponseCode(http.INTERNAL_SERVER_ERROR)
+            set_response_header(request, HeaderName.contenttype, ContentType.plain)
+            log.err(e)
+            return "Database error."
 
         except Exception as e:
             raise
             request.setResponseCode(http.INTERNAL_SERVER_ERROR)
-            set_content_type(request, ContentType.plain)
+            set_response_header(request, HeaderName.contenttype, ContentType.plain)
             log.err(e)
             return "Server error.\n"
 

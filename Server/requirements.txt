@@ -1,5 +1,6 @@
-Twisted==12.3.0
-Werkzeug==0.8.3
-klein==0.2.0
 mock==1.0.1
+Werkzeug==0.8.3
 zope.interface==4.0.5
+Twisted==12.3.0
+klein==0.2.0
+mysql-connector-python==1.0.10

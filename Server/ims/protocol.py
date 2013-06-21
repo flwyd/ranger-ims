@@ -58,14 +58,15 @@ class IncidentManagementSystem(object):
 
 
     @app.route("/", methods=("GET",))
+    @http_sauce
     def root(self, request):
         set_response_header(request, HeaderName.contentType, ContentType.HTML)
         return HomePageElement("Ranger Incident Management System")
 
 
     @app.route("/resources/", branch=True)
+    @http_sauce
     def favicon(self, request):
-        #set_response_header(request, HeaderName.contentType, ContentType.HTML)
         return File(self.config.Resources.path)
 
 

@@ -35,11 +35,13 @@ from ims.auth import guard
 from ims.protocol import IncidentManagementSystem
 
 
+def loadConfig():
+    configFile = FilePath(__file__).parent().parent().child("conf").child("imsd.conf")
+    return Configuration(configFile)
+
 
 def Resource():
-    configFile = FilePath(__file__).parent().parent().child("conf").child("imsd.conf")
-    config = Configuration(configFile)
-
+    config = loadConfig()
     return guard(
         lambda: IncidentManagementSystem(config),
         "Ranger Incident Management System",
@@ -47,3 +49,7 @@ def Resource():
             FilePasswordDB(config.UserDB.path),
         ),
     )
+
+
+if __name__ == "__main__":
+    print loadConfig()
