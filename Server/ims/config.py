@@ -22,6 +22,8 @@ __all__ = [
     "Configuration",
 ]
 
+import os.path
+
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
 from twisted.python import log
@@ -57,29 +59,36 @@ class Configuration (object):
             for okFile in configParser.read((configFile.path,)):
                 log.msg("Read configuration file: {0}".format(configFile.path))
 
+        def valueFromConfig(section, option, default):
+            try:
+                value = configParser.get(section, option)
+                if value:
+                    return value
+                else:
+                    return default
+            except (NoSectionError, NoOptionError):
+                return default
+
         def filePathFromConfig(section, option, root, segments):
             if section is None:
                 path = None
             else:
-                try:
-                    path = configParser.get(section, option)
-                except (NoSectionError, NoOptionError):
-                    path = None
+                path = valueFromConfig(section, option, None)
 
             if path is None:
                 fp = root
-                for segment in segments:
+                for segment in segments: 
                     fp = fp.child(segment)
-            else:
+
+            elif path.startswith("/"):
                 fp = FilePath(path)
 
-            return fp
+            else:
+                fp = root
+                for segment in path.split(os.path.sep):
+                    fp = fp.child(segment)
 
-        def getConfig(section, option, default):
-            try:
-                return configParser.get(section, option)
-            except (NoSectionError, NoOptionError):
-                return default
+            return fp
 
         readConfig(self.configFile)
 
@@ -102,7 +111,7 @@ class Configuration (object):
         self.Resources = filePathFromConfig("Core", "Resources", self.ServerRoot, ("resources",))
         log.msg("Resources: {0}".format(self.Resources.path))
 
-        self.DMSHost     = getConfig("DMS", "Hostname", "localhost")
-        self.DMSDatabase = getConfig("DMS", "Database", "rangers")
-        self.DMSUsername = getConfig("DMS", "Username", None)
-        self.DMSPassword = getConfig("DMS", "Password", None)
+        self.DMSHost     = valueFromConfig("DMS", "Hostname", None)
+        self.DMSDatabase = valueFromConfig("DMS", "Database", None)
+        self.DMSUsername = valueFromConfig("DMS", "Username", None)
+        self.DMSPassword = valueFromConfig("DMS", "Password", None)
