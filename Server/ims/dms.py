@@ -75,10 +75,8 @@ class DutyManagementSystem(object):
         # value.
         #
         if hasattr(self, "_rangers") and hasattr(self, "_rangers_updated"):
-            log.msg("...have cached Rangers")
             now = time()
             if now - self._rangers_updated <= self.rangers_cache_interval:
-                log.msg("Returning Rangers from cache.")
                 return succeed(self._rangers)
 
         #
@@ -112,7 +110,6 @@ class DutyManagementSystem(object):
             self._rangers = rangers
             self._rangers_updated = time()
 
-            log.msg("Returning Rangers from db.")
             return self._rangers
 
         d.addCallback(onData)
