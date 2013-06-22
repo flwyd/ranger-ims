@@ -121,7 +121,7 @@ class Incident(object):
             rangers = None
         else:
             rangers = tuple(
-                Ranger(handle, None)
+                Ranger(handle, None, None)
                 for handle in ranger_handles
             )
 
