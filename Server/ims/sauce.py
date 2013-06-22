@@ -51,6 +51,9 @@ def set_response_header(request, name, value):
 
 
 def http_sauce(f):
+    # FIXME: better for debugging
+    return f
+
     @wraps(f)
     def wrapper(request, *args, **kwargs):
         try:
