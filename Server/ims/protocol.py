@@ -189,8 +189,11 @@ class IncidentManagementSystem(object):
         for key in edits_json.keys():
             if key == "report_entries":
                 if edits.report_entries is not None:
-                    incident.report_entries += edits.report_entries
-                    #print "Adding report entries:", edits.report_entries
+                    for entry in edits.report_entries:
+                        # Edit report entrys to add author
+                        entry.author = self.avatarId.decode("utf-8")
+                        incident.report_entries.append(entry)
+                        #print "Adding report entry:", entry
             elif key == "location_name":
                 if edits.location.name is not None:
                     incident.location.name = edits.location.name
@@ -227,6 +230,11 @@ class IncidentManagementSystem(object):
         store = self.storage()
 
         incident = Incident.from_json_io(request.content, number=store.next_incident_number())
+
+        # Edit report entrys to add author
+        for entry in incident.report_entries:
+            entry.author = self.avatarId.decode("utf-8")
+
         store.write_incident(incident)
 
         request.setResponseCode(http.CREATED)

@@ -47,6 +47,7 @@ class JSON(Values):
     ranger_handles   = ValueConstant("ranger_handles")
     incident_types   = ValueConstant("incident_types")
     report_entries   = ValueConstant("report_entries")
+    author           = ValueConstant("author")
     text             = ValueConstant("text")
     created          = ValueConstant("created")
     dispatched       = ValueConstant("dispatched")
@@ -120,18 +121,19 @@ class Incident(object):
         if ranger_handles is None:
             rangers = None
         else:
-            rangers = tuple(
+            rangers = [
                 Ranger(handle, None, None)
                 for handle in ranger_handles
-            )
+            ]
 
-        report_entries = tuple(
+        report_entries = [
             ReportEntry(
-                created = parse_date(entry.get(JSON.created.value, None)),
+                author = entry.get(JSON.author.value, u"<unknown>"),
                 text = entry.get(JSON.text.value, None),
+                created = parse_date(entry.get(JSON.created.value, None)),
             )
             for entry in root.get(JSON.report_entries.value, ())
-        )
+        ]
 
         incident = cls(
             number         = number,
@@ -174,13 +176,13 @@ class Incident(object):
             )
 
         if rangers is not None:
-            rangers = tuple(rangers)
+            rangers = list(rangers)
 
         if incident_types is not None:
-            incident_types = tuple(incident_types)
+            incident_types = list(incident_types)
 
         if report_entries is not None:
-            report_entries = tuple(report_entries)
+            report_entries = list(report_entries)
 
         if created is None:
             created = datetime.now()
@@ -293,6 +295,7 @@ class Incident(object):
 
         root[JSON.report_entries.value] = [
             {
+                JSON.author.value: entry.author,
                 JSON.text.value: entry.text,
                 JSON.created.value: render_date(entry.created),
             }
@@ -314,15 +317,29 @@ class ReportEntry(object):
     Report entry
     """
 
-    def __init__(self, text, created=None):
+    def __init__(self, author, text, created=None):
         if created is None:
             created = datetime.now()
 
+        self.author  = author
         self.text    = text
         self.created = created
 
 
+    def __str__(self):
+        return "<ReportEntry {author}@{created}: {text}".format(
+            author  = self.author,
+            text    = self.text,
+            created = self.created,
+        )
+
+
     def validate(self):
+        if type(self.author) is not unicode:
+            raise InvalidDataError(
+                "Report entry author must be unicode, not {0}".format(self.author)
+            )
+
         if type(self.text) is not unicode:
             raise InvalidDataError(
                 "Report entry text must be unicode, not {0}".format(self.text)
