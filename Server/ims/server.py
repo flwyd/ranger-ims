@@ -51,5 +51,38 @@ def Resource():
     )
 
 
+# Monkey patch twisted.web logging, which annoyingly doesn't let you log the username.
+def logAccess(self, request):
+    if hasattr(self, "logFile"):
+        if hasattr(request, "user") and request.user:
+            user = self._escape(request.user)
+        else:
+            user = "-"
+
+        line = (
+            '{ip} {user} - {time} '
+            '"{method} {uri} {proto}" '
+            '{status} {length} '
+            '"{referer}" "{agent}"'
+            '\n'
+        ).format(
+            ip = request.getClientIP(),
+            user = user,
+            time = self._logDateTime,
+            method = self._escape(request.method),
+            uri = self._escape(request.uri),
+            proto = self._escape(request.clientproto),
+            status = request.code,
+            length = request.sentLength or "-",
+            referer = self._escape(request.getHeader("referer") or "-"),
+            agent = self._escape(request.getHeader("user-agent") or "-"),
+        )
+        self.logFile.write(line)
+
+import twisted.web.http
+twisted.web.http.HTTPFactory.log = logAccess
+
+
+
 if __name__ == "__main__":
     print loadConfig()

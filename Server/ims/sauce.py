@@ -51,13 +51,12 @@ def set_response_header(request, name, value):
 
 
 def http_sauce(f):
-    # FIXME: better for debugging
-    return f
-
     @wraps(f)
-    def wrapper(request, *args, **kwargs):
+    def wrapper(self, request, *args, **kwargs):
         try:
-            return f(request, *args, **kwargs)
+            request.user = self.avatarId
+
+            return f(self, request, *args, **kwargs)
 
         except NoSuchIncidentError as e:
             request.setResponseCode(http.NOT_FOUND)
@@ -65,21 +64,21 @@ def http_sauce(f):
             return "No such incident: {0}\n".format(e)
 
         except InvalidDataError as e:
+            log.err(e)
             request.setResponseCode(http.BAD_REQUEST)
             set_response_header(request, HeaderName.contenttype, ContentType.plain)
             return "Invalid data: {0}\n".format(e)
 
         except DatabaseError as e:
+            log.err(e)
             request.setResponseCode(http.INTERNAL_SERVER_ERROR)
             set_response_header(request, HeaderName.contenttype, ContentType.plain)
-            log.err(e)
             return "Database error."
 
         except Exception as e:
-            raise
+            log.err(e)
             request.setResponseCode(http.INTERNAL_SERVER_ERROR)
             set_response_header(request, HeaderName.contenttype, ContentType.plain)
-            log.err(e)
             return "Server error.\n"
 
     return wrapper
