@@ -365,7 +365,7 @@ static NSDateFormatter *entryDateFormatter = nil;
     }
 
     NSString *dateFormatted = [entryDateFormatter stringFromDate:entry.createdDate];
-    NSString *dateStamp = [NSString stringWithFormat:@"%@, %@:\n", dateFormatted, @"<Name of Operator>"];
+    NSString *dateStamp = [NSString stringWithFormat:@"%@, %@:\n", dateFormatted, entry.author];
     NSDictionary *attributes = @{
         NSFontAttributeName: [NSFont fontWithName:@"Menlo-Bold" size:0],
     };

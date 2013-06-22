@@ -31,11 +31,12 @@
 
 - (id) initWithText:(NSString *)text
 {
-    return [self initWithText:text createdDate:nil];
+    return [self initWithAuthor:nil text:text createdDate:nil];
 }
 
 
-- (id) initWithText:(NSString *)text
+- (id) initWithAuthor:(NSString *)author
+                 text:(NSString *)text
         createdDate:(NSDate *)createdDate
 {
     if (self = [super init]) {
@@ -43,8 +44,9 @@
             createdDate = [NSDate date];
         }
 
-        self.createdDate = createdDate;
+        self.author      = author;
         self.text        = text;
+        self.createdDate = createdDate;
     }
     return self;
 }
@@ -68,6 +70,7 @@
         return YES;
     }
 
+    if ((self.author      != other.author     ) && (! [self.author      isEqualToString: other.author     ])) { return NO; }
     if ((self.text        != other.text       ) && (! [self.text        isEqualToString: other.text       ])) { return NO; }
     if ((self.createdDate != other.createdDate) && (! [self.createdDate isEqualToDate:   other.createdDate])) { return NO; }
 
@@ -77,7 +80,7 @@
 
 - (NSString *) description
 {
-    return [NSString stringWithFormat:@"[%@]: %@", self.createdDate, self.text];
+    return [NSString stringWithFormat:@"[%@@%@]: %@", self.author, self.createdDate, self.text];
 }
 
 

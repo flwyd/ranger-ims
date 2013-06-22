@@ -26,11 +26,13 @@
 
 @property (strong) NSDate   *createdDate;
 @property (strong) NSString *text;
+@property (strong) NSString *author;
 
 
 - (id) initWithText:(NSString *)text;
-- (id) initWithText:(NSString *)text
-        createdDate:(NSDate *)createdDate;
+- (id) initWithAuthor:(NSString *)author
+                 text:(NSString *)text
+          createdDate:(NSDate *)createdDate;
 
 - (BOOL) isEqualToReportEntry:(ReportEntry *)other;
 

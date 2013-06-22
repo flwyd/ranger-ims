@@ -120,7 +120,8 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     }
     NSMutableArray *reportEntries = [NSMutableArray arrayWithCapacity:reportEntriesJSON.count];
     for (NSDictionary *reportEntryJSON in reportEntriesJSON) {
-        ReportEntry *reportEntry = [[ReportEntry alloc] initWithText:toString(reportEntryJSON[@"text"])
+        ReportEntry *reportEntry = [[ReportEntry alloc] initWithAuthor:toString(reportEntryJSON[@"author"])
+                                                                  text:toString(reportEntryJSON[@"text"])
                                                          createdDate:toDate(reportEntryJSON[@"created"])];
         [reportEntries addObject:reportEntry];
     }
@@ -309,6 +310,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     NSMutableArray *reportEntriesAsJSON = [NSMutableArray arrayWithCapacity:self.reportEntries.count];
     for (ReportEntry *entry in self.reportEntries) {
         [reportEntriesAsJSON addObject:@{
+            @"author" : nilNULL(entry.author),
             @"text"   : nilNULL(entry.text),
             @"created": jsonDate(entry.createdDate),
         }];
