@@ -100,7 +100,6 @@ class Configuration (object):
 
         self.ConfigRoot = filePathFromConfig("Core", "ConfigRoot", self.ServerRoot, ("conf",))
         log.msg("Config root: {0}".format(self.ConfigRoot.path))
-        readConfig(self.ConfigRoot.child("imsd.conf"))
 
         self.UserDB = filePathFromConfig("Core", "UserDB", self.ConfigRoot, ("users.pwdb",))
         log.msg("User DB: {0}".format(self.UserDB.path))
