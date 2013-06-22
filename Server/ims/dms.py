@@ -47,6 +47,8 @@ class DutyManagementSystem(object):
     rangers_cache_interval = 60 * 60 * 1 # 1 hour
 
     def __init__(self, host, database, username, password):
+        self.rangers_updated = 0
+
         if not host or not database or not username or not password:
             log.msg("Unsufficient database connection information for Duty Management System.")
             self.dbpool = None
@@ -58,7 +60,7 @@ class DutyManagementSystem(object):
             )
 
 
-    def allRangers(self):
+    def rangers(self):
         #
         # No self.dbpool means no database was configured.
         # Return a dummy set for testing.
@@ -74,9 +76,9 @@ class DutyManagementSystem(object):
         # older than self.rangers_cache_interval, return the cached
         # value.
         #
-        if hasattr(self, "_rangers") and hasattr(self, "_rangers_updated"):
+        if hasattr(self, "_rangers"):
             now = time()
-            if now - self._rangers_updated <= self.rangers_cache_interval:
+            if now - self.rangers_updated <= self.rangers_cache_interval:
                 return succeed(self._rangers)
 
         #
@@ -108,7 +110,7 @@ class DutyManagementSystem(object):
             ]
 
             self._rangers = rangers
-            self._rangers_updated = time()
+            self.rangers_updated = time()
 
             return self._rangers
 

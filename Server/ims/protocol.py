@@ -91,10 +91,10 @@ class IncidentManagementSystem(object):
     @app.route("/rangers/", methods=("GET",))
     @http_sauce
     def list_rangers(self, request):
-        #set_response_header(request, HeaderName.etag, "*") # FIXME
+        set_response_header(request, HeaderName.etag, str(self.dms.rangers_updated))
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
 
-        d = self.dms.allRangers()
+        d = self.dms.rangers()
         d.addCallback(lambda rangers:
             to_json(tuple(
                 {
