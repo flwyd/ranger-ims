@@ -49,12 +49,22 @@ class IncidentManagementSystem(object):
         self.config = config
         self.storageDirectory = config.DataRoot
         self.avatarId = None
-        self.dms = DutyManagementSystem(
-            host     = config.DMSHost,
-            database = config.DMSDatabase,
-            username = config.DMSUsername,
-            password = config.DMSPassword,
-        )
+
+        #
+        # We need to cache the dms to get connection pooling, caches,
+        # etc., so let's shove it into the config object, which is
+        # persistent.
+        #
+        # FIXME: Yes, this feels janky.
+        #
+        if not hasattr(config, "dms"):
+            config.dms = DutyManagementSystem(
+                host     = config.DMSHost,
+                database = config.DMSDatabase,
+                username = config.DMSUsername,
+                password = config.DMSPassword,
+            )
+        self.dms = config.dms
 
 
     @app.route("/", methods=("GET",))
