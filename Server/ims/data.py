@@ -335,7 +335,7 @@ class ReportEntry(object):
 
 
     def validate(self):
-        if type(self.author) is not unicode:
+        if self.author is not None and type(self.author) is not unicode:
             raise InvalidDataError(
                 "Report entry author must be unicode, not {0}".format(self.author)
             )
