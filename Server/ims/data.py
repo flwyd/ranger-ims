@@ -184,9 +184,6 @@ class Incident(object):
         if report_entries is not None:
             report_entries = list(report_entries)
 
-        if created is None:
-            created = datetime.now()
-
         if priority is None:
             priority = 5
 
