@@ -410,6 +410,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     else {
         controller = self.incidentControllers[incident.number];
         if (controller) {
+            controller.incident = [incident copy];
             [controller reloadIncident];
         }
     }
