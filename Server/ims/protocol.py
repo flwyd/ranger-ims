@@ -187,31 +187,37 @@ class IncidentManagementSystem(object):
         #print "-"*80
 
         for key in edits_json.keys():
-            if key == "report_entries":
+            key = JSON.lookupByValue(key)
+
+            if key is JSON.report_entries:
                 if edits.report_entries is not None:
                     for entry in edits.report_entries:
                         # Edit report entrys to add author
                         entry.author = self.avatarId.decode("utf-8")
                         incident.report_entries.append(entry)
                         #print "Adding report entry:", entry
-            elif key == "location_name":
+            elif key is JSON.location_name:
                 if edits.location.name is not None:
                     incident.location.name = edits.location.name
                     #print "Editing location name:", edits.location.name
-            elif key == "location_address":
+            elif key is JSON.location_address:
                 if edits.location.address is not None:
                     incident.location.address = edits.location.address
                     #print "Editing location address:", edits.location.address
-            elif key == "ranger_handles":
+            elif key is JSON.ranger_handles:
                 if edits.rangers is not None:
                     incident.rangers = edits.rangers
                     #print "Editing rangers:", edits.rangers
-            elif key == "incident_types":
+            elif key is JSON.incident_types:
                 if edits.incident_types is not None:
                     incident.incident_types = edits.incident_types
                     #print "Editing incident types:", edits.incident_types
             else:
-                attr_name = JSON.lookupByValue(key).name
+                if key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
+                    if edits.created is None:
+                        continue
+
+                attr_name = key.name
                 attr_value = getattr(edits, attr_name)
                 setattr(incident, attr_name, attr_value)
                 #print "Editing", attr_name, ":", attr_value
