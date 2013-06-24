@@ -47,17 +47,33 @@ class DutyManagementSystem(object):
     rangers_cache_interval = 60 * 60 * 1 # 1 hour
 
     def __init__(self, host, database, username, password):
-        self.rangers_updated = 0
+        self.host     = host
+        self.database = database
+        self.username = username
+        self.password = password
+
+        self._rangers = None
+        self.rangers_updated  = 0
+        self.rangers_updating = False
 
         if not host or not database or not username or not password:
             log.msg("Unsufficient database connection information for Duty Management System.")
-            self.dbpool = None
+            self._dbpool = noDatabase
         else:
-            self.dbpool = adbapi.ConnectionPool(
+            self._dbpool = None
+
+
+    @property
+    def dbpool(self):
+        if self._dbpool is None:
+            self._dbpool = adbapi.ConnectionPool(
                 "mysql.connector",
-                host=host, database=database,
-                user=username, password=password,
+                host     = self.host,
+                database = self.database,
+                user     = self.username,
+                password = self.password,
             )
+        return self._dbpool
 
 
     def rangers(self):
@@ -65,21 +81,37 @@ class DutyManagementSystem(object):
         # No self.dbpool means no database was configured.
         # Return a dummy set for testing.
         #
-        if self.dbpool is None:
+        if self.dbpool is noDatabase:
             return succeed(
                 Ranger(handle, None, None)
                 for handle in allRangerHandles
             )
 
         #
-        # If we've cached the list of Rangers and the cache is not
-        # older than self.rangers_cache_interval, return the cached
-        # value.
+        # No Rangers cached.
         #
-        if hasattr(self, "_rangers"):
-            now = time()
-            if now - self.rangers_updated <= self.rangers_cache_interval:
+        if self._rangers is None:
+            return self.loadRangers()
+
+        #
+        # If we've cached the list of Rangers and the cache is older than
+        # self.rangers_cache_interval, reload the list.
+        #
+        now = time()
+        if now - self.rangers_updated > self.rangers_cache_interval:
+            self.loadRangers()
+
+        return succeed(self._rangers)
+
+
+    def loadRangers(self):
+        if self.rangers_updating:
+            if self._rangers is None:
+                return succeed(())
+            else:
                 return succeed(self._rangers)
+
+        self.rangers_updating = True
 
         #
         # Ask the Ranger database for a list of Rangers.
@@ -97,12 +129,16 @@ class DutyManagementSystem(object):
         """)
 
         def onError(f):
+            self.rangers_updating = False
             log.err(f)
+            self._dbpool = None
             return Failure(DatabaseError(f.value))
 
         d.addErrback(onError)
 
         def onData(results):
+            self.rangers_updating = False
+
             rangers = [
                 Ranger(handle, fullName(first, middle, last), status)
                 for handle, first, middle, last, status
@@ -645,3 +681,6 @@ allRangerHandles = (
     "natural",
     "ultra",
 )
+
+
+noDatabase = object()
