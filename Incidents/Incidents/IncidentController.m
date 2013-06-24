@@ -85,6 +85,13 @@ static NSDateFormatter *entryDateFormatter = nil;
     if (self = [super initWithWindowNibName:@"IncidentController"]) {
         self.dispatchQueueController = dispatchQueueController;
         self.incident = incident;
+
+        self.stateDidChange    = NO;
+        self.priorityDidChange = NO;
+        self.summaryDidChange  = NO;
+        self.rangersDidChange  = NO;
+        self.typesDidChange    = NO;
+        self.locationDidChange = NO;
     }
     return self;
 }
@@ -438,33 +445,62 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSInteger stateTag = statePopUp.selectedItem.tag;
 
     if (stateTag == 1) {
-        incident.dispatched = nil;
-        incident.onScene    = nil;
-        incident.closed     = nil;
+        if (incident.dispatched || incident.onScene || incident.closed) {
+            self.stateDidChange = YES;
+            incident.dispatched = nil;
+            incident.onScene    = nil;
+            incident.closed     = nil;
+        }
     }
     else if (stateTag == 2) {
-        if (! incident.dispatched) { incident.dispatched = [NSDate date]; }
+        if (! incident.dispatched) {
+            self.stateDidChange = YES;
+            incident.dispatched = [NSDate date];
+        }
 
-        incident.onScene = nil;
-        incident.closed  = nil;
+        if (incident.onScene || incident.closed) {
+            self.stateDidChange = YES;
+            incident.onScene = nil;
+            incident.closed  = nil;
+        }
     }
     else if (stateTag == 3) {
-        if (! incident.dispatched) { incident.dispatched = [NSDate date]; }
-        if (! incident.onScene   ) { incident.onScene    = [NSDate date]; }
+        if (! incident.dispatched) {
+            self.stateDidChange = YES;
+            incident.dispatched = [NSDate date];
+        }
 
-        incident.closed  = nil;
+        if (! incident.onScene) {
+            self.stateDidChange = YES;
+            incident.onScene = [NSDate date];
+        }
+
+        if (incident.closed) {
+            self.stateDidChange = YES;
+            incident.closed = nil;
+        }
     }
     else if (stateTag == 4) {
-        if (! incident.dispatched) { incident.dispatched = [NSDate date]; }
-        if (! incident.onScene   ) { incident.onScene    = [NSDate date]; }
-        if (! incident.closed    ) { incident.closed     = [NSDate date]; }
+        if (! incident.dispatched) {
+            self.stateDidChange = YES;
+            incident.dispatched = [NSDate date];
+        }
+
+        if (! incident.onScene) {
+            self.stateDidChange = YES;
+            incident.onScene = [NSDate date];
+        }
+
+        if (! incident.closed) {
+            self.stateDidChange = YES;
+            incident.closed = [NSDate date];
+        }
     }
     else {
         performAlert(@"Unknown state tag: %ld", stateTag);
         return;
     }
 
-    self.stateDidChange = YES;
     self.window.documentEdited = YES;
 }
 
