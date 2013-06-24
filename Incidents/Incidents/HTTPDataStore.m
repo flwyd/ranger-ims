@@ -193,7 +193,7 @@ static int nextTemporaryNumber = -1;
             return;
         }
 
-        NSLog(@"Updated incident #%@.", incident.number);
+        NSLog(@"Updated: %@", incident);
 
         [self loadIncidentNumber:incident.number];
 
@@ -437,7 +437,7 @@ static int nextTemporaryNumber = -1;
                                 }
                                 self.allIncidentsByNumber[number] = incident;
 
-                                NSLog(@"Loaded incident #%@.", number);
+                                NSLog(@"Loaded: %@", incident);
                                 [delegate dataStore:self didUpdateIncident:incident];
                             }
                             else {

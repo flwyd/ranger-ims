@@ -264,6 +264,14 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
 - (NSString *) description
 {
+    NSString *state;
+    if      (self.closed    ) { state = @"closed"    ; }
+    else if (self.onScene   ) { state = @"on scene"  ; }
+    else if (self.dispatched) { state = @"dispatched"; }
+    else if (self.created   ) { state = @"new"       ; }
+    else                      { state = @"NONE"      ; }
+
+
     NSString *description = nil;
     for (Ranger* ranger in self.rangers) {
         if (description) {
@@ -281,8 +289,8 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     }
     
     return [NSString stringWithFormat:
-               @"Incident #%@ %@: %@",
-               self.number, description, self.summaryFromReport];
+               @"Incident #%@ (%@) %@: %@",
+               self.number, state, description, self.summaryFromReport];
 }
 
 
