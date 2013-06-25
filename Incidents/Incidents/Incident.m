@@ -41,7 +41,8 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
 
 + (Incident *) incidentInDataStore:(id <DataStoreProtocol>)dataStore
-                          fromJSON:(NSDictionary *)jsonIncident error:(NSError **)error
+                          fromJSON:(NSDictionary *)jsonIncident
+                             error:(NSError **)error
 {
     NSNull *nullObject = [NSNull null];
 
@@ -127,7 +128,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     }
 
     Location *location = [[Location alloc] initWithName:jsonIncident[@"location_name" ]
-                                                address:jsonIncident[@"incident_address"]];
+                                                address:jsonIncident[@"location_address"]];
 
     NSNumber *number     = toNumber(jsonIncident[@"number"        ]); if (*error) return nil;
     NSArray  *types      = toArray (jsonIncident[@"incident_types"]); if (*error) return nil;
