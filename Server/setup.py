@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name = "ranger-ims",
-    version = "0.1",
+    version = "0.2-dev",
 
     description = "Ranger Incident Management System",
    #long_description = open("README").read(),
