@@ -85,13 +85,6 @@ static NSDateFormatter *entryDateFormatter = nil;
     if (self = [super initWithWindowNibName:@"IncidentController"]) {
         self.dispatchQueueController = dispatchQueueController;
         self.incident = incident;
-
-        self.stateDidChange    = NO;
-        self.priorityDidChange = NO;
-        self.summaryDidChange  = NO;
-        self.rangersDidChange  = NO;
-        self.typesDidChange    = NO;
-        self.locationDidChange = NO;
     }
     return self;
 }
