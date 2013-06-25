@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(
-    name="Ranger IMS",
+    name="ranger-ims",
     version="0.1",
 
     description="Ranger Incident Management System",
