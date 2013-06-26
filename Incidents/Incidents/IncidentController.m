@@ -780,7 +780,9 @@ static NSDateFormatter *entryDateFormatter = nil;
         control == self.locationNameField   ||
         control == self.locationAddressField) {
         if (command == NSSelectorFromString(@"deleteBackward:")) {
-            self.amBackspacing = YES;
+            if (textView.string.length > 0) {
+                self.amBackspacing = YES;
+            }
         }
         else if (command == NSSelectorFromString(@"insertNewline:")) {
             if (control == self.rangerToAddField) {
