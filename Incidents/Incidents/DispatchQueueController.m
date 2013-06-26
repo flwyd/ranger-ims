@@ -483,6 +483,9 @@ NSString *formattedDateTimeShort(NSDate *date);
     else if ([identifier isEqualToString:@"rangers"]) {
         return incident.summaryOfRangers;
     }
+    else if ([identifier isEqualToString:@"location"]) {
+        return incident.location.description;
+    }
     else if ([identifier isEqualToString:@"locationName"]) {
         return incident.location.name;
     }
