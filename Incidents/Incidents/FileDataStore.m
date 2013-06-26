@@ -280,6 +280,11 @@ NSArray *getRangerHandles(void);
 }
 
 
+- (NSArray *) addressesForLocationName:(NSString *)locationName {
+    return @[];
+}
+
+
 @end
 
 

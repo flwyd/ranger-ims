@@ -44,18 +44,18 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 @property (strong) DispatchQueueController *dispatchQueueController;
 
-@property (weak) IBOutlet NSTextField   *numberField;
-@property (weak) IBOutlet NSPopUpButton *statePopUp;
-@property (weak) IBOutlet NSPopUpButton *priorityPopUp;
-@property (weak) IBOutlet NSTextField   *summaryField;
-@property (weak) IBOutlet NSTableView   *rangersTable;
-@property (weak) IBOutlet NSTextField   *rangerToAddField;
-@property (weak) IBOutlet NSTableView   *typesTable;
-@property (weak) IBOutlet NSTextField   *typeToAddField;
-@property (weak) IBOutlet NSTextField   *locationNameField;
-@property (weak) IBOutlet NSTextField   *locationAddressField;
-@property (assign)            IBOutlet NSTextView    *reportEntriesView;
-@property (assign)            IBOutlet NSTextView    *reportEntryToAddView;
+@property (weak)   IBOutlet NSTextField   *numberField;
+@property (weak)   IBOutlet NSPopUpButton *statePopUp;
+@property (weak)   IBOutlet NSPopUpButton *priorityPopUp;
+@property (weak)   IBOutlet NSTextField   *summaryField;
+@property (weak)   IBOutlet NSTableView   *rangersTable;
+@property (weak)   IBOutlet NSTextField   *rangerToAddField;
+@property (weak)   IBOutlet NSTableView   *typesTable;
+@property (weak)   IBOutlet NSTextField   *typeToAddField;
+@property (weak)   IBOutlet NSTextField   *locationNameField;
+@property (weak)   IBOutlet NSTextField   *locationAddressField;
+@property (assign) IBOutlet NSTextView    *reportEntriesView;
+@property (assign) IBOutlet NSTextView    *reportEntryToAddView;
 
 @property (assign) BOOL stateDidChange;
 @property (assign) BOOL priorityDidChange;
@@ -699,6 +699,12 @@ static NSDateFormatter *entryDateFormatter = nil;
         return self.dispatchQueueController.dataStore.allLocationNames;
     }
 
+    if (control == self.locationAddressField) {
+        NSTextField *locationNameField = self.locationNameField;
+        NSString *locationName = locationNameField.stringValue;
+        return [self.dispatchQueueController.dataStore addressesForLocationName:locationName];
+    }
+
     return nil;
 }
 
@@ -769,7 +775,10 @@ static NSDateFormatter *entryDateFormatter = nil;
              textView:(NSTextView *)textView
   doCommandBySelector:(SEL)command
 {
-    if (control == self.rangerToAddField || control == self.typeToAddField || control == self.locationNameField) {
+    if (control == self.rangerToAddField    ||
+        control == self.typeToAddField      ||
+        control == self.locationNameField   ||
+        control == self.locationAddressField) {
         if (command == NSSelectorFromString(@"deleteBackward:")) {
             self.amBackspacing = YES;
         }

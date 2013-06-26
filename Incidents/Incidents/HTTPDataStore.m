@@ -634,4 +634,21 @@ static int nextTemporaryNumber = -1;
 }
 
 
+- (NSArray *) addressesForLocationName:(NSString *)locationName {
+    NSArray *incidents = self.incidents;
+    NSMutableSet *addresses = [NSMutableSet set];
+
+    for (Incident *incident in incidents) {
+        if ([locationName isEqualToString:incident.location.name]) {
+            NSString *address = incident.location.address;
+            if (address && address.length > 0) {
+                [addresses addObject:address];
+            }
+        }
+    }
+
+    return addresses.allObjects;
+}
+
+
 @end
