@@ -56,6 +56,23 @@
 }
 
 
+- (NSString *)description {
+    if (self.name.length > 0) {
+        if (self.address.length > 0) {
+            return [NSString stringWithFormat:@"%@ (%@)", self.name, self.address];
+        } else {
+            return self.name;
+        }
+    } else {
+        if (self.address.length > 0) {
+            return [NSString stringWithFormat:@"(%@)", self.address];
+        } else {
+            return @"";
+        }
+    }
+}
+
+
 - (BOOL) isEqual:(id)other
 {
     if (other == self) {
