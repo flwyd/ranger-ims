@@ -35,8 +35,8 @@
     if (self = [super init]) {
         id nsnull = [NSNull null];
 
-        if (! name    || name == nsnull) { name    = @""; }
-        if (! address || name == nsnull) { address = @""; }
+        if (! name    || name    == nsnull) { name    = @""; }
+        if (! address || address == nsnull) { address = @""; }
 
         self.name    = name;
         self.address = address;
