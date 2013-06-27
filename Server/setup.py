@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
+
+
+def install_requirements():
+    try:
+        from pip.req import parse_requirements
+    except ImportError:
+        return []
+
+    install_reqs = parse_requirements("requirements.txt")
+    return [str(ir.req) for ir in install_reqs]
+
 
 setup(
     name = "ranger-ims",
-    version = "0.2-dev",
+    version = "0.1",
 
     description = "Ranger Incident Management System",
    #long_description = open("README").read(),
@@ -17,6 +28,8 @@ setup(
 
     packages = ["ims"],
     scripts = ["bin/imsd"],
+
+    install_requires = install_requirements(),
 
     classifiers = [
         "Development Status :: 3 - Alpha",
