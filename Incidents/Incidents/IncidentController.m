@@ -522,6 +522,39 @@ static NSDateFormatter *entryDateFormatter = nil;
         incident.location.name = locationName;
         self.locationDidChange = YES;
         self.window.documentEdited = YES;
+
+        if (locationName.length > 0) {
+            NSTextField *locationAddressField = self.locationAddressField;
+
+            if (locationAddressField.stringValue.length == 0) {
+                NSArray *addresses = [self.dispatchQueueController.dataStore
+                                      addressesForLocationName:locationName];
+
+                //
+                // Note that when we fill in the address field, we do *not* call -editLocationAddress:
+                // here, because we want to let the user modify or clear the field back out if desired
+                // before a change to the address value is noted.
+                //
+                if (addresses.count == 1) {
+                    // Only one result (yay!), fill it in
+                    locationAddressField.stringValue = addresses[0];
+                    [locationAddressField selectText:self];
+                }
+                else if (addresses.count > 1) {
+                    // Put "?" in the address field so cause all completetions to trigger
+                    locationAddressField.stringValue = @"?";
+
+                    // Select the address text
+                    [locationAddressField selectText:self];
+
+                    // Ask the field editor to complete the text
+                    NSText *fieldEditor = [self.window fieldEditor:YES forObject:locationAddressField];
+                    self.amCompleting = YES;
+                    [fieldEditor complete:self];
+                    self.amCompleting = NO;
+                }
+            }
+        }
     }
 }
 
@@ -749,7 +782,9 @@ static NSDateFormatter *entryDateFormatter = nil;
         return @[];
     }
 
-    return [self completionsForWord:textView.string fromSource:source];
+    NSArray *completions = [self completionsForWord:textView.string fromSource:source];
+    //NSLog(@"Completions: %@", completions);
+    return completions;
 }
 
 
@@ -831,7 +866,7 @@ static NSDateFormatter *entryDateFormatter = nil;
             }
         }
         else {
-            NSLog(@"Do command: %@", NSStringFromSelector(command));
+            //NSLog(@"Do command: %@", NSStringFromSelector(command));
         }
     }
 }
