@@ -167,12 +167,12 @@ class Incident(object):
     ):
         if type(number) is not int:
             raise InvalidDataError(
-                "Incident number must be an int, not ({0}){1}".format(number.__class__.__name__, number)
+                "Incident number must be an int, not ({n.__class__.__name__}){n}".format(n=number)
             )
 
         if number < 0:
             raise InvalidDataError(
-                "Incident number but be natural, not {0}".format(number)
+                "Incident number but be natural, not {n}".format(n=number)
             )
 
         if rangers is not None:
@@ -510,12 +510,12 @@ class Location(object):
     def validate(self):
         if self.name and type(self.name) is not unicode:
             raise InvalidDataError(
-                "Location name must be unicode, not {0!r}".format(self.handle)
+                "Location name must be unicode, not {0!r}".format(self.name)
             )
 
         if self.address and type(self.address) is not unicode:
             raise InvalidDataError(
-                "Location address must be unicode, not {0!r}".format(self.handle)
+                "Location address must be unicode, not {0!r}".format(self.address)
             )
 
 

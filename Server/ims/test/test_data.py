@@ -314,6 +314,352 @@ class IncidentTests(twisted.trial.unittest.TestCase):
 
 
 
+class ReportEntryTests(twisted.trial.unittest.TestCase):
+    """
+    Tests for L{ims.data.ReportEntry}
+    """
+
+    def test_str(self):
+        """
+        L{ims.data.ReportEntry.__str__}
+        """
+        entry = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+        self.assertEquals(str(entry), "Tool@1972-06-29 12:00:00: Something happened!")
+
+
+    def test_repr(self):
+        """
+        L{ims.data.ReportEntry.__repr__}
+        """
+        entry = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+        self.assertEquals(
+            repr(entry),
+            "{e.__class__.__name__}("
+            "author={e.author!r},"
+            "text={e.text!r},"
+            "created={e.created!r})"
+            .format(e=entry)
+        )
+
+
+    def test_eq_different(self):
+        """
+        L{ims.data.ReportEntry.__eq__} between two different entries.
+        """
+        entry1 = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+        entry2 = ReportEntry(
+            author = u"Tool",
+            text = u"Something else happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+
+        self.assertNotEquals(entry1, entry2)
+
+
+    def test_eq_equal(self):
+        """
+        L{ims.data.ReportEntry.__eq__} between equal entries.
+        """
+        entry1a = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+        entry1b = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+
+        self.assertEquals(entry1a, entry1a)
+        self.assertEquals(entry1a, entry1b)
+
+
+    def test_eq_other(self):
+        """
+        L{ims.data.ReportEntry.__eq__} between entry and other type.
+        """
+        entry = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+
+        self.assertNotEquals(entry, object())
+
+
+    def test_validate(self):
+        """
+        L{ims.data.ReportEntry.validate} of valid entry.
+        """
+        entry = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+
+        entry.validate()
+
+
+    def test_validate_non_unicode_author(self):
+        """
+        L{ims.data.ReportEntry.validate} of entry with non-unicode
+        author.
+        """
+        entry = ReportEntry(
+            author = b"Tool",
+            text = u"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+
+        self.assertRaises(InvalidDataError, entry.validate)
+
+
+    def test_validate_non_unicode_text(self):
+        """
+        L{ims.data.ReportEntry.validate} of entry with non-unicode
+        text.
+        """
+        entry = ReportEntry(
+            author = u"Tool",
+            text = b"Something happened!",
+            created = datetime(1972, 06, 29, 12,  0, 0),
+        )
+
+        self.assertRaises(InvalidDataError, entry.validate)
+
+
+    def test_validate_non_datetime_created(self):
+        """
+        L{ims.data.ReportEntry.validate} of entry with non-datetime
+        created time.
+        """
+        entry = ReportEntry(
+            author = u"Tool",
+            text = u"Something happened!",
+            created = 0,
+        )
+
+        self.assertRaises(InvalidDataError, entry.validate)
+
+
+
+class RangerTests(twisted.trial.unittest.TestCase):
+    """
+    Tests for L{ims.data.Ranger}
+    """
+
+    tool = Ranger(
+        handle = u"Tool",
+        name = u"Wilfredo Sanchez Vega",
+        status = "vintage",
+    )
+
+    tulsa = Ranger(
+        handle = u"Tulsa",
+        name = u"Curtis Kline",
+        status = "vintage",
+    )
+
+
+    def test_str(self):
+        """
+        L{ims.data.Ranger.__str__}
+        """
+        self.assertEquals(str(self.tool), "Tool (Wilfredo Sanchez Vega)")
+
+
+    def test_repr(self):
+        """
+        L{ims.data.Ranger.__repr__}
+        """
+        self.assertEquals(
+            repr(self.tool),
+            "Ranger(handle=u'Tool',name=u'Wilfredo Sanchez Vega',status='vintage')"
+        )
+
+
+    def test_eq_different(self):
+        """
+        L{ims.data.Ranger.__eq__} between two different entries.
+        """
+        self.assertNotEquals(self.tool, self.tulsa)
+
+
+    def test_eq_equal(self):
+        """
+        L{ims.data.Ranger.__eq__} between equal entries.
+        """
+        ranger1a = Ranger(
+            handle = u"Tulsa",
+            name = u"Curtis Kline",
+            status = "vintage",
+        )
+        ranger1b = Ranger(
+            handle = u"Tulsa",
+            name = u"Curtis Kline",
+            status = "vintage",
+        )
+
+        self.assertEquals(ranger1a, ranger1a)
+        self.assertEquals(ranger1a, ranger1b)
+
+
+    def test_eq_other(self):
+        """
+        L{ims.data.Ranger.__eq__} between ranger and other type.
+        """
+        self.assertNotEquals(self.tool, object())
+
+
+    def test_validate(self):
+        """
+        L{ims.data.Ranger.validate} of valid ranger.
+        """
+        self.tool.validate()
+
+
+    def test_validate_non_unicode_handle(self):
+        """
+        L{ims.data.Ranger.validate} of Ranger with non-unicode
+        handle.
+        """
+        ranger = Ranger(
+            handle = b"Tulsa",
+            name = u"Curtis Kline",
+            status = "vintage",
+        )
+
+        self.assertRaises(InvalidDataError, ranger.validate)
+
+
+    def test_validate_non_unicode_name(self):
+        """
+        L{ims.data.Ranger.validate} of Ranger with non-unicode name.
+        """
+        ranger = Ranger(
+            handle = u"Tulsa",
+            name = b"Curtis Kline",
+            status = "vintage",
+        )
+
+        self.assertRaises(InvalidDataError, ranger.validate)
+
+
+
+class LocationTests(twisted.trial.unittest.TestCase):
+    """
+    Tests for L{ims.data.Location}
+    """
+
+    hq = Location(
+        name = u"Ranger HQ",
+        address = u"5:45 & Esplanade",
+    )
+
+    man = Location(
+        name = u"The Man",
+        address = u"The Man",
+    )
+
+
+    def test_str(self):
+        """
+        L{ims.data.Location.__str__}
+        """
+        self.assertEquals(str(self.hq), "Ranger HQ (5:45 & Esplanade)")
+
+
+    def test_repr(self):
+        """
+        L{ims.data.Location.__repr__}
+        """
+        self.assertEquals(
+            repr(self.hq),
+            "Location(name=u'Ranger HQ',address=u'5:45 & Esplanade')"
+        )
+
+
+    def test_eq_different(self):
+        """
+        L{ims.data.Location.__eq__} between two different entries.
+        """
+        self.assertNotEquals(self.hq, self.man)
+
+
+    def test_eq_equal(self):
+        """
+        L{ims.data.Location.__eq__} between equal entries.
+        """
+        location1a = Location(
+            name = u"Ranger HQ",
+            address = u"5:45 & Esplanade",
+        )
+        location1b = Location(
+            name = u"Ranger HQ",
+            address = u"5:45 & Esplanade", 
+        )
+
+        self.assertEquals(location1a, location1a)
+        self.assertEquals(location1a, location1b)
+
+
+    def test_eq_other(self):
+        """
+        L{ims.data.Location.__eq__} between location and other type.
+        """
+        self.assertNotEquals(self.hq, object())
+
+
+    def test_validate(self):
+        """
+        L{ims.data.Location.validate} of valid location.
+        """
+        self.hq.validate()
+
+
+    def test_validate_non_unicode_name(self):
+        """
+        L{ims.data.Location.validate} of location with non-unicode name.
+        """
+        location = Location(
+            name = b"Ranger HQ",
+            address = u"5:45 & Esplanade",
+        )
+
+        self.assertRaises(InvalidDataError, location.validate)
+
+
+    def test_validate_non_unicode_address(self):
+        """
+        L{ims.data.Location.validate} of location with non-unicode
+        address.
+        """
+        location = Location(
+            name = u"Ranger HQ",
+            address = b"5:45 & Esplanade",
+        )
+
+        self.assertRaises(InvalidDataError, location.validate)
+
+
+
+
+
+
+
 incident1_text = """
 {
     "closed": "2013-03-21T22:00:17Z", 
