@@ -25,6 +25,7 @@
 @interface HTTPConnection () <NSConnectionDelegate>
 
 @property (assign) BOOL active;
+@property (assign) BOOL verbose;
 
 @property (strong) NSURLRequest      *request;
 @property (strong) NSHTTPURLResponse *responseInfo;
@@ -103,6 +104,18 @@
     if (self = [super init]) {
         self.active = YES;
 
+        if ([request.HTTPMethod isEqualToString:@"POST"]) {
+            self.verbose = YES;
+        } else {
+            self.verbose = NO;
+        }
+
+        if (self.verbose) {
+            NSLog(@"Sending %@ request at %@\nHeaders: %@\nBody:\n%@",
+                  request.HTTPMethod, request.URL, request.allHTTPHeaderFields,
+                  [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]);
+        }
+
         self.request      = request;
         self.responseInfo = nil;
         self.responseData = [NSMutableData data];
@@ -177,6 +190,10 @@
         return;
     }
 
+    if (self.verbose) {
+        NSLog(@"Got %ld response with headers: %@", responseInfo.statusCode, responseInfo.allHeaderFields);
+    }
+
     self.responseInfo = responseInfo;
 
     NSString *whyIDontLikeThisResponse = nil;
@@ -207,6 +224,10 @@
         return;
     }
 
+    if (self.verbose) {
+        NSLog(@"Got data: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+    }
+
     [(NSMutableData *)self.responseData appendData:data];
 }
 
@@ -230,6 +251,10 @@
     self.urlConnection = nil;
     self.responseData = nil;
 
+    if (self.verbose) {
+        NSLog(@"Failed with error: %@", error);
+    }
+
     [self reportError:error];
 }
 
@@ -239,6 +264,10 @@
     if (! [connection isEqual:self.urlConnection]) {
         NSLog(@"Got success from unknown connection?!?!");
         return;
+    }
+
+    if (self.verbose) {
+        NSLog(@"Finished loading.");
     }
 
     [self reportResponse];

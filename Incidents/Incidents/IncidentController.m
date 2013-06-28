@@ -44,18 +44,18 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 @property (strong) DispatchQueueController *dispatchQueueController;
 
-@property (weak) IBOutlet NSTextField   *numberField;
-@property (weak) IBOutlet NSPopUpButton *statePopUp;
-@property (weak) IBOutlet NSPopUpButton *priorityPopUp;
-@property (weak) IBOutlet NSTextField   *summaryField;
-@property (weak) IBOutlet NSTableView   *rangersTable;
-@property (weak) IBOutlet NSTextField   *rangerToAddField;
-@property (weak) IBOutlet NSTableView   *typesTable;
-@property (weak) IBOutlet NSTextField   *typeToAddField;
-@property (weak) IBOutlet NSTextField   *locationNameField;
-@property (weak) IBOutlet NSTextField   *locationAddressField;
-@property (assign)            IBOutlet NSTextView    *reportEntriesView;
-@property (assign)            IBOutlet NSTextView    *reportEntryToAddView;
+@property (weak)   IBOutlet NSTextField   *numberField;
+@property (weak)   IBOutlet NSPopUpButton *statePopUp;
+@property (weak)   IBOutlet NSPopUpButton *priorityPopUp;
+@property (weak)   IBOutlet NSTextField   *summaryField;
+@property (weak)   IBOutlet NSTableView   *rangersTable;
+@property (weak)   IBOutlet NSTextField   *rangerToAddField;
+@property (weak)   IBOutlet NSTableView   *typesTable;
+@property (weak)   IBOutlet NSTextField   *typeToAddField;
+@property (weak)   IBOutlet NSTextField   *locationNameField;
+@property (weak)   IBOutlet NSTextField   *locationAddressField;
+@property (assign) IBOutlet NSTextView    *reportEntriesView;
+@property (assign) IBOutlet NSTextView    *reportEntryToAddView;
 
 @property (assign) BOOL stateDidChange;
 @property (assign) BOOL priorityDidChange;
@@ -438,33 +438,62 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSInteger stateTag = statePopUp.selectedItem.tag;
 
     if (stateTag == 1) {
-        incident.dispatched = nil;
-        incident.onScene    = nil;
-        incident.closed     = nil;
+        if (incident.dispatched || incident.onScene || incident.closed) {
+            self.stateDidChange = YES;
+            incident.dispatched = nil;
+            incident.onScene    = nil;
+            incident.closed     = nil;
+        }
     }
     else if (stateTag == 2) {
-        if (! incident.dispatched) { incident.dispatched = [NSDate date]; }
+        if (! incident.dispatched) {
+            self.stateDidChange = YES;
+            incident.dispatched = [NSDate date];
+        }
 
-        incident.onScene = nil;
-        incident.closed  = nil;
+        if (incident.onScene || incident.closed) {
+            self.stateDidChange = YES;
+            incident.onScene = nil;
+            incident.closed  = nil;
+        }
     }
     else if (stateTag == 3) {
-        if (! incident.dispatched) { incident.dispatched = [NSDate date]; }
-        if (! incident.onScene   ) { incident.onScene    = [NSDate date]; }
+        if (! incident.dispatched) {
+            self.stateDidChange = YES;
+            incident.dispatched = [NSDate date];
+        }
 
-        incident.closed  = nil;
+        if (! incident.onScene) {
+            self.stateDidChange = YES;
+            incident.onScene = [NSDate date];
+        }
+
+        if (incident.closed) {
+            self.stateDidChange = YES;
+            incident.closed = nil;
+        }
     }
     else if (stateTag == 4) {
-        if (! incident.dispatched) { incident.dispatched = [NSDate date]; }
-        if (! incident.onScene   ) { incident.onScene    = [NSDate date]; }
-        if (! incident.closed    ) { incident.closed     = [NSDate date]; }
+        if (! incident.dispatched) {
+            self.stateDidChange = YES;
+            incident.dispatched = [NSDate date];
+        }
+
+        if (! incident.onScene) {
+            self.stateDidChange = YES;
+            incident.onScene = [NSDate date];
+        }
+
+        if (! incident.closed) {
+            self.stateDidChange = YES;
+            incident.closed = [NSDate date];
+        }
     }
     else {
         performAlert(@"Unknown state tag: %ld", stateTag);
         return;
     }
 
-    self.stateDidChange = YES;
     self.window.documentEdited = YES;
 }
 
@@ -493,6 +522,39 @@ static NSDateFormatter *entryDateFormatter = nil;
         incident.location.name = locationName;
         self.locationDidChange = YES;
         self.window.documentEdited = YES;
+
+        if (locationName.length > 0) {
+            NSTextField *locationAddressField = self.locationAddressField;
+
+            if (locationAddressField.stringValue.length == 0) {
+                NSArray *addresses = [self.dispatchQueueController.dataStore
+                                      addressesForLocationName:locationName];
+
+                //
+                // Note that when we fill in the address field, we do *not* call -editLocationAddress:
+                // here, because we want to let the user modify or clear the field back out if desired
+                // before a change to the address value is noted.
+                //
+                if (addresses.count == 1) {
+                    // Only one result (yay!), fill it in
+                    locationAddressField.stringValue = addresses[0];
+                    [locationAddressField selectText:self];
+                }
+                else if (addresses.count > 1) {
+                    // Put "?" in the address field so cause all completetions to trigger
+                    locationAddressField.stringValue = @"?";
+
+                    // Select the address text
+                    [locationAddressField selectText:self];
+
+                    // Ask the field editor to complete the text
+                    NSText *fieldEditor = [self.window fieldEditor:YES forObject:locationAddressField];
+                    self.amCompleting = YES;
+                    [fieldEditor complete:self];
+                    self.amCompleting = NO;
+                }
+            }
+        }
     }
 }
 
@@ -670,6 +732,12 @@ static NSDateFormatter *entryDateFormatter = nil;
         return self.dispatchQueueController.dataStore.allLocationNames;
     }
 
+    if (control == self.locationAddressField) {
+        NSTextField *locationNameField = self.locationNameField;
+        NSString *locationName = locationNameField.stringValue;
+        return [self.dispatchQueueController.dataStore addressesForLocationName:locationName];
+    }
+
     return nil;
 }
 
@@ -714,7 +782,9 @@ static NSDateFormatter *entryDateFormatter = nil;
         return @[];
     }
 
-    return [self completionsForWord:textView.string fromSource:source];
+    NSArray *completions = [self completionsForWord:textView.string fromSource:source];
+    //NSLog(@"Completions: %@", completions);
+    return completions;
 }
 
 
@@ -740,9 +810,14 @@ static NSDateFormatter *entryDateFormatter = nil;
              textView:(NSTextView *)textView
   doCommandBySelector:(SEL)command
 {
-    if (control == self.rangerToAddField || control == self.typeToAddField || control == self.locationNameField) {
+    if (control == self.rangerToAddField    ||
+        control == self.typeToAddField      ||
+        control == self.locationNameField   ||
+        control == self.locationAddressField) {
         if (command == NSSelectorFromString(@"deleteBackward:")) {
-            self.amBackspacing = YES;
+            if (textView.string.length > 0) {
+                self.amBackspacing = YES;
+            }
         }
         else if (command == NSSelectorFromString(@"insertNewline:")) {
             if (control == self.rangerToAddField) {
@@ -791,7 +866,7 @@ static NSDateFormatter *entryDateFormatter = nil;
             }
         }
         else {
-            NSLog(@"Do command: %@", NSStringFromSelector(command));
+            //NSLog(@"Do command: %@", NSStringFromSelector(command));
         }
     }
 }

@@ -410,6 +410,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     else {
         controller = self.incidentControllers[incident.number];
         if (controller) {
+            controller.incident = [incident copy];
             [controller reloadIncident];
         }
     }
@@ -481,6 +482,9 @@ NSString *formattedDateTimeShort(NSDate *date);
     }
     else if ([identifier isEqualToString:@"rangers"]) {
         return incident.summaryOfRangers;
+    }
+    else if ([identifier isEqualToString:@"location"]) {
+        return incident.location.description;
     }
     else if ([identifier isEqualToString:@"locationName"]) {
         return incident.location.name;

@@ -60,25 +60,25 @@ def http_sauce(f):
 
         except NoSuchIncidentError as e:
             request.setResponseCode(http.NOT_FOUND)
-            set_response_header(request, HeaderName.contenttype, ContentType.plain)
+            set_response_header(request, HeaderName.contentType, ContentType.plain)
             return "No such incident: {0}\n".format(e)
 
         except InvalidDataError as e:
             log.err(e)
             request.setResponseCode(http.BAD_REQUEST)
-            set_response_header(request, HeaderName.contenttype, ContentType.plain)
+            set_response_header(request, HeaderName.contentType, ContentType.plain)
             return "Invalid data: {0}\n".format(e)
 
         except DatabaseError as e:
             log.err(e)
             request.setResponseCode(http.INTERNAL_SERVER_ERROR)
-            set_response_header(request, HeaderName.contenttype, ContentType.plain)
+            set_response_header(request, HeaderName.contentType, ContentType.plain)
             return "Database error."
 
         except Exception as e:
             log.err(e)
             request.setResponseCode(http.INTERNAL_SERVER_ERROR)
-            set_response_header(request, HeaderName.contenttype, ContentType.plain)
+            set_response_header(request, HeaderName.contentType, ContentType.plain)
             return "Server error.\n"
 
     return wrapper

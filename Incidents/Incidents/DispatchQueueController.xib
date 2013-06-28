@@ -2,9 +2,9 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1080</int>
-		<string key="IBDocument.SystemVersion">12D78</string>
+		<string key="IBDocument.SystemVersion">12E55</string>
 		<string key="IBDocument.InterfaceBuilderVersion">3084</string>
-		<string key="IBDocument.AppKitVersion">1187.37</string>
+		<string key="IBDocument.AppKitVersion">1187.39</string>
 		<string key="IBDocument.HIToolboxVersion">626.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -384,7 +384,7 @@
 													</object>
 												</object>
 												<object class="NSTableColumn" id="278139064">
-													<string key="NSIdentifier">locationName</string>
+													<string key="NSIdentifier">location</string>
 													<double key="NSWidth">60</double>
 													<double key="NSMinWidth">60</double>
 													<double key="NSMaxWidth">600</double>
@@ -409,7 +409,7 @@
 													<bool key="NSIsResizeable">YES</bool>
 													<reference key="NSTableView" ref="201294916"/>
 													<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
-														<string key="NSKey">location.name</string>
+														<string key="NSKey">location.description</string>
 														<bool key="NSAscending">YES</bool>
 														<string key="NSSelector">caseInsensitiveCompare:</string>
 													</object>
@@ -694,7 +694,7 @@
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="928209652"/>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {2560, 1418}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1280, 800}}</string>
 				<string key="NSMinSize">{700, 322}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<string key="NSFrameAutosaveName">Dispatch Queue</string>
@@ -1613,17 +1613,6 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">DispatchQueueController</string>
 					<string key="superclassName">NSWindowController</string>
-					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">loadTable:</string>
-						<string key="NS.object.0">id</string>
-					</object>
-					<object class="NSMutableDictionary" key="actionInfosByName">
-						<string key="NS.key.0">loadTable:</string>
-						<object class="IBActionInfo" key="NS.object.0">
-							<string key="name">loadTable:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</object>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="dispatchTable">NSTableView</string>
 						<string key="loadingIndicator">NSProgressIndicator</string>

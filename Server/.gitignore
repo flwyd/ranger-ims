@@ -3,5 +3,9 @@
 #*#
 .#*
 _trial_temp/
+*.egg-info/
+MANIFEST
+build/
 data/
+dist/
 log/

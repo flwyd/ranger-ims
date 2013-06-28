@@ -55,7 +55,7 @@
 - (Incident *) createNewIncident;
 - (void) updateIncident:(Incident *)incident;
 
-- (NSDictionary *) allRangersByHandle;
+- (NSArray *) addressesForLocationName:(NSString *)locationName;
 
 
 @end
