@@ -24,7 +24,7 @@ __all__ = [
     "ReportEntry",
     "Ranger",
     "Location",
-    "to_json",
+    "to_json_text",
     "from_json_io",
     "from_json_text",
 ]
@@ -200,6 +200,50 @@ class Incident(object):
         self.priority       = priority
 
 
+    def __str__(self):
+        return (
+            "{self.number}: {self.summary}"
+            .format(self=self)
+        )
+
+
+    def __repr__(self):
+        return (
+            "{self.__class__.__name__}("
+            "number={self.number!r},"
+            "rangers={self.rangers!r},"
+            "location={self.location!r},"
+            "incident_types={self.incident_types!r},"
+            "summary={self.summary!r},"
+            "report_entries={self.report_entries!r},"
+            "created={self.created!r},"
+            "dispatched={self.dispatched!r},"
+            "on_scene={self.on_scene!r},"
+            "closed={self.closed!r},"
+            "priority={self.priority!r})"
+            .format(self=self)
+        )
+
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (
+                self.number         == other.number         and
+                self.rangers        == other.rangers        and
+                self.location       == other.location       and
+                self.incident_types == other.incident_types and
+                self.summary        == other.summary        and
+                self.report_entries == other.report_entries and
+                self.created        == other.created        and
+                self.dispatched     == other.dispatched     and
+                self.on_scene       == other.on_scene       and
+                self.closed         == other.closed         and
+                self.priority       == other.priority
+            )
+        else:
+            return NotImplemented
+
+
     def validate(self):
         """
         Validate this incident.
@@ -217,12 +261,12 @@ class Incident(object):
             for incident_type in self.incident_types:
                 if type(incident_type) is not unicode:
                     raise InvalidDataError(
-                        "Incident type must be unicode, not {0}".format(incident_type)
+                        "Incident type must be unicode, not {0!r}".format(incident_type)
                     )
 
         if self.summary is not None and type(self.summary) is not unicode:
             raise InvalidDataError(
-                "Incident summary must be unicode, not {0}".format(self.summary)
+                "Incident summary must be unicode, not {0!r}".format(self.summary)
             )
 
         if self.report_entries is not None:
@@ -231,38 +275,38 @@ class Incident(object):
 
         if self.created is not None and type(self.created) is not datetime:
             raise InvalidDataError(
-                "Incident created date must be a datetime, not {0}".format(self.created)
+                "Incident created date must be a datetime, not {0!r}".format(self.created)
             )
 
         if self.dispatched is not None and type(self.dispatched) is not datetime:
             raise InvalidDataError(
-                "Incident dispatched date must be a datetime, not {0}".format(self.dispatched)
+                "Incident dispatched date must be a datetime, not {0!r}".format(self.dispatched)
             )
 
         if self.on_scene is not None and type(self.on_scene) is not datetime:
             raise InvalidDataError(
-                "Incident on_scene date must be a datetime, not {0}".format(self.on_scene)
+                "Incident on_scene date must be a datetime, not {0!r}".format(self.on_scene)
             )
 
         if self.closed is not None and type(self.closed) is not datetime:
             raise InvalidDataError(
-                "Incident closed date must be a datetime, not {0}".format(self.closed)
+                "Incident closed date must be a datetime, not {0!r}".format(self.closed)
             )
 
         if type(self.priority) is not int:
             raise InvalidDataError(
-                "Incident priority must be an int, not {0}".format(self.priority)
+                "Incident priority must be an int, not {0!r}".format(self.priority)
             )
 
         if not 1 <= self.priority <= 5:
             raise InvalidDataError(
-                "Incident priority must be an int, not {0}".format(self.priority)
+                "Incident priority must be an int, not {0!r}".format(self.priority)
             )
 
         return self
 
 
-    def as_json(self):
+    def to_json_text(self):
         root = {}
 
         def render_date(date_time):
@@ -300,10 +344,10 @@ class Incident(object):
         ]
 
         try:
-            return to_json(root)
+            return to_json_text(root)
         except TypeError:
             raise AssertionError(
-                "{0}.as_json() generated unserializable data: {1}"
+                "{0!r}.to_json_text() generated unserializable data: {1!r}"
                 .format(self.__class__.__name__, root)
             )
 
@@ -324,27 +368,47 @@ class ReportEntry(object):
 
 
     def __str__(self):
-        return "<ReportEntry {author}@{created}: {text}".format(
-            author  = self.author,
-            text    = self.text,
-            created = self.created,
+        return (
+            "{self.author}@{self.created}: {self.text}"
+            .format(self=self)
         )
+
+
+    def __repr__(self):
+        return (
+            "{self.__class__.__name__}("
+            "author={self.author!r},"
+            "text={self.text!r},"
+            "created={self.created!r})"
+            .format(self=self)
+        )
+
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (
+                self.author  == other.author  and
+                self.text    == other.text    and
+                self.created == other.created
+            )
+        else:
+            return NotImplemented
 
 
     def validate(self):
         if self.author is not None and type(self.author) is not unicode:
             raise InvalidDataError(
-                "Report entry author must be unicode, not {0}".format(self.author)
+                "Report entry author must be unicode, not {0!r}".format(self.author)
             )
 
         if type(self.text) is not unicode:
             raise InvalidDataError(
-                "Report entry text must be unicode, not {0}".format(self.text)
+                "Report entry text must be unicode, not {0!r}".format(self.text)
             )
 
         if type(self.created) is not datetime:
             raise InvalidDataError(
-                "Report entry created date must be a datetime, not {0}".format(self.created)
+                "Report entry created date must be a datetime, not {0!r}".format(self.created)
             )
 
 
@@ -363,15 +427,40 @@ class Ranger(object):
         self.status = status
 
 
+    def __str__(self):
+        return "{self.handle} ({self.name})".format(self=self)
+
+
+    def __repr__(self):
+        return (
+            "{self.__class__.__name__}("
+            "handle={self.handle!r},"
+            "name={self.name!r},"
+            "status={self.status!r})"
+            .format(self=self)
+        )
+
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (
+                self.handle == other.handle and
+                self.name   == other.name   and
+                self.status == other.status
+            )
+        else:
+            return NotImplemented
+
+
     def validate(self):
         if type(self.handle) is not unicode:
             raise InvalidDataError(
-                "Ranger handle must be unicode, not {0}".format(self.handle)
+                "Ranger handle must be unicode, not {0!r}".format(self.handle)
             )
 
         if self.name is not None and type(self.name) is not unicode:
             raise InvalidDataError(
-                "Ranger name must be unicode, not {0}".format(self.handle)
+                "Ranger name must be unicode, not {0!r}".format(self.handle)
             )
 
 
@@ -386,18 +475,50 @@ class Location(object):
         self.address = address
 
 
+    def __str__(self):
+        if self.name:
+            if self.address:
+                return "{self.name} ({self.address})".format(self=self)
+            else:
+                return "{self.name}".format(self=self)
+        else:
+            if self.address:
+                return "({self.address})".format(self=self)
+            else:
+                return ""
+
+
+    def __repr__(self):
+        return (
+            "{self.__class__.__name__}("
+            "name={self.name!r},"
+            "address={self.address!r})"
+            .format(self=self)
+        )
+
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (
+                self.name    == other.name    and
+                self.address == other.address
+            )
+        else:
+            return NotImplemented
+
+
     def validate(self):
         if self.name and type(self.name) is not unicode:
             raise InvalidDataError(
-                "Location name must be unicode, not {0}".format(self.handle)
+                "Location name must be unicode, not {0!r}".format(self.handle)
             )
 
         if self.address and type(self.address) is not unicode:
             raise InvalidDataError(
-                "Location address must be unicode, not {0}".format(self.handle)
+                "Location address must be unicode, not {0!r}".format(self.handle)
             )
 
 
 
-def to_json(obj):
+def to_json_text(obj):
     return dumps(obj, separators=(',',':'))

@@ -170,7 +170,7 @@ class IncidentManagementSystem(object):
             # re-serializes it.
             #
             incident = store.read_incident_with_number(number)
-            return incident.as_json()
+            return incident.to_json_text()
 
 
     @app.route("/incidents/<number>", methods=("POST",))

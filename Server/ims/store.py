@@ -156,7 +156,7 @@ class Storage(object):
 
         incident_fh = self._open_incident(number, "w")
         try:
-            incident_fh.write(incident.as_json())
+            incident_fh.write(incident.to_json_text())
         finally:
             incident_fh.close()
 
