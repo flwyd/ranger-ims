@@ -29,7 +29,7 @@ from klein import Klein
 
 from ims.store import Storage
 from ims.dms import DutyManagementSystem
-from ims.data import Incident, JSON, to_json, from_json_io
+from ims.data import Incident, JSON, to_json_text, from_json_io
 from ims.sauce import url_for, set_response_header
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
