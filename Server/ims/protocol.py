@@ -85,7 +85,7 @@ class IncidentManagementSystem(object):
     def ping(self, request):
         set_response_header(request, HeaderName.etag, "ack")
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
-        return to_json("ack")
+        return to_json_text("ack")
 
 
     @app.route("/rangers/", methods=("GET",))
@@ -96,7 +96,7 @@ class IncidentManagementSystem(object):
 
         d = self.dms.rangers()
         d.addCallback(lambda rangers:
-            to_json(tuple(
+            to_json_text(tuple(
                 {
                     "handle": ranger.handle,
                     "name"  : ranger.name,
@@ -113,7 +113,7 @@ class IncidentManagementSystem(object):
     def list_incident_types(self, request):
         #set_response_header(request, HeaderName.etag, "*") # FIXME
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
-        return to_json((
+        return to_json_text((
             "Admin",
             "Art",
             "Echelon",
@@ -142,7 +142,7 @@ class IncidentManagementSystem(object):
     def list_incidents(self, request):
         #set_response_header(request, HeaderName.etag, "*") # FIXME
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
-        return to_json(tuple(self.storage().list_incidents()))
+        return to_json_text(tuple(self.storage().list_incidents()))
 
 
     @app.route("/incidents/<number>", methods=("GET",))
