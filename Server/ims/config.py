@@ -23,6 +23,7 @@ __all__ = [
 ]
 
 import os.path
+from re import compile as regex_compile
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
@@ -44,6 +45,7 @@ class Configuration (object):
             "Core.UserDB: {UserDB}\n"
             "Core.DataRoot: {DataRoot}\n"
             "Core.Resources: {Resources}\n"
+            "Core.RejectClients: {RejectClients}\n"
             "\n"
             "DMS.Hostname: {DMSHost}\n"
             "DMS.Database: {DMSDatabase}\n"
@@ -109,6 +111,13 @@ class Configuration (object):
 
         self.Resources = filePathFromConfig("Core", "Resources", self.ServerRoot, ("resources",))
         log.msg("Resources: {0}".format(self.Resources.path))
+
+        rejectClients = valueFromConfig("Core", "RejectClients", "")
+        rejectClients = tuple([e for e in rejectClients.split("\n") if e])
+        
+        self.RejectClients = rejectClients
+        self.RejectClientsRegex = tuple([regex_compile(e) for e in rejectClients])
+        log.msg("RejectClients: {0}".format(self.RejectClients))
 
         self.DMSHost     = valueFromConfig("DMS", "Hostname", None)
         self.DMSDatabase = valueFromConfig("DMS", "Database", None)
