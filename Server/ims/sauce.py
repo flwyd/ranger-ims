@@ -53,9 +53,28 @@ def set_response_header(request, name, value):
 def http_sauce(f):
     @wraps(f)
     def wrapper(self, request, *args, **kwargs):
-        try:
-            request.user = self.avatarId
+        # Get User-Agent
+        values = request.requestHeaders.getRawHeaders(HeaderName.userAgent.value, [])
+        for value in values:
+            if value:
+                request.userAgent = value
+                break
+        else:
+            request.userAgent = None
 
+        # Reject requests with disallowed User-Agent strings
+        for expression in self.config.RejectClientsRegex:
+            log.msg("Checking {0} against {1}.".format(expression, request.userAgent))
+            if expression.match(request.userAgent):
+                log.msg("Rejected client: {0}".format(request.userAgent))
+                request.setResponseCode(http.FORBIDDEN)
+                set_response_header(request, HeaderName.contentType, ContentType.plain)
+                return "Client software not allowed.\n"
+
+        # Store user name
+        request.user = self.avatarId
+
+        try:
             return f(self, request, *args, **kwargs)
 
         except NoSuchIncidentError as e:
@@ -90,6 +109,7 @@ class HeaderName (Values):
     etag           = ValueConstant("ETag")
     incidentNumber = ValueConstant("Incident-Number")
     location       = ValueConstant("Location")
+    userAgent      = ValueConstant("User-Agent")
 
 
 
