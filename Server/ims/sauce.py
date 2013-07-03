@@ -64,9 +64,8 @@ def http_sauce(f):
 
         # Reject requests with disallowed User-Agent strings
         for expression in self.config.RejectClientsRegex:
-            log.msg("Checking {0} against {1}.".format(expression, request.userAgent))
             if expression.match(request.userAgent):
-                log.msg("Rejected client: {0}".format(request.userAgent))
+                log.msg("Rejected user agent: {0}".format(request.userAgent))
                 request.setResponseCode(http.FORBIDDEN)
                 set_response_header(request, HeaderName.contentType, ContentType.plain)
                 return "Client software not allowed.\n"
