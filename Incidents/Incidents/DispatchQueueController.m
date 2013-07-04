@@ -56,7 +56,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 
 @property (strong,nonatomic) NSMutableDictionary *incidentControllersToReplace;
 
-@property (assign) NSTimeInterval reloadInterval;
+@property (assign) NSInteger reloadInterval;
 @property (strong) NSTimer *reloadTimer;
 @property (strong) NSDate *lastLoadedDate;
 
@@ -79,7 +79,6 @@ NSString *formattedDateTimeShort(NSDate *date);
         self.sortedIncidents = nil;
         self.sortedOpenIncidents = nil;
         self.incidentControllersToReplace = [NSMutableDictionary dictionary];
-        self.reloadInterval = 10;
         self.reloadTimer = nil;
         self.lastLoadedDate = [NSDate distantPast];
     }
@@ -113,6 +112,33 @@ NSString *formattedDateTimeShort(NSDate *date);
                                                           userInfo:nil
                                                            repeats:NO];
     }
+}
+
+
+- (NSInteger) reloadInterval
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSInteger interval = [defaults integerForKey:@"IMSPollInterval"];
+
+    if (interval < 8) {
+        NSLog(@"ERROR: Unfortunate value for reload interval: %ld", interval);
+        interval = 10; // default value
+        self.reloadInterval = interval;
+    }
+
+    return interval;
+}
+
+
+- (void) setReloadInterval:(NSInteger)reloadInterval
+{
+    if (reloadInterval < 8) {
+        NSLog(@"ERROR: reload interval may not be < 8");
+        return;
+    }
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setInteger:reloadInterval forKey:@"IMSPollInterval"];
 }
 
 
@@ -389,7 +415,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     NSTextField *updatedLabel = self.updatedLabel;
     updatedLabel.stringValue = [NSString stringWithFormat: @"Last updated: %@", formattedDateTimeLong(self.lastLoadedDate)];
 
-    [self startLoadTimerWithInterval:self.reloadInterval];
+    [self startLoadTimerWithInterval:(NSTimeInterval)self.reloadInterval];
 }
 
 

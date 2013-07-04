@@ -120,23 +120,6 @@
 }
 
 
-//- (NSString *) serverPassword
-//{
-//    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-//    NSString  *serverPassword = [defaults stringForKey:@"IMSServerPassword"];
-//    return serverPassword ? serverPassword : @"";
-//}
-//
-//
-//- (void) setServerPassword:(NSString *)serverPassword
-//{
-//    if ([self.serverPassword isEqualToString:serverPassword]) { return; }
-//
-//    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-//    [defaults setObject:serverPassword forKey:@"IMSServerPassword"];
-//}
-
-
 - (DispatchQueueController *) dispatchQueueController
 {
     if (! _dispatchQueueController) {
