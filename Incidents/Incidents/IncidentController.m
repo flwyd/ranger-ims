@@ -56,6 +56,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 @property (weak)   IBOutlet NSTextField   *locationAddressField;
 @property (assign) IBOutlet NSTextView    *reportEntriesView;
 @property (assign) IBOutlet NSTextView    *reportEntryToAddView;
+@property (assign) IBOutlet NSButton      *saveButton;
 
 @property (assign) BOOL stateDidChange;
 @property (assign) BOOL priorityDidChange;
@@ -167,6 +168,66 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
+- (void) enableEditing
+{
+    NSPopUpButton *statePopUp           = self.statePopUp;
+    NSPopUpButton *priorityPopUp        = self.priorityPopUp;
+    NSTextField   *summaryField         = self.summaryField;
+    NSTableView   *rangersTable         = self.rangersTable;
+    NSTextField   *rangerToAddField     = self.rangerToAddField;
+    NSTableView   *typesTable           = self.typesTable;
+    NSTextField   *typeToAddField       = self.typeToAddField;
+    NSTextField   *locationNameField    = self.locationNameField;
+    NSTextField   *locationAddressField = self.locationAddressField;
+    NSTextView    *reportEntriesView    = self.reportEntriesView;
+    NSTextView    *reportEntryToAddView = self.reportEntryToAddView;
+    NSButton      *saveButton           = self.saveButton;
+
+    [statePopUp           setEnabled: YES];
+    [priorityPopUp        setEnabled: YES];
+    [summaryField         setEnabled: YES];
+    [rangersTable         setEnabled: YES];
+    [rangerToAddField     setEnabled: YES];
+    [typesTable           setEnabled: YES];
+    [typeToAddField       setEnabled: YES];
+    [locationNameField    setEnabled: YES];
+    [locationAddressField setEnabled: YES];
+    [reportEntriesView    setEditable:YES];
+    [reportEntryToAddView setEditable:YES];
+    [saveButton           setEnabled: YES];
+}
+
+
+- (void) disableEditing
+{
+    NSPopUpButton *statePopUp           = self.statePopUp;
+    NSPopUpButton *priorityPopUp        = self.priorityPopUp;
+    NSTextField   *summaryField         = self.summaryField;
+    NSTableView   *rangersTable         = self.rangersTable;
+    NSTextField   *rangerToAddField     = self.rangerToAddField;
+    NSTableView   *typesTable           = self.typesTable;
+    NSTextField   *typeToAddField       = self.typeToAddField;
+    NSTextField   *locationNameField    = self.locationNameField;
+    NSTextField   *locationAddressField = self.locationAddressField;
+    NSTextView    *reportEntriesView    = self.reportEntriesView;
+    NSTextView    *reportEntryToAddView = self.reportEntryToAddView;
+    NSButton      *saveButton           = self.saveButton;
+
+    [statePopUp           setEnabled: NO];
+    [priorityPopUp        setEnabled: NO];
+    [summaryField         setEnabled: NO];
+    [rangersTable         setEnabled: NO];
+    [rangerToAddField     setEnabled: NO];
+    [typesTable           setEnabled: NO];
+    [typeToAddField       setEnabled: NO];
+    [locationNameField    setEnabled: NO];
+    [locationAddressField setEnabled: NO];
+    [reportEntriesView    setEditable:NO];
+    [reportEntryToAddView setEditable:NO];
+    [saveButton           setEnabled: NO];
+}
+
+
 - (void) reloadIncident
 {
     if (! self.incident.number.integerValue < 0) {
@@ -183,6 +244,7 @@ static NSDateFormatter *entryDateFormatter = nil;
     self.window.documentEdited = NO;
 
     [self updateView];
+    [self enableEditing];
 }
 
 
@@ -358,6 +420,8 @@ static NSDateFormatter *entryDateFormatter = nil;
         }
 
         if (edited) {
+            [self disableEditing];
+
             Incident *incidentToCommit = [[Incident alloc] initInDataStore:self.incident.dataStore
                                                                 withNumber:self.incident.number
                                                                    rangers:rangers
