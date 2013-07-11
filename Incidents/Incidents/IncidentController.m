@@ -178,6 +178,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         self.rangersDidChange  = NO;
         self.typesDidChange    = NO;
         self.locationDidChange = NO;
+        self.reportDidChange   = NO;
     }
     self.window.documentEdited = NO;
 
