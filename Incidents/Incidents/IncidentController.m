@@ -145,7 +145,7 @@ static NSDateFormatter *entryDateFormatter = nil;
             typeToAddField.stringValue,
             locationNameField.stringValue,
             locationAddressField.stringValue,
-            reportEntryToAddView.string,
+            reportEntryToAddView.textStorage.string,
 
             self.stateDidChange    ? @"YES" : @"NO",
             self.priorityDidChange ? @"YES" : @"NO",
@@ -451,8 +451,6 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     // Flush the text fields
     [self editSummary:self];
-    //[self editState:self];
-    //[self editPriority:self];
     [self editLocationName:self];
     [self editLocationAddress:self];
 
