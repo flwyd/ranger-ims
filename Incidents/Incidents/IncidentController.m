@@ -97,6 +97,66 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
+- (NSString *) summarize
+{
+    NSTextField   *numberField          = self.numberField;
+    NSPopUpButton *statePopUp           = self.statePopUp;
+    NSPopUpButton *priorityPopUp        = self.priorityPopUp;
+    NSTextField   *summaryField         = self.summaryField;
+    NSTextField   *rangerToAddField     = self.rangerToAddField;
+    NSTextField   *typeToAddField       = self.typeToAddField;
+    NSTextField   *locationNameField    = self.locationNameField;
+    NSTextField   *locationAddressField = self.locationAddressField;
+    NSTextView    *reportEntryToAddView = self.reportEntryToAddView;
+
+    return [NSString stringWithFormat:
+            @"------------------------------\n"
+            @"Incident: %@\n"
+            @"------------------------------\n"
+            @"FIELDS:\n"
+            @"  Number: %@\n"
+            @"  State: %@\n"
+            @"  Priority: %@\n"
+            @"  Summary: %@\n"
+            @"  Ranger to add: %@\n"
+            @"  Type to add: %@\n"
+            @"  Location name: %@\n"
+            @"  Location address: %@\n"
+            @"  Entry to add: %@\n"
+            @"------------------------------\n"
+            @"CHANGED:\n"
+            @"  State: %@\n"
+            @"  Priority: %@\n"
+            @"  Summary: %@\n"
+            @"  Rangers: %@\n"
+            @"  Types: %@\n"
+            @"  Location: %@\n"
+            @"  Entry: %@\n"
+            @"------------------------------\n"
+            ,
+
+            self.incident,
+
+            numberField.stringValue,
+            statePopUp.stringValue,
+            priorityPopUp.stringValue,
+            summaryField.stringValue,
+            rangerToAddField.stringValue,
+            typeToAddField.stringValue,
+            locationNameField.stringValue,
+            locationAddressField.stringValue,
+            reportEntryToAddView.string,
+
+            self.stateDidChange    ? @"YES" : @"NO",
+            self.priorityDidChange ? @"YES" : @"NO",
+            self.summaryDidChange  ? @"YES" : @"NO",
+            self.rangersDidChange  ? @"YES" : @"NO",
+            self.typesDidChange    ? @"YES" : @"NO",
+            self.locationDidChange ? @"YES" : @"NO",
+            self.reportDidChange   ? @"YES" : @"NO"];
+}
+
+
 - (void) windowDidLoad
 {
     [super windowDidLoad];
