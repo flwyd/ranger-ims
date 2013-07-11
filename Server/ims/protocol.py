@@ -213,12 +213,18 @@ class IncidentManagementSystem(object):
                     incident.incident_types = edits.incident_types
                     #print "Editing incident types:", edits.incident_types
             else:
-                if key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
-                    if edits.created is None:
-                        continue
-
                 attr_name = key.name
                 attr_value = getattr(edits, attr_name)
+
+                if key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
+                    if edits.created is None:
+                        # If created is None, then we aren't editing state.
+                        # (If would be weird if others were not None here.)
+                        continue
+                elif attr_value is None:
+                    # None values should not cause edits.
+                    continue
+
                 setattr(incident, attr_name, attr_value)
                 #print "Editing", attr_name, ":", attr_value
 
