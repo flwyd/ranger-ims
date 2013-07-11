@@ -228,7 +228,7 @@
     }
 
     if (self.verbose) {
-        NSLog(@"Got data: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        NSLog(@"Got data:\n%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
     }
 
     [(NSMutableData *)self.responseData appendData:data];
