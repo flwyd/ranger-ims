@@ -107,12 +107,6 @@
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         self.verbose = [defaults boolForKey:@"HTTPConnectionLogging"];
 
-//        if ([request.HTTPMethod isEqualToString:@"POST"]) {
-//            self.verbose = YES;
-//        } else {
-//            self.verbose = NO;
-//        }
-
         if (self.verbose) {
             NSLog(@"Sending %@ request at %@\nHeaders: %@\nBody:\n%@",
                   request.HTTPMethod, request.URL, request.allHTTPHeaderFields,
