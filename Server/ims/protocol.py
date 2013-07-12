@@ -96,28 +96,7 @@ class IncidentManagementSystem(object):
     def list_incident_types(self, request):
         #set_response_header(request, HeaderName.etag, "*") # FIXME
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
-        return to_json_text((
-            "Admin",
-            "Art",
-            "Echelon",
-            "Eviction",
-            "Fire",
-            "Gate",
-            "Green Dot",
-            "HQ",
-            "Law Enforcement",
-            "Lost Child",
-            "Medical",
-            "Mental Health",
-            "SITE",
-            "Staff",
-            "Theme Camp",
-            "Vehicle",
-
-            # FIXME: Look at must report list
-
-            "Junk",
-        ))
+        return self.config.IncidentTypesJSON
 
 
     @app.route("/incidents/", methods=("GET",))
