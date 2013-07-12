@@ -47,7 +47,6 @@ class IncidentManagementSystem(object):
 
     def __init__(self, config):
         self.config = config
-        self.storageDirectory = config.DataRoot
         self.avatarId = None
 
         #
@@ -65,6 +64,15 @@ class IncidentManagementSystem(object):
                 password = config.DMSPassword,
             )
         self.dms = config.dms
+
+        #
+        # Same deal with storage.  We want to be able to cache.
+        #
+        if not hasattr(config, "storage"):
+            storage = Storage(config.DataRoot)
+            storage.provision()
+            config.storage = storage
+        self.storage = config.storage
 
 
     @app.route("/", methods=("GET",))
@@ -142,7 +150,7 @@ class IncidentManagementSystem(object):
     def list_incidents(self, request):
         #set_response_header(request, HeaderName.etag, "*") # FIXME
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
-        return to_json_text(tuple(self.storage().list_incidents()))
+        return to_json_text(tuple(self.storage.list_incidents()))
 
 
     @app.route("/incidents/<number>", methods=("GET",))
@@ -152,9 +160,7 @@ class IncidentManagementSystem(object):
         #import time
         #time.sleep(0.3)
 
-        store = self.storage()
-
-        set_response_header(request, HeaderName.etag, store.etag_for_incident_with_number(number))
+        set_response_header(request, HeaderName.etag, self.storage.etag_for_incident_with_number(number))
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
 
         if False:
@@ -163,13 +169,13 @@ class IncidentManagementSystem(object):
             # validation code, so it's only OK if we know all data in the
             # store is clean by this server version's standards.
             #
-            return store.read_incident_with_number_raw(number)
+            return self.storage.read_incident_with_number_raw(number)
         else:
             #
             # This parses the data from the store, validates it, then
             # re-serializes it.
             #
-            incident = store.read_incident_with_number(number)
+            incident = self.storage.read_incident_with_number(number)
             return incident.to_json_text()
 
 
@@ -177,7 +183,7 @@ class IncidentManagementSystem(object):
     @http_sauce
     def edit_incident(self, request, number):
         number = int(number)
-        incident = self.storage().read_incident_with_number(number)
+        incident = self.storage.read_incident_with_number(number)
 
         edits_json = from_json_io(request.content)
         edits = Incident.from_json(edits_json, number=number, validate=False)
@@ -228,7 +234,7 @@ class IncidentManagementSystem(object):
                 setattr(incident, attr_name, attr_value)
                 #print "Editing", attr_name, ":", attr_value
 
-        self.storage().write_incident(incident)
+        self.storage.write_incident(incident)
 
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
         request.setResponseCode(http.OK)
@@ -239,15 +245,13 @@ class IncidentManagementSystem(object):
     @app.route("/incidents/", methods=("POST",))
     @http_sauce
     def new_incident(self, request):
-        store = self.storage()
-
-        incident = Incident.from_json_io(request.content, number=store.next_incident_number())
+        incident = Incident.from_json_io(request.content, number=self.storage.next_incident_number())
 
         # Edit report entrys to add author
         for entry in incident.report_entries:
             entry.author = self.avatarId.decode("utf-8")
 
-        store.write_incident(incident)
+        self.storage.write_incident(incident)
 
         request.setResponseCode(http.CREATED)
 
@@ -261,11 +265,3 @@ class IncidentManagementSystem(object):
         )
 
         return "";
-
-
-    def storage(self):
-        if not hasattr(self, "_storage"):
-            storage = Storage(self.storageDirectory)
-            storage.provision()
-            self._storage = storage
-        return self._storage
