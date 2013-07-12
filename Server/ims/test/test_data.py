@@ -24,14 +24,11 @@ from datetime import datetime
 import twisted.trial.unittest
 
 from ims.data import (
-    JSON,
     InvalidDataError,
     Incident,
     ReportEntry,
     Ranger,
     Location,
-    to_json_text,
-    from_json_io,
     from_json_text,
 )
 
