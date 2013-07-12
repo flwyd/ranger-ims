@@ -50,7 +50,13 @@ class Storage(object):
 
     def __init__(self, path):
         self.path = path
-        self.incidents = {}
+        self.incidents = None
+        self.incident_etags = {}
+        log.msg("New data store: {0}".format(self))
+
+
+    def __repr__(self):
+        return "{self.__class__.__name__}({self.path})".format(self=self)
 
 
     def provision(self):
@@ -98,7 +104,7 @@ class Storage(object):
         return incident_fh
 
 
-    def list_incidents(self):
+    def _list_incidents(self):
         for child in self.path.children():
             name = child.basename()
             if name.startswith("."):
@@ -112,10 +118,24 @@ class Storage(object):
                 )
                 continue
 
+            yield number
+
+
+    def list_incidents(self):
+        if self.incidents is None:
+            incidents = {}
+            for number in self._list_incidents():
+                incidents[number] = None
+            self.incidents = incidents
+            
+        for number in self.incidents:
             yield (number, self.etag_for_incident_with_number(number))
 
 
     def etag_for_incident_with_number(self, number):
+        if number in self.incident_etags:
+            return self.incident_etags[number]
+
         etag_fp = self._incident_fp(number, "etag")
         try:
             etag = etag_fp.getContent()
@@ -126,8 +146,12 @@ class Storage(object):
                 etag_fp.setContent(etag)
             except (IOError, OSError) as e:
                 log.err("Unable to store etag for incident {0}: {1}".format(number, e))
-        else:
+
+        if etag:
+            self.incident_etags[number] = etag
             return etag
+        else:
+            raise StorageError("Unable to determine etag for incident {0}".format(number))
 
 
     def read_incident_with_number_raw(self, number):
@@ -166,7 +190,7 @@ class Storage(object):
         except (IOError, OSError):
             pass
 
-        self.incidents[number] = incident
+        #self.incidents[number] = incident
 
         if number > self._max_incident_number:
             self._max_incident_number = number
