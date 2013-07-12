@@ -27,8 +27,6 @@ from twisted.web.static import File
 
 from klein import Klein
 
-from ims.store import Storage
-from ims.dms import DutyManagementSystem
 from ims.data import Incident, JSON, to_json_text, from_json_io
 from ims.sauce import url_for, set_response_header
 from ims.sauce import http_sauce
@@ -48,31 +46,8 @@ class IncidentManagementSystem(object):
     def __init__(self, config):
         self.config = config
         self.avatarId = None
-
-        #
-        # We need to cache the dms to get connection pooling, caches,
-        # etc., so let's shove it into the config object, which is
-        # persistent.
-        #
-        # FIXME: Yes, this feels janky.
-        #
-        if not hasattr(config, "dms"):
-            config.dms = DutyManagementSystem(
-                host     = config.DMSHost,
-                database = config.DMSDatabase,
-                username = config.DMSUsername,
-                password = config.DMSPassword,
-            )
-        self.dms = config.dms
-
-        #
-        # Same deal with storage.  We want to be able to cache.
-        #
-        if not hasattr(config, "storage"):
-            storage = Storage(config.DataRoot)
-            storage.provision()
-            config.storage = storage
         self.storage = config.storage
+        self.dms = config.dms
 
 
     @app.route("/", methods=("GET",))

@@ -30,6 +30,9 @@ from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 from twisted.python import log
 from twisted.python.filepath import FilePath
 
+from ims.dms import DutyManagementSystem
+from ims.store import Storage
+
 
 
 class Configuration (object):
@@ -123,3 +126,18 @@ class Configuration (object):
         self.DMSDatabase = valueFromConfig("DMS", "Database", None)
         self.DMSUsername = valueFromConfig("DMS", "Username", None)
         self.DMSPassword = valueFromConfig("DMS", "Password", None)
+
+        #
+        # Persist some objects
+        #
+
+        self.dms = DutyManagementSystem(
+            host     = self.DMSHost,
+            database = self.DMSDatabase,
+            username = self.DMSUsername,
+            password = self.DMSPassword,
+        )
+
+        storage = Storage(self.DataRoot)
+        storage.provision()
+        self.storage = storage
