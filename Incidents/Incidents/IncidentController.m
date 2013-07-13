@@ -44,19 +44,21 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 @property (strong) DispatchQueueController *dispatchQueueController;
 
-@property (weak)   IBOutlet NSTextField   *numberField;
-@property (weak)   IBOutlet NSPopUpButton *statePopUp;
-@property (weak)   IBOutlet NSPopUpButton *priorityPopUp;
-@property (weak)   IBOutlet NSTextField   *summaryField;
-@property (weak)   IBOutlet NSTableView   *rangersTable;
-@property (weak)   IBOutlet NSTextField   *rangerToAddField;
-@property (weak)   IBOutlet NSTableView   *typesTable;
-@property (weak)   IBOutlet NSTextField   *typeToAddField;
-@property (weak)   IBOutlet NSTextField   *locationNameField;
-@property (weak)   IBOutlet NSTextField   *locationAddressField;
-@property (assign) IBOutlet NSTextView    *reportEntriesView;
-@property (assign) IBOutlet NSTextView    *reportEntryToAddView;
-@property (assign) IBOutlet NSButton      *saveButton;
+@property (weak)   IBOutlet NSTextField         *numberField;
+@property (weak)   IBOutlet NSPopUpButton       *statePopUp;
+@property (weak)   IBOutlet NSPopUpButton       *priorityPopUp;
+@property (weak)   IBOutlet NSTextField         *summaryField;
+@property (weak)   IBOutlet NSTableView         *rangersTable;
+@property (weak)   IBOutlet NSTextField         *rangerToAddField;
+@property (weak)   IBOutlet NSTableView         *typesTable;
+@property (weak)   IBOutlet NSTextField         *typeToAddField;
+@property (weak)   IBOutlet NSTextField         *locationNameField;
+@property (weak)   IBOutlet NSTextField         *locationAddressField;
+@property (assign) IBOutlet NSTextView          *reportEntriesView;
+@property (assign) IBOutlet NSTextView          *reportEntryToAddView;
+@property (assign) IBOutlet NSButton            *saveButton;
+@property (weak)   IBOutlet NSProgressIndicator *loadingIndicator;
+@property (weak)   IBOutlet NSButton            *reloadButton;
 
 @property (assign) BOOL stateDidChange;
 @property (assign) BOOL priorityDidChange;
@@ -164,7 +166,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 
     [self.reportEntryToAddView setFieldEditor:YES];
 
-    [self reloadIncident];
+    [self updateIncident];
 }
 
 
@@ -228,7 +230,22 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (void) reloadIncident
+- (IBAction) reloadIncident:(id)sender
+{
+    // Hide the reload button…
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = YES;
+
+    // Spin the progress indicator...
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    loadingIndicator.hidden = NO;
+    [loadingIndicator startAnimation:self];
+
+    [self.dispatchQueueController.dataStore loadIncidentNumber:self.incident.number];
+}
+
+
+- (void) updateIncident
 {
     if (! self.incident.number.integerValue < 0) {
         self.incident = [[self.dispatchQueueController.dataStore incidentWithNumber:self.incident.number] copy];
@@ -245,6 +262,15 @@ static NSDateFormatter *entryDateFormatter = nil;
 
     [self updateView];
     [self enableEditing];
+
+    // Stop the progress indicator.
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    [loadingIndicator stopAnimation:self];
+    loadingIndicator.hidden = YES;
+
+    // Show the reload button…
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = NO;
 }
 
 
@@ -757,7 +783,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         return;
     }
 
-    [self reloadIncident];
+    [self updateIncident];
 }
 
 

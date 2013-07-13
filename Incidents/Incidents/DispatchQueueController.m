@@ -437,7 +437,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     if (controller) {
         // Update the controller with the new incident
         controller.incident = [incident copy];
-        [controller reloadIncident];
+        [controller updateIncident];
 
         // Add to known controllers
         self.incidentControllers[incident.number] = controller;
@@ -446,7 +446,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         controller = self.incidentControllers[incident.number];
         if (controller) {
             controller.incident = [incident copy];
-            [controller reloadIncident];
+            [controller updateIncident];
         }
     }
 }

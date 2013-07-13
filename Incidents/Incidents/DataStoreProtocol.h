@@ -54,6 +54,7 @@
 
 - (Incident *) createNewIncident;
 - (void) updateIncident:(Incident *)incident;
+- (void) loadIncidentNumber:(NSNumber *)number;
 
 - (NSArray *) addressesForLocationName:(NSString *)locationName;
 

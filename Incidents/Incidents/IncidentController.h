@@ -33,7 +33,7 @@
 - (id) initWithDispatchQueueController:(DispatchQueueController *)dispatchQueueController
                               incident:(Incident *)incident;
 
-- (void) reloadIncident;
+- (void) updateIncident;
 
 
 @end
