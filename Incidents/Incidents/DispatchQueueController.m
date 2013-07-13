@@ -108,7 +108,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     if (! self.reloadTimer || ! self.reloadTimer.isValid) {
         self.reloadTimer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                             target:self
-                                                          selector:NSSelectorFromString(@"loadIncidents:")
+                                                          selector:NSSelectorFromString(@"reload:")
                                                           userInfo:nil
                                                            repeats:NO];
     }
@@ -366,7 +366,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 }
 
 
-- (IBAction) loadIncidents:(id)sender
+- (IBAction) reload:(id)sender
 {
     [self load];
 }

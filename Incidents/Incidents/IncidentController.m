@@ -230,7 +230,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (IBAction) reloadIncident:(id)sender
+- (IBAction) reload:(id)sender
 {
     // Hide the reload button…
     NSButton *reloadButton = self.reloadButton;
