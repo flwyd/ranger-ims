@@ -219,6 +219,9 @@ class Storage(object):
         finally:
             incident_fh.close()
 
+        if self.incidents is not None:
+            self.incidents[number] = None
+
         etag_fp = self._incident_fp(number, "etag")
         try:
             etag_fp.remove()
