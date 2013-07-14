@@ -170,6 +170,20 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
+- (void) clearChangeTracking
+{
+    self.stateDidChange    = NO;
+    self.priorityDidChange = NO;
+    self.summaryDidChange  = NO;
+    self.rangersDidChange  = NO;
+    self.typesDidChange    = NO;
+    self.locationDidChange = NO;
+    self.reportDidChange   = NO;
+
+    self.window.documentEdited = NO;
+}
+
+
 - (void) enableEditing
 {
     NSPopUpButton *statePopUp           = self.statePopUp;
@@ -249,18 +263,10 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     if (! self.incident.number.integerValue < 0) {
         self.incident = [[self.dispatchQueueController.dataStore incidentWithNumber:self.incident.number] copy];
-
-        self.stateDidChange    = NO;
-        self.priorityDidChange = NO;
-        self.summaryDidChange  = NO;
-        self.rangersDidChange  = NO;
-        self.typesDidChange    = NO;
-        self.locationDidChange = NO;
-        self.reportDidChange   = NO;
     }
-    self.window.documentEdited = NO;
 
     [self updateView];
+    [self clearChangeTracking];
     [self enableEditing];
 
     // Stop the progress indicator.
@@ -417,6 +423,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     if (self.incident.number.integerValue < 0) {
         // New incident
+        [self disableEditing];
         [self.dispatchQueueController.dataStore updateIncident:self.incident];
     }
     else {
