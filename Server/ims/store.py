@@ -132,6 +132,41 @@ class Storage(object):
             yield (number, self.etag_for_incident_with_number(number))
 
 
+    def search_incidents(self, terms=(), show_closed=False):
+        log.msg("{0} {1}".format(terms, show_closed))
+
+        # Brute force implementation for now.
+        def strings_from_incident(incident):
+            yield incident.summary
+            yield incident.location.name
+            yield incident.location.address
+            for incident_type in incident.incident_types:
+                yield incident_type
+            for ranger in incident.rangers:
+                yield ranger.handle
+            for entry in incident.report_entries:
+                yield entry.text
+
+        for (number, etag) in self.list_incidents():
+            incident = self.read_incident_with_number(number)
+
+            if not show_closed and incident.closed:
+                continue
+
+            if not terms:
+                yield (number, etag)
+
+            for term in terms:
+                for string in strings_from_incident(incident):
+                    if string is None:
+                        continue
+                    if term.lower() in string.lower():
+                        yield (number, etag)
+                        break
+                else: # Didn't match term
+                    break
+
+
     def etag_for_incident_with_number(self, number):
         if number in self.incident_etags:
             return self.incident_etags[number]

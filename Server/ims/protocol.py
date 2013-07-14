@@ -102,9 +102,21 @@ class IncidentManagementSystem(object):
     @app.route("/incidents/", methods=("GET",))
     @http_sauce
     def list_incidents(self, request):
+        if request.args:
+            terms = request.args.get("term", [])
+
+            try:
+                show_closed = request.args.get("show_closed", ["n"])[-1] == "y"
+            except IndexError:
+                show_closed = False
+
+            incident_infos = self.storage.search_incidents(terms=terms, show_closed=show_closed)
+        else:
+            incident_infos = self.storage.list_incidents()
+
         #set_response_header(request, HeaderName.etag, "*") # FIXME
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
-        return to_json_text(tuple(self.storage.list_incidents()))
+        return to_json_text(tuple(incident_infos))
 
 
     @app.route("/incidents/<number>", methods=("GET",))
