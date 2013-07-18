@@ -38,7 +38,7 @@ class BaseElement(Element):
 
     @renderer
     def title(self, request, tag):
-        return self._title
+        return tag(self._title)
 
 
 
