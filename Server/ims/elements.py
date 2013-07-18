@@ -19,6 +19,8 @@ XHTML Elements
 """
 
 __all__ = [
+    "HomePageElement",
+    "DispatchQueueElement",
 ]
 
 from twisted.web.template import Element, renderer
@@ -26,26 +28,26 @@ from twisted.web.template import XMLFile
 
 
 
-class HomePageElement(Element):
-    def __init__(self, ims):
+class BaseElement(Element):
+    def __init__(self, ims, name, title):
         self.ims = ims
+        self._title = title
 
-        self.loader = XMLFile(ims.config.Resources.child("home.xhtml"))
+        self.loader = XMLFile(ims.config.Resources.child(name+".xhtml"))
 
 
     @renderer
     def title(self, request, tag):
-        return "Ranger Incident Management System"
+        return self._title
 
 
 
-class DispatchQueueElement(Element):
+class HomePageElement(BaseElement):
     def __init__(self, ims):
-        self._ims = ims
-
-        self.loader = XMLFile(ims.config.Resources.child("queue.xhtml"))
+        BaseElement.__init__(self, ims, "home", "Ranger Incident Management System")
 
 
-    @renderer
-    def title(self, request, tag):
-        return "Dispatch Queue"
+
+class DispatchQueueElement(BaseElement):
+    def __init__(self, ims):
+        BaseElement.__init__(self, ims, "queue", "Dispatch Queue")
