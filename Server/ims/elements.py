@@ -26,6 +26,8 @@ __all__ = [
 from twisted.web.template import Element, renderer
 from twisted.web.template import XMLFile
 
+from ims.data import to_json_text
+
 
 
 class BaseElement(Element):
@@ -51,3 +53,41 @@ class HomePageElement(BaseElement):
 class DispatchQueueElement(BaseElement):
     def __init__(self, ims):
         BaseElement.__init__(self, ims, "queue", "Dispatch Queue")
+
+
+    @renderer
+    def data(self, request, tag):
+        storage = self.ims.storage
+
+        def format_date(d):
+            if d is None:
+                return ""
+            else:
+                return d.strftime("%a.%H:%M")
+
+        data = []
+
+        for number, etag in storage.list_incidents():
+            incident = storage.read_incident_with_number(number)
+
+            if incident.summary:
+                summary = incident.summary
+            elif incident.report_entries:
+                summary = incident.report_entries[0].text
+            else:
+                summary = ""
+
+            data.append([
+                incident.number,
+                incident.priority,
+                format_date(incident.created),
+                format_date(incident.dispatched),
+                format_date(incident.on_scene),
+                format_date(incident.closed),
+                ", ".join(ranger.handle for ranger in incident.rangers),
+                str(incident.location),
+                ", ".join(incident.incident_types),
+                summary,
+            ])
+
+        return to_json_text(data)
