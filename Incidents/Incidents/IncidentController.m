@@ -575,7 +575,8 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (IBAction) editSummary:(id)sender {
+- (IBAction) editSummary:(id)sender
+{
     Incident *incident = self.incident;
     NSTextField *summaryField = self.summaryField;
     NSString *summary = summaryField.stringValue;
@@ -588,7 +589,8 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (IBAction) editState:(id)sender {
+- (IBAction) editState:(id)sender
+{
     Incident *incident = self.incident;
     NSPopUpButton *statePopUp = self.statePopUp;
     NSInteger stateTag = statePopUp.selectedItem.tag;
@@ -654,7 +656,8 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (IBAction) editPriority:(id)sender {
+- (IBAction) editPriority:(id)sender
+{
     Incident *incident = self.incident;
     NSPopUpButton *priorityPopUp = self.priorityPopUp;
     NSNumber *priority = [NSNumber numberWithInteger:priorityPopUp.selectedItem.tag];
@@ -668,7 +671,8 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (IBAction) editLocationName:(id)sender {
+- (IBAction) editLocationName:(id)sender
+{
     Incident *incident = self.incident;
     NSTextField *locationNameField = self.locationNameField;
     NSString *locationName = locationNameField.stringValue;
@@ -715,7 +719,8 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
-- (IBAction) editLocationAddress:(id)sender {
+- (IBAction) editLocationAddress:(id)sender
+{
     Incident *incident = self.incident;
     NSTextField *locationAddressField = self.locationAddressField;
     NSString *locationAddress = locationAddressField.stringValue;
@@ -780,17 +785,68 @@ static NSDateFormatter *entryDateFormatter = nil;
 @implementation IncidentController (NSWindowDelegate)
 
 
-- (BOOL) windowShouldClose:(id)sender {
+- (BOOL) windowShouldClose:(id)sender
+{
+    return YES;
+
+    if (
+        self.stateDidChange    ||
+        self.priorityDidChange ||
+        self.summaryDidChange  ||
+        self.rangersDidChange  ||
+        self.typesDidChange    ||
+        self.locationDidChange
+    ) {
+        BOOL result;
+
+        NSAlert *saveAlert = [NSAlert alertWithMessageText:@"Save incident?"
+                                             defaultButton:@"Save"
+                                           alternateButton:@"Cancel"
+                                               otherButton:@"Don't Save"
+                                 informativeTextWithFormat:@""];
+
+        [saveAlert beginSheetModalForWindow:self.window
+                              modalDelegate:self
+                             didEndSelector:@selector(saveAlertDidEnd:returnCode:contextInfo:)
+                                contextInfo:&result];
+
+        NSLog(@"Should close: %d", result);
+        return result;
+    }
+
+    NSLog(@"Should close.");
     return YES;
 }
 
 
-- (void) windowWillClose:(NSNotification *)notification {
+- (void) saveAlertDidEnd:(NSAlert *)alert
+              returnCode:(int)returnCode
+             contextInfo:(BOOL *)result
+{
+    NSLog(@"Return code: %d", returnCode);
+
+    if (returnCode == 1) {
+        [self save:self];
+        *result = YES;
+    }
+    else if (returnCode == 0) {
+        *result = NO;
+    }
+    else if (returnCode == -1) {
+        *result = YES;
+    }
+
+    *result = NO;
+}
+
+
+- (void) windowWillClose:(NSNotification *)notification
+{
     if (notification.object != self.window) {
         return;
     }
 
-    [self updateIncident];
+    //[self updateIncident];
 }
 
 
@@ -801,7 +857,8 @@ static NSDateFormatter *entryDateFormatter = nil;
 @implementation IncidentController (NSTableViewDataSource)
 
 
-- (NSUInteger) numberOfRowsInTableView:(NSTableView *)tableView {
+- (NSUInteger) numberOfRowsInTableView:(NSTableView *)tableView
+{
     if (tableView == self.rangersTable) {
         return self.incident.rangersByHandle.count;
     }
