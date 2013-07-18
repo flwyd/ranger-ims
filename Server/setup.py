@@ -24,6 +24,7 @@ setup(
         "Werkzeug==0.9.1",
         "zope.interface==4.0.5",
         "Twisted==13.0.0",
+        "pyOpenSSL==0.13",
         "klein==0.2.0",
         "mysql-connector-python==1.0.10",
     ],

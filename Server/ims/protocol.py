@@ -36,7 +36,7 @@ from ims.data import Incident, JSON, to_json_text, from_json_io
 from ims.sauce import url_for, set_response_header
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
-from ims.elements import HomePageElement
+from ims.elements import HomePageElement, DispatchQueueElement
 
 
 
@@ -238,6 +238,13 @@ class IncidentManagementSystem(object):
         return "";
 
 
+    @app.route("/queue", methods=("GET",))
+    @http_sauce
+    def dispatchQueue(self, request):
+        set_response_header(request, HeaderName.contentType, ContentType.HTML)
+        return DispatchQueueElement(self)
+
+
     @app.route("/jquery.js", methods=("GET",))
     @http_sauce
     def jquery(self, request):
@@ -246,7 +253,40 @@ class IncidentManagementSystem(object):
         return self.cachedResource(version, url)
 
 
+    @app.route("/tidy.js", methods=("GET",))
+    @http_sauce
+    def tidy(self, request):
+        name = "tidy.js"
+        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/jquery.tidy.table.js"
+        return self.cachedResource(name, url)
+
+
+    @app.route("/tidy.css", methods=("GET",))
+    @http_sauce
+    def tidy_css(self, request):
+        name = "tidy.css"
+        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/jquery.tidy.table.css"
+        return self.cachedResource(name, url)
+
+
+    @app.route("/images/arrow_asc.gif", methods=("GET",))
+    @http_sauce
+    def tidy_asc(self, request):
+        name = "tidy-asc.gif"
+        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/images/arrow_asc.gif"
+        return self.cachedResource(name, url)
+
+
+    @app.route("/images/arrow_desc.gif", methods=("GET",))
+    @http_sauce
+    def tidy_desc(self, request):
+        name = "tidy-desc.gif"
+        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/images/arrow_desc.gif"
+        return self.cachedResource(name, url)
+
+
     def cachedResource(self, name, url):
+        name = "_{0}".format(name)
         filePath = self.config.Resources.child(name)
 
         if filePath.exists():

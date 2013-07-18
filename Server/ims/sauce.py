@@ -90,9 +90,9 @@ def http_sauce(f):
         request.accepts = accepts
 
         if ContentType.JSON.value in values:
-            request.agentClass = AgentClass.ims
+            request.agentClass = AgentClass.JSON
         elif ContentType.HTML.value in values:
-            request.agentClass = AgentClass.html
+            request.agentClass = AgentClass.HTML
         else:
             request.agentClass = None
 
@@ -145,5 +145,5 @@ class ContentType (Values):
 
 
 class AgentClass (Names):
-    ims  = NamedConstant()
-    html = NamedConstant()
+    JSON = NamedConstant()
+    HTML = NamedConstant()
