@@ -63,7 +63,7 @@ class InvalidDataError (ValueError):
 
 
 
-class Incident(object):
+class Incident (object):
     """
     Incident
     """

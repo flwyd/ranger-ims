@@ -108,7 +108,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     if (! self.reloadTimer || ! self.reloadTimer.isValid) {
         self.reloadTimer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                             target:self
-                                                          selector:NSSelectorFromString(@"loadIncidents:")
+                                                          selector:NSSelectorFromString(@"reload:")
                                                           userInfo:nil
                                                            repeats:NO];
     }
@@ -121,7 +121,9 @@ NSString *formattedDateTimeShort(NSDate *date);
     NSInteger interval = [defaults integerForKey:@"IMSPollInterval"];
 
     if (interval < 8) {
-        NSLog(@"ERROR: Unfortunate value for reload interval: %ld", interval);
+        if (interval != 0) {
+            NSLog(@"ERROR: Unfortunate value for reload interval: %ld", interval);
+        }
         interval = 10; // default value
         self.reloadInterval = interval;
     }
@@ -130,15 +132,22 @@ NSString *formattedDateTimeShort(NSDate *date);
 }
 
 
-- (void) setReloadInterval:(NSInteger)reloadInterval
+- (void) setReloadInterval:(NSInteger)interval
 {
-    if (reloadInterval < 8) {
-        NSLog(@"ERROR: reload interval may not be < 8");
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+    if (interval == 0) {
+        // Revert to default value
+        [defaults removeObjectForKey:@"IMSPollInterval"];
         return;
     }
 
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setInteger:reloadInterval forKey:@"IMSPollInterval"];
+    if (interval < 8) {
+        NSLog(@"ERROR: reload interval may not be < 8. Got: %ld", interval);
+        interval = 8;
+    }
+
+    [defaults setInteger:interval forKey:@"IMSPollInterval"];
 }
 
 
@@ -357,7 +366,7 @@ NSString *formattedDateTimeShort(NSDate *date);
 }
 
 
-- (IBAction) loadIncidents:(id)sender
+- (IBAction) reload:(id)sender
 {
     [self load];
 }
@@ -428,7 +437,7 @@ NSString *formattedDateTimeShort(NSDate *date);
     if (controller) {
         // Update the controller with the new incident
         controller.incident = [incident copy];
-        [controller reloadIncident];
+        [controller updateIncident];
 
         // Add to known controllers
         self.incidentControllers[incident.number] = controller;
@@ -437,7 +446,7 @@ NSString *formattedDateTimeShort(NSDate *date);
         controller = self.incidentControllers[incident.number];
         if (controller) {
             controller.incident = [incident copy];
-            [controller reloadIncident];
+            [controller updateIncident];
         }
     }
 }

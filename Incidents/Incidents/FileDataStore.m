@@ -155,6 +155,12 @@ NSArray *getRangerHandles(void);
 }
 
 
+- (void) loadIncidentNumber:(NSNumber *)number {
+    // FIXME ??
+    return;
+}
+
+
 - (NSArray *) incidents
 {
     return self.allIncidentsByNumber.allValues;

@@ -44,18 +44,21 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 @property (strong) DispatchQueueController *dispatchQueueController;
 
-@property (weak)   IBOutlet NSTextField   *numberField;
-@property (weak)   IBOutlet NSPopUpButton *statePopUp;
-@property (weak)   IBOutlet NSPopUpButton *priorityPopUp;
-@property (weak)   IBOutlet NSTextField   *summaryField;
-@property (weak)   IBOutlet NSTableView   *rangersTable;
-@property (weak)   IBOutlet NSTextField   *rangerToAddField;
-@property (weak)   IBOutlet NSTableView   *typesTable;
-@property (weak)   IBOutlet NSTextField   *typeToAddField;
-@property (weak)   IBOutlet NSTextField   *locationNameField;
-@property (weak)   IBOutlet NSTextField   *locationAddressField;
-@property (assign) IBOutlet NSTextView    *reportEntriesView;
-@property (assign) IBOutlet NSTextView    *reportEntryToAddView;
+@property (weak)   IBOutlet NSTextField         *numberField;
+@property (weak)   IBOutlet NSPopUpButton       *statePopUp;
+@property (weak)   IBOutlet NSPopUpButton       *priorityPopUp;
+@property (weak)   IBOutlet NSTextField         *summaryField;
+@property (weak)   IBOutlet NSTableView         *rangersTable;
+@property (weak)   IBOutlet NSTextField         *rangerToAddField;
+@property (weak)   IBOutlet NSTableView         *typesTable;
+@property (weak)   IBOutlet NSTextField         *typeToAddField;
+@property (weak)   IBOutlet NSTextField         *locationNameField;
+@property (weak)   IBOutlet NSTextField         *locationAddressField;
+@property (assign) IBOutlet NSTextView          *reportEntriesView;
+@property (assign) IBOutlet NSTextView          *reportEntryToAddView;
+@property (assign) IBOutlet NSButton            *saveButton;
+@property (weak)   IBOutlet NSProgressIndicator *loadingIndicator;
+@property (weak)   IBOutlet NSButton            *reloadButton;
 
 @property (assign) BOOL stateDidChange;
 @property (assign) BOOL priorityDidChange;
@@ -97,32 +100,183 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
+- (NSString *) summarize
+{
+    NSTextField   *numberField          = self.numberField;
+    NSPopUpButton *statePopUp           = self.statePopUp;
+    NSPopUpButton *priorityPopUp        = self.priorityPopUp;
+    NSTextField   *summaryField         = self.summaryField;
+    NSTextField   *rangerToAddField     = self.rangerToAddField;
+    NSTextField   *typeToAddField       = self.typeToAddField;
+    NSTextField   *locationNameField    = self.locationNameField;
+    NSTextField   *locationAddressField = self.locationAddressField;
+    NSTextView    *reportEntryToAddView = self.reportEntryToAddView;
+
+    return [NSString stringWithFormat:
+            @"------------------------------\n"
+            @"Incident: %@\n"
+            @"------------------------------\n"
+            @"FIELDS:\n"
+            @"  Number: %@\n"
+            @"  State: %@\n"
+            @"  Priority: %@\n"
+            @"  Summary: %@\n"
+            @"  Ranger to add: %@\n"
+            @"  Type to add: %@\n"
+            @"  Location name: %@\n"
+            @"  Location address: %@\n"
+            @"  Entry to add: %@\n"
+            @"------------------------------\n"
+            @"CHANGED:\n"
+            @"  State: %@\n"
+            @"  Priority: %@\n"
+            @"  Summary: %@\n"
+            @"  Rangers: %@\n"
+            @"  Types: %@\n"
+            @"  Location: %@\n"
+            @"  Entry: %@\n"
+            @"------------------------------\n"
+            ,
+
+            self.incident,
+
+            numberField.stringValue,
+            statePopUp.stringValue,
+            priorityPopUp.stringValue,
+            summaryField.stringValue,
+            rangerToAddField.stringValue,
+            typeToAddField.stringValue,
+            locationNameField.stringValue,
+            locationAddressField.stringValue,
+            reportEntryToAddView.textStorage.string,
+
+            self.stateDidChange    ? @"YES" : @"NO",
+            self.priorityDidChange ? @"YES" : @"NO",
+            self.summaryDidChange  ? @"YES" : @"NO",
+            self.rangersDidChange  ? @"YES" : @"NO",
+            self.typesDidChange    ? @"YES" : @"NO",
+            self.locationDidChange ? @"YES" : @"NO",
+            self.reportDidChange   ? @"YES" : @"NO"];
+}
+
+
 - (void) windowDidLoad
 {
     [super windowDidLoad];
 
     [self.reportEntryToAddView setFieldEditor:YES];
 
-    [self reloadIncident];
+    [self updateIncident];
 }
 
 
-- (void) reloadIncident
+- (void) clearChangeTracking
 {
-    if (! self.incident.number.integerValue < 0) {
-        self.incident = [[self.dispatchQueueController.dataStore incidentWithNumber:self.incident.number] copy];
-    }
-
     self.stateDidChange    = NO;
     self.priorityDidChange = NO;
     self.summaryDidChange  = NO;
     self.rangersDidChange  = NO;
     self.typesDidChange    = NO;
     self.locationDidChange = NO;
+    self.reportDidChange   = NO;
 
     self.window.documentEdited = NO;
+}
+
+
+- (void) enableEditing
+{
+    NSPopUpButton *statePopUp           = self.statePopUp;
+    NSPopUpButton *priorityPopUp        = self.priorityPopUp;
+    NSTextField   *summaryField         = self.summaryField;
+    NSTableView   *rangersTable         = self.rangersTable;
+    NSTextField   *rangerToAddField     = self.rangerToAddField;
+    NSTableView   *typesTable           = self.typesTable;
+    NSTextField   *typeToAddField       = self.typeToAddField;
+    NSTextField   *locationNameField    = self.locationNameField;
+    NSTextField   *locationAddressField = self.locationAddressField;
+    NSTextView    *reportEntriesView    = self.reportEntriesView;
+    NSTextView    *reportEntryToAddView = self.reportEntryToAddView;
+    NSButton      *saveButton           = self.saveButton;
+
+    [statePopUp           setEnabled: YES];
+    [priorityPopUp        setEnabled: YES];
+    [summaryField         setEnabled: YES];
+    [rangersTable         setEnabled: YES];
+    [rangerToAddField     setEnabled: YES];
+    [typesTable           setEnabled: YES];
+    [typeToAddField       setEnabled: YES];
+    [locationNameField    setEnabled: YES];
+    [locationAddressField setEnabled: YES];
+    [reportEntriesView    setEditable:YES];
+    [reportEntryToAddView setEditable:YES];
+    [saveButton           setEnabled: YES];
+}
+
+
+- (void) disableEditing
+{
+    NSPopUpButton *statePopUp           = self.statePopUp;
+    NSPopUpButton *priorityPopUp        = self.priorityPopUp;
+    NSTextField   *summaryField         = self.summaryField;
+    NSTableView   *rangersTable         = self.rangersTable;
+    NSTextField   *rangerToAddField     = self.rangerToAddField;
+    NSTableView   *typesTable           = self.typesTable;
+    NSTextField   *typeToAddField       = self.typeToAddField;
+    NSTextField   *locationNameField    = self.locationNameField;
+    NSTextField   *locationAddressField = self.locationAddressField;
+    NSTextView    *reportEntriesView    = self.reportEntriesView;
+    NSTextView    *reportEntryToAddView = self.reportEntryToAddView;
+    NSButton      *saveButton           = self.saveButton;
+
+    [statePopUp           setEnabled: NO];
+    [priorityPopUp        setEnabled: NO];
+    [summaryField         setEnabled: NO];
+    [rangersTable         setEnabled: NO];
+    [rangerToAddField     setEnabled: NO];
+    [typesTable           setEnabled: NO];
+    [typeToAddField       setEnabled: NO];
+    [locationNameField    setEnabled: NO];
+    [locationAddressField setEnabled: NO];
+    [reportEntriesView    setEditable:NO];
+    [reportEntryToAddView setEditable:NO];
+    [saveButton           setEnabled: NO];
+}
+
+
+- (IBAction) reload:(id)sender
+{
+    // Hide the reload button…
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = YES;
+
+    // Spin the progress indicator...
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    loadingIndicator.hidden = NO;
+    [loadingIndicator startAnimation:self];
+
+    [self.dispatchQueueController.dataStore loadIncidentNumber:self.incident.number];
+}
+
+
+- (void) updateIncident
+{
+    if (! self.incident.number.integerValue < 0) {
+        self.incident = [[self.dispatchQueueController.dataStore incidentWithNumber:self.incident.number] copy];
+    }
 
     [self updateView];
+    [self clearChangeTracking];
+    [self enableEditing];
+
+    // Stop the progress indicator.
+    NSProgressIndicator *loadingIndicator = self.loadingIndicator;
+    [loadingIndicator stopAnimation:self];
+    loadingIndicator.hidden = YES;
+
+    // Show the reload button…
+    NSButton *reloadButton = self.reloadButton;
+    reloadButton.hidden = NO;
 }
 
 
@@ -269,6 +423,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     if (self.incident.number.integerValue < 0) {
         // New incident
+        [self disableEditing];
         [self.dispatchQueueController.dataStore updateIncident:self.incident];
     }
     else {
@@ -298,6 +453,8 @@ static NSDateFormatter *entryDateFormatter = nil;
         }
 
         if (edited) {
+            [self disableEditing];
+
             Incident *incidentToCommit = [[Incident alloc] initInDataStore:self.incident.dataStore
                                                                 withNumber:self.incident.number
                                                                    rangers:rangers
@@ -392,8 +549,6 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     // Flush the text fields
     [self editSummary:self];
-    //[self editState:self];
-    //[self editPriority:self];
     [self editLocationName:self];
     [self editLocationAddress:self];
 
@@ -691,7 +846,7 @@ static NSDateFormatter *entryDateFormatter = nil;
         return;
     }
 
-    //[self reloadIncident];
+    //[self updateIncident];
 }
 
 

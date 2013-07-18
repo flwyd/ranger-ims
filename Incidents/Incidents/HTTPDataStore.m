@@ -150,13 +150,18 @@ static int nextTemporaryNumber = -1;
         expectedStatusCode = 200;
     }
 
-    // Option: NSJSONWritingPrettyPrinted
     NSData *body;
     {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        BOOL verbose = [defaults boolForKey:@"HTTPConnectionLogging"];
+
+        NSUInteger options = 0;
+        if (verbose) { options = NSJSONWritingPrettyPrinted; } // If we're logging traffic, make it more readable.
+
         NSError *error;
-        body = [NSJSONSerialization dataWithJSONObject:[incident asJSON] options:0 error:&error];
+        body = [NSJSONSerialization dataWithJSONObject:[incident asJSON] options:options error:&error];
         if (! body) {
-            performAlert(@"Unable to serialize to incident %@ to JSON: %@", incident, error);
+            performAlert(@"Unable to serialize incident %@ to JSON: %@", incident, error);
             return;
         }
     }
@@ -279,8 +284,8 @@ static int nextTemporaryNumber = -1;
 
                 self.serverAvailable = NO;
 
-                performAlert(@"Unable to connect to server: %@", error.localizedDescription);
-                NSLog(@"Unable to connect to server: %@", error);
+                performAlert(@"Unable to connect to server to ping: %@", error.localizedDescription);
+                NSLog(@"Unable to connect to server to ping: %@", error);
             };
 
             self.pingConnection = [HTTPConnection JSONQueryConnectionWithURL:url

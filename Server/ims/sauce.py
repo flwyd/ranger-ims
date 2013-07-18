@@ -29,6 +29,7 @@ __all__ = [
 from functools import wraps
 
 from twisted.python import log
+from twisted.python.constants import Names, NamedConstant
 from twisted.python.constants import Values, ValueConstant
 from twisted.web import http
 
@@ -73,6 +74,28 @@ def http_sauce(f):
         # Store user name
         request.user = self.avatarId
 
+        # Get accept header
+        accepts = []
+        values = request.requestHeaders.getRawHeaders(HeaderName.accept.value, [])
+        for value in values:
+            for media_type in value.split(","):
+                if ";" in media_type:
+                    (mime_type, parameter) = media_type.split(";")
+                else:
+                    mime_type = media_type
+                try:
+                    accepts.append(ContentType.lookupByValue(mime_type))
+                except ValueError:
+                    pass
+        request.accepts = accepts
+
+        if ContentType.JSON.value in values:
+            request.agentClass = AgentClass.ims
+        elif ContentType.HTML.value in values:
+            request.agentClass = AgentClass.html
+        else:
+            request.agentClass = None
+
         try:
             return f(self, request, *args, **kwargs)
 
@@ -109,6 +132,7 @@ class HeaderName (Values):
     incidentNumber = ValueConstant("Incident-Number")
     location       = ValueConstant("Location")
     userAgent      = ValueConstant("User-Agent")
+    accept         = ValueConstant("Accept")
 
 
 
@@ -117,3 +141,9 @@ class ContentType (Values):
     JSON  = ValueConstant("application/json")
     XHTML = ValueConstant("application/xhtml+xml")
     plain = ValueConstant("text/plain")
+
+
+
+class AgentClass (Names):
+    ims  = NamedConstant()
+    html = NamedConstant()
