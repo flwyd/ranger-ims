@@ -242,11 +242,15 @@ class IncidentManagementSystem(object):
     @http_sauce
     def jquery(self, request):
         version = "jquery-1.10.2.min.js"
-        resources = self.config.Resources
-        jquery = resources.child(version)
+        url = "http://code.jquery.com/"+version
+        return self.cachedResource(version, url)
 
-        if jquery.exists():
-            return File(jquery.path)
+
+    def cachedResource(self, name, url):
+        filePath = self.config.Resources.child(name)
+
+        if filePath.exists():
+            return File(filePath.path)
 
         class FileWriter(Protocol):
             def __init__(self, fp, fin):
@@ -266,7 +270,6 @@ class IncidentManagementSystem(object):
                 else:
                     self.fin.errback(reason)
 
-        url = "http://code.jquery.com/"+version
         log.msg("Downloading jquery from {0}".format(url))
 
         agent = Agent(reactor)
@@ -275,9 +278,9 @@ class IncidentManagementSystem(object):
 
         def gotResponse(response):
             finished = Deferred()
-            response.deliverBody(FileWriter(jquery, finished))
+            response.deliverBody(FileWriter(filePath, finished))
             return finished
         d.addCallback(gotResponse)
-        d.addCallback(lambda _: File(jquery.path))
+        d.addCallback(lambda _: File(filePath.path))
 
         return d
