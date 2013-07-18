@@ -59,6 +59,18 @@ class DispatchQueueElement(BaseElement):
     def data(self, request, tag):
         storage = self.ims.storage
 
+        if request.args:
+            terms = request.args.get("term", [])
+
+            try:
+                show_closed = request.args.get("show_closed", ["n"])[-1] == "y"
+            except IndexError:
+                show_closed = False
+
+            incident_infos = self.storage.search_incidents(terms=terms, show_closed=show_closed)
+        else:
+            incident_infos = self.storage.list_incidents()
+
         def format_date(d):
             if d is None:
                 return ""
@@ -67,8 +79,11 @@ class DispatchQueueElement(BaseElement):
 
         data = []
 
-        for number, etag in storage.list_incidents():
+        for number, etag in incident_infos:
             incident = storage.read_incident_with_number(number)
+
+            if not show_closed and incident.closed is not None:
+                continue
 
             if incident.summary:
                 summary = incident.summary
