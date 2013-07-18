@@ -59,7 +59,7 @@ class IncidentManagementSystem(object):
     @http_sauce
     def root(self, request):
         set_response_header(request, HeaderName.contentType, ContentType.HTML)
-        return HomePageElement("Ranger Incident Management System")
+        return HomePageElement(self)
 
 
     @app.route("/resources/", branch=True)
