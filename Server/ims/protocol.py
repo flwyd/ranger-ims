@@ -253,11 +253,19 @@ class IncidentManagementSystem(object):
         return self.cachedResource(version, url)
 
 
+    @app.route("/jquery-1.10.2.min.map", methods=("GET",))
+    @http_sauce
+    def jquery_map(self, request):
+        name = "jquery-1.10.2.min.map"
+        url = "http://code.jquery.com/"+name
+        return self.cachedResource(name, url)
+
+
     @app.route("/tidy.js", methods=("GET",))
     @http_sauce
     def tidy(self, request):
         name = "tidy.js"
-        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/jquery.tidy.table.js"
+        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/jquery.tidy.table.min.js"
         return self.cachedResource(name, url)
 
 
@@ -265,7 +273,7 @@ class IncidentManagementSystem(object):
     @http_sauce
     def tidy_css(self, request):
         name = "tidy.css"
-        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/jquery.tidy.table.css"
+        url = "https://raw.github.com/nuxy/Tidy-Table/v1.4/jquery.tidy.table.min.css"
         return self.cachedResource(name, url)
 
 
