@@ -106,6 +106,14 @@ class DispatchQueueElement(BaseElement):
 
 
     @renderer
+    def hide_closed_column(self, request, tag):
+        if show_closed_from_query(request):
+            return tag
+        else:
+            return "$('td:nth-child(6),th:nth-child(6)').hide();"
+
+
+    @renderer
     def search_value(self, request, tag):
         terms = terms_from_query(request)
         if terms:
