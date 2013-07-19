@@ -230,6 +230,9 @@ class IncidentManagementSystem(object):
     @app.route("/queue", methods=("GET",))
     @http_sauce
     def dispatchQueue(self, request):
+        if not request.args:
+            request.args["show_closed"] = ["false"]
+
         set_response_header(request, HeaderName.contentType, ContentType.HTML)
         return DispatchQueueElement(self)
 
