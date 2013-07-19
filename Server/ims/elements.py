@@ -57,6 +57,19 @@ class DispatchQueueElement(BaseElement):
 
 
     @renderer
+    def columns(self, request, tag):
+        return to_json_text([
+            "Number",
+            "Priority",
+            "Created", "Dispatched", "On Scene", "Closed",
+            "Rangers",
+            "Location",
+            "Type",
+            "Description"
+        ])
+
+
+    @renderer
     def data(self, request, tag):
         def format_date(d):
             if d is None:
