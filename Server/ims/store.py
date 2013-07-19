@@ -153,24 +153,15 @@ class Storage(object):
             if not show_closed and incident.closed:
                 continue
 
-#            if not terms:
-#                yield (number, etag)
-#                continue
-
-            found = False
-
             for term in terms:
                 for string in strings_from_incident(incident):
                     if string is None:
                         continue
                     if term.lower() in string.lower():
-                        found = True
                         break
                 else: # Didn't match term
-                    found = False
                     break
-
-            if found:
+            else:
                 yield (number, etag)
 
 
