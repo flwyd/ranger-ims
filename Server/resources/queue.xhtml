@@ -30,6 +30,13 @@
  </head>
  <body>
   <h1 t:render="title" />
+  <form><input type="search" name="search" placeholder="Search..." size="100" /></form>
   <div id="DispatchQueue" />
+  <form action="" method="get">
+   <input type="hidden" name="show_closed" value="off" />
+   <input type="checkbox" onclick="this.form.children[0].value=this.checked; this.form.submit();" t:render="show_closed">
+    Show Closed
+   </input>
+  </form>
  </body>
 </html>

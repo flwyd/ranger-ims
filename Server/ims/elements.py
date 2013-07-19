@@ -92,16 +92,47 @@ class DispatchQueueElement(BaseElement):
         return to_json_text(data)
 
 
+    @renderer
+    def show_closed(self, request, tag):
+        if show_closed_from_query(request):
+            return tag(checked="")
+        else:
+            return tag
+
+
 
 def incidents_from_query(ims, request):
     if request.args:
-        terms = request.args.get("term", [])
-
-        try:
-            show_closed = request.args.get("show_closed", ["n"])[-1] == "y"
-        except IndexError:
-            show_closed = False
-
-        return ims.storage.search_incidents(terms=terms, show_closed=show_closed)
+        return ims.storage.search_incidents(
+            terms       = terms_from_query(request),
+            show_closed = show_closed_from_query(request),
+        )
     else:
         return ims.storage.list_incidents()
+
+
+def terms_from_query(request):
+    if request.args:
+        terms = set()
+
+        for query in request.args.get("search", []):
+            for term in query.split(" "):
+                terms.add(term)
+
+        for term in request.args.get("term", []):
+            terms.add(term)
+
+        return terms
+    else:
+        return set()
+
+
+def show_closed_from_query(request):
+    print request.args
+    if request.args:
+        try:
+            return request.args.get("show_closed", ["false"])[-1] == "true"
+        except IndexError:
+            return False
+    else:
+        return False
