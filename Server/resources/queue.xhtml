@@ -11,10 +11,13 @@
       $('#DispatchQueue').TidyTable(
         {
           // Options
+          enableCheckbox: false,
+          enableMenu    : false,
         },
         {
+          // Data
           columnTitles: <t:transparent t:render="columns" />,
-          columnValues: <t:transparent t:render="data" />
+          columnValues: <t:transparent t:render="data"    />,
         }
       );
     });
