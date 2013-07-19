@@ -128,11 +128,11 @@ def terms_from_query(request):
 
 
 def show_closed_from_query(request):
-    print request.args
     if request.args:
         try:
             return request.args.get("show_closed", ["false"])[-1] == "true"
         except IndexError:
             return False
     else:
-        return False
+        # Must be True to match incidents_from_query() behavior
+        return True
