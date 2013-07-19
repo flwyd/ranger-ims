@@ -31,7 +31,8 @@
  <body>
   <h1 t:render="title" />
 
-  <form>
+  <form action="" method="get">
+   <input type="hidden" name="show_closed" t:render="show_closed_value" />
    <input type="search" name="search" placeholder="Search..." size="100" t:render="search_value" />
   </form>
 
