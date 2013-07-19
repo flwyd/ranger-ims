@@ -119,37 +119,47 @@ class DispatchQueueElement(BaseElement):
 
 
 def incidents_from_query(ims, request):
-    if request.args:
-        return ims.storage.search_incidents(
-            terms       = terms_from_query(request),
-            show_closed = show_closed_from_query(request),
-        )
-    else:
-        return ims.storage.list_incidents()
+    if not hasattr(request, "ims_incidents"):
+        if request.args:
+            request.ims_incidents = ims.storage.search_incidents(
+                terms       = terms_from_query(request),
+                show_closed = show_closed_from_query(request),
+            )
+        else:
+            request.ims_incidents = ims.storage.list_incidents()
+
+    return request.ims_incidents
 
 
 def terms_from_query(request):
-    if request.args:
-        terms = set()
+    if not hasattr(request, "ims_terms"):
+        if request.args:
+            terms = set()
 
-        for query in request.args.get("search", []):
-            for term in query.split(" "):
+            for query in request.args.get("search", []):
+                for term in query.split(" "):
+                    terms.add(term)
+
+            for term in request.args.get("term", []):
                 terms.add(term)
 
-        for term in request.args.get("term", []):
-            terms.add(term)
+            request.ims_terms = terms
 
-        return terms
-    else:
-        return set()
+        else:
+            request.ims_terms = set()
+
+    return request.ims_terms
 
 
 def show_closed_from_query(request):
-    if request.args:
-        try:
-            return request.args.get("show_closed", ["false"])[-1] == "true"
-        except IndexError:
-            return False
-    else:
-        # Must be True to match incidents_from_query() behavior
-        return True
+    if not hasattr(request, "ims_show_closed"):
+        if request.args:
+            try:
+                request.ims_show_closed = request.args.get("show_closed", ["false"])[-1] == "true"
+            except IndexError:
+                request.ims_show_closed = False
+        else:
+            # Must be True to match incidents_from_query() behavior
+            request.ims_show_closed = True
+
+    return request.ims_show_closed
