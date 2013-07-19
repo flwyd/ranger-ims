@@ -21,6 +21,7 @@ XHTML Elements
 __all__ = [
     "HomePageElement",
     "DispatchQueueElement",
+    "incidents_from_query",
 ]
 
 from twisted.web.template import Element, renderer
@@ -57,20 +58,6 @@ class DispatchQueueElement(BaseElement):
 
     @renderer
     def data(self, request, tag):
-        storage = self.ims.storage
-
-        if request.args:
-            terms = request.args.get("term", [])
-
-            try:
-                show_closed = request.args.get("show_closed", ["n"])[-1] == "y"
-            except IndexError:
-                show_closed = False
-
-            incident_infos = self.storage.search_incidents(terms=terms, show_closed=show_closed)
-        else:
-            incident_infos = self.storage.list_incidents()
-
         def format_date(d):
             if d is None:
                 return ""
@@ -79,11 +66,8 @@ class DispatchQueueElement(BaseElement):
 
         data = []
 
-        for number, etag in incident_infos:
-            incident = storage.read_incident_with_number(number)
-
-            if not show_closed and incident.closed is not None:
-                continue
+        for number, etag in incidents_from_query(self.ims, request):
+            incident = self.ims.storage.read_incident_with_number(number)
 
             if incident.summary:
                 summary = incident.summary
@@ -106,3 +90,18 @@ class DispatchQueueElement(BaseElement):
             ])
 
         return to_json_text(data)
+
+
+
+def incidents_from_query(ims, request):
+    if request.args:
+        terms = request.args.get("term", [])
+
+        try:
+            show_closed = request.args.get("show_closed", ["n"])[-1] == "y"
+        except IndexError:
+            show_closed = False
+
+        return ims.storage.search_incidents(terms=terms, show_closed=show_closed)
+    else:
+        return ims.storage.list_incidents()
