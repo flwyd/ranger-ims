@@ -93,7 +93,16 @@ class DispatchQueueElement(BaseElement):
 
 
     @renderer
-    def show_closed(self, request, tag):
+    def search_value(self, request, tag):
+        terms = terms_from_query(request)
+        if terms:
+            return tag(value=" ".join(terms))
+        else:
+            return tag
+
+
+    @renderer
+    def show_closed_checked(self, request, tag):
         if show_closed_from_query(request):
             return tag(checked="")
         else:
