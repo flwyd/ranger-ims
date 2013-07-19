@@ -153,19 +153,25 @@ class Storage(object):
             if not show_closed and incident.closed:
                 continue
 
-            if not terms:
-                yield (number, etag)
-                continue
+#            if not terms:
+#                yield (number, etag)
+#                continue
+
+            found = False
 
             for term in terms:
                 for string in strings_from_incident(incident):
                     if string is None:
                         continue
                     if term.lower() in string.lower():
-                        yield (number, etag)
+                        found = True
                         break
                 else: # Didn't match term
+                    found = False
                     break
+
+            if found:
+                yield (number, etag)
 
 
     def etag_for_incident_with_number(self, number):
