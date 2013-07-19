@@ -679,6 +679,11 @@ static NSDateFormatter *entryDateFormatter = nil;
 
     if (! [locationName isEqualToString:incident.location.name ? incident.location.name : @""]) {
         NSLog(@"Location name edited.");
+
+        if (! incident.location) {
+            incident.location = [[Location alloc] initWithName:nil address:nil];
+        }
+
         incident.location.name = locationName;
         self.locationDidChange = YES;
         self.window.documentEdited = YES;
@@ -727,6 +732,11 @@ static NSDateFormatter *entryDateFormatter = nil;
 
     if (! [locationAddress isEqualToString:incident.location.address ? incident.location.address : @""]) {
         NSLog(@"Location address edited.");
+
+        if (! incident.location) {
+            incident.location = [[Location alloc] initWithName:nil address:nil];
+        }
+
         incident.location.address = locationAddress;
         self.locationDidChange = YES;
         self.window.documentEdited = YES;
