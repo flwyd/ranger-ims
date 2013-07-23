@@ -164,8 +164,6 @@ static NSDateFormatter *entryDateFormatter = nil;
 {
     [super windowDidLoad];
 
-    [self.reportEntryToAddView setFieldEditor:YES];
-
     [self updateIncident];
 }
 
