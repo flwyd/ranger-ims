@@ -1097,6 +1097,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (BOOL) textView:(NSTextView *)textView doCommandBySelector:(SEL)selector
 {
+    //NSLog(@"Do text command: %@", NSStringFromSelector(selector));
     if (textView == self.reportEntryToAddView) {
 	if (selector == NSSelectorFromString(@"insertNewline:")) {
             NSTextView *reportEntryToAddView = self.reportEntryToAddView;
