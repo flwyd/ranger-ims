@@ -1046,6 +1046,7 @@ static NSDateFormatter *entryDateFormatter = nil;
             if (control == self.rangerToAddField) {
                 NSTextField *rangerToAddField = self.rangerToAddField;
                 NSString *rangerHandle = rangerToAddField.stringValue;
+                rangerHandle = [rangerHandle stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
                 if (rangerHandle.length > 0) {
                     Ranger *ranger = self.incident.rangersByHandle[rangerHandle];
@@ -1069,6 +1070,7 @@ static NSDateFormatter *entryDateFormatter = nil;
             else if (control == self.typeToAddField) {
                 NSTextField *typeToAddField = self.typeToAddField;
                 NSString *type = typeToAddField.stringValue;
+                type = [type stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
                 if (type.length > 0) {
                     if (! [self.incident.types containsObject:type]) {
