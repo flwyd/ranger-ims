@@ -1109,4 +1109,22 @@ static NSDateFormatter *entryDateFormatter = nil;
 }
 
 
+- (BOOL)textView:(NSTextView *)textView shouldChangeTextInRange:(NSRange)range replacementString:(NSString *)replacement
+{
+    if (textView == self.reportEntriesView) {
+        return NO;
+    }
+    return YES;
+}
+
+
+- (BOOL)textView:(NSTextView *)textView shouldChangeTextInRanges:(NSArray *)ranges replacementStrings:(NSArray *)replacements
+{
+    if (textView == self.reportEntriesView) {
+        return NO;
+    }
+    return YES;
+}
+
+
 @end
