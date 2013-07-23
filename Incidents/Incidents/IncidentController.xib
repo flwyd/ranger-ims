@@ -1626,7 +1626,6 @@ wGw</bytes>
 							<string key="NSFrame">{{387, 13}, {69, 32}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="657065725">
@@ -2044,14 +2043,6 @@ wGw</bytes>
 						<reference key="destination" ref="1001"/>
 					</object>
 					<int key="connectionID">985</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">nextKeyView</string>
-						<reference key="source" ref="299994072"/>
-						<reference key="destination" ref="507422683"/>
-					</object>
-					<int key="connectionID">984</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
