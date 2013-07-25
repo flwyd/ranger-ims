@@ -19,6 +19,7 @@ Data model
 """
 
 __all__ = [
+    "JSON",
     "InvalidDataError",
     "Incident",
     "ReportEntry",
