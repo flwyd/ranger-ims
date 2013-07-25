@@ -397,6 +397,10 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     }
 
     for (ReportEntry *entry in self.reportEntries) {
+        if (entry.isSystemReportEntry) {
+            continue;
+        }
+
         __block NSString *firstLine = nil;
         [entry.text enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
             firstLine = line;
