@@ -152,32 +152,49 @@ class IncidentManagementSystem(object):
         #print edits_json
         #print "-"*80
 
+        system_messages = []
+
+        def log_edit_value(name, old, new):
+            if old != new:
+                if new is None:
+                    new = ""
+                system_messages.append("Changed {0} to: {1}".format(name, new))
+
         for key in edits_json.keys():
             key = JSON.lookupByValue(key)
 
             if key is JSON.report_entries:
                 if edits.report_entries is not None:
                     for entry in edits.report_entries:
-                        # Edit report entrys to add author
+                        # Edit report entries to add author
                         entry.author = self.avatarId.decode("utf-8")
                         incident.report_entries.append(entry)
-                        #print "Adding report entry:", entry
             elif key is JSON.location_name:
                 if edits.location.name is not None:
+                    log_edit_value("location name", incident.location.name, edits.location.name)
                     incident.location.name = edits.location.name
-                    #print "Editing location name:", edits.location.name
             elif key is JSON.location_address:
                 if edits.location.address is not None:
+                    log_edit_value("location address", incident.location.address, edits.location.address)
                     incident.location.address = edits.location.address
-                    #print "Editing location address:", edits.location.address
             elif key is JSON.ranger_handles:
                 if edits.rangers is not None:
+                    # FIXME: figure out sets
+                    #old = set(incident.rangers)
+                    #new = set(edits.rangers)
+                    #both = old & new
+                    #system_messages.append("Removed rangers: {0}".format(", ".join(r.handle for r in old ^ both)))
+                    #system_messages.append("Added rangers: {0}".format(", ".join(r.handle for r in new ^ both)))
                     incident.rangers = edits.rangers
-                    #print "Editing rangers:", edits.rangers
             elif key is JSON.incident_types:
                 if edits.incident_types is not None:
+                    # FIXME: figure out sets
+                    #old = set(incident.rangers)
+                    #new = set(edits.rangers)
+                    #both = old & new
+                    #system_messages.append("Removed incident types: {0}".format(", ".join(old ^ both)))
+                    #system_messages.append("Added incident types: {0}".format(", ".join(new ^ both)))
                     incident.incident_types = edits.incident_types
-                    #print "Editing incident types:", edits.incident_types
             else:
                 attr_name = key.name
                 attr_value = getattr(edits, attr_name)
@@ -185,14 +202,24 @@ class IncidentManagementSystem(object):
                 if key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
                     if edits.created is None:
                         # If created is None, then we aren't editing state.
-                        # (If would be weird if others were not None here.)
+                        # (It would be weird if others were not None here.)
                         continue
                 elif attr_value is None:
                     # None values should not cause edits.
                     continue
 
+                if key is JSON.number:
+                    pass
+                elif key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
+                    # FIXME: log state change more usefully
+                    log_edit_value(attr_name, getattr(incident, attr_name), attr_value)
+                else:
+                    log_edit_value(attr_name, getattr(incident, attr_name), attr_value)
+
                 setattr(incident, attr_name, attr_value)
-                #print "Editing", attr_name, ":", attr_value
+
+        for message in system_messages:
+            print message
 
         self.storage.write_incident(incident)
 
