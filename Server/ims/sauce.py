@@ -51,17 +51,46 @@ def set_response_header(request, name, value):
     request.setHeader(name.value, value)
 
 
+def set_user_agent(request):
+    # Get User-Agent
+    values = request.requestHeaders.getRawHeaders(HeaderName.userAgent.value, [])
+    for value in values:
+        if value:
+            request.userAgent = value
+            break
+    else:
+        request.userAgent = None
+
+
+def set_accepts(request):
+    # Get accept header
+    accepts = []
+    values = request.requestHeaders.getRawHeaders(HeaderName.accept.value, [])
+    for value in values:
+        for media_type in value.split(","):
+            if ";" in media_type:
+                (mime_type, parameter) = media_type.split(";")
+            else:
+                mime_type = media_type
+            try:
+                accepts.append(ContentType.lookupByValue(mime_type))
+            except ValueError:
+                pass
+    request.accepts = accepts
+
+    if ContentType.JSON.value in values:
+        request.agentClass = AgentClass.JSON
+    elif ContentType.HTML.value in values:
+        request.agentClass = AgentClass.HTML
+    else:
+        request.agentClass = None
+
+
 def http_sauce(f):
     @wraps(f)
     def wrapper(self, request, *args, **kwargs):
-        # Get User-Agent
-        values = request.requestHeaders.getRawHeaders(HeaderName.userAgent.value, [])
-        for value in values:
-            if value:
-                request.userAgent = value
-                break
-        else:
-            request.userAgent = None
+        set_user_agent(request)
+        set_accepts(request)
 
         # Reject requests with disallowed User-Agent strings
         for expression in self.config.RejectClientsRegex:
@@ -73,28 +102,6 @@ def http_sauce(f):
 
         # Store user name
         request.user = self.avatarId
-
-        # Get accept header
-        accepts = []
-        values = request.requestHeaders.getRawHeaders(HeaderName.accept.value, [])
-        for value in values:
-            for media_type in value.split(","):
-                if ";" in media_type:
-                    (mime_type, parameter) = media_type.split(";")
-                else:
-                    mime_type = media_type
-                try:
-                    accepts.append(ContentType.lookupByValue(mime_type))
-                except ValueError:
-                    pass
-        request.accepts = accepts
-
-        if ContentType.JSON.value in values:
-            request.agentClass = AgentClass.JSON
-        elif ContentType.HTML.value in values:
-            request.agentClass = AgentClass.HTML
-        else:
-            request.agentClass = None
 
         try:
             return f(self, request, *args, **kwargs)
