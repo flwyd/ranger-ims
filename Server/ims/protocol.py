@@ -32,7 +32,8 @@ from twisted.web.client import Agent, ResponseDone
 
 from klein import Klein
 
-from ims.data import Incident, JSON, to_json_text, from_json_io
+from ims.data import JSON, to_json_text, from_json_io
+from ims.data import Incident, ReportEntry
 from ims.sauce import url_for, set_response_header
 from ims.sauce import http_sauce
 from ims.sauce import HeaderName, ContentType
@@ -145,29 +146,31 @@ class IncidentManagementSystem(object):
         number = int(number)
         incident = self.storage.read_incident_with_number(number)
 
+        #
+        # Handle the changes requested by the client
+        #
         edits_json = from_json_io(request.content)
         edits = Incident.from_json(edits_json, number=number, validate=False)
 
-        #print "-"*80
-        #print edits_json
-        #print "-"*80
+        user_entries = []
 
         system_messages = []
+        state_changes = []
+        states = JSON.states()
 
         def log_edit_value(key, old, new):
             if key is JSON.number:
                 return
 
-            #if key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
-            #    # FIXME: log state change more compactly
-            #    pass
+            if old == new:
+                #print "Client submitted unchaged value for {0}: {1}".format(JSON.describe(key), new)
+                return
 
-            if old != new:
-                if new is None:
-                    new = ""
-                system_messages.append("Changed {0} to: {1}".format(key.name, new))
-            #else:
-            #    print "Client submitted unchaged value for {0}: {1}".format(key.name, new)
+            if key in states:
+                state_changes.append((key, new))
+                return
+
+            system_messages.append(u"Changed {0} to: {1}".format(JSON.describe(key), new if new else u"<no value>"))
 
         def diff_set(key, old, new):
             old = frozenset(old if old else ())
@@ -179,10 +182,9 @@ class IncidentManagementSystem(object):
 
         def log_edit_set(key, added, removed):
             if added:
-                system_messages.append("Added to {0}: {1}".format(key.name, ", ".join(added)))
+                system_messages.append(u"Added to {0}: {1}".format(JSON.describe(key), ", ".join(added)))
             if removed:
-                system_messages.append("Removed from {0}: {1}".format(key.name, ", ".join(removed)))
-
+                system_messages.append(u"Removed from {0}: {1}".format(JSON.describe(key), ", ".join(removed)))
 
         for key in edits_json.keys():
             key = JSON.lookupByValue(key)
@@ -192,7 +194,7 @@ class IncidentManagementSystem(object):
                     for entry in edits.report_entries:
                         # Edit report entries to add author
                         entry.author = self.avatarId.decode("utf-8")
-                        incident.report_entries.append(entry)
+                        user_entries.append(entry)
             elif key is JSON.location_name:
                 if edits.location.name is not None:
                     log_edit_value(key, incident.location.name, edits.location.name)
@@ -227,11 +229,57 @@ class IncidentManagementSystem(object):
 
                 setattr(incident, attr_name, attr_value)
 
-        for message in system_messages:
-            print message
+        #
+        # Figure out what to report about state changes
+        #
+        highest_change = None
+        lowest_change = None
+        for state_changed, state_time in state_changes:
+            if state_time is None:
+                if lowest_change is None:
+                    lowest_change = state_changed
+                continue
+            else:
+                if highest_change is None:
+                    highest_change = (state_changed, state_time)
+                    continue
 
+            for state in states:
+                if state == state_changed:
+                    break
+                if state == highest_change[0]:
+                    highest_change = (state_changed, state_time)
+                    break
+
+        if highest_change is not None:
+            system_messages.append(u"State changed to: {0}".format(JSON.describe(highest_change[0])))
+        elif lowest_change is not None:
+            last = None
+            for state in states:
+                if state == lowest_change:
+                    break
+                last = state
+            system_messages.append(u"State changed to: {0}".format(JSON.describe(last)))
+
+        #
+        # Add system report entries, then user entries
+        #
+        incident.report_entries.append(
+            ReportEntry(
+                author = u"__ims__",
+                text = u"\n".join(system_messages)
+            )
+        )
+        incident.report_entries.extend(user_entries)
+
+        #
+        # Write to disk
+        #
         self.storage.write_incident(incident)
 
+        #
+        # Respond
+        #
         set_response_header(request, HeaderName.contentType, ContentType.JSON)
         request.setResponseCode(http.OK)
 
