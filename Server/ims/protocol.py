@@ -154,11 +154,35 @@ class IncidentManagementSystem(object):
 
         system_messages = []
 
-        def log_edit_value(name, old, new):
+        def log_edit_value(key, old, new):
+            if key is JSON.number:
+                return
+
+            #if key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
+            #    # FIXME: log state change more compactly
+            #    pass
+
             if old != new:
                 if new is None:
                     new = ""
-                system_messages.append("Changed {0} to: {1}".format(name, new))
+                system_messages.append("Changed {0} to: {1}".format(key.name, new))
+            #else:
+            #    print "Client submitted unchaged value for {0}: {1}".format(key.name, new)
+
+        def diff_set(key, old, new):
+            old = frozenset(old if old else ())
+            new = frozenset(new if new else ())
+            unchanged = old & new
+            removed = old ^ unchanged
+            added = new ^ unchanged
+            return added, removed
+
+        def log_edit_set(key, added, removed):
+            if added:
+                system_messages.append("Added to {0}: {1}".format(key.name, ", ".join(added)))
+            if removed:
+                system_messages.append("Removed from {0}: {1}".format(key.name, ", ".join(removed)))
+
 
         for key in edits_json.keys():
             key = JSON.lookupByValue(key)
@@ -171,29 +195,20 @@ class IncidentManagementSystem(object):
                         incident.report_entries.append(entry)
             elif key is JSON.location_name:
                 if edits.location.name is not None:
-                    log_edit_value("location name", incident.location.name, edits.location.name)
+                    log_edit_value(key, incident.location.name, edits.location.name)
                     incident.location.name = edits.location.name
             elif key is JSON.location_address:
                 if edits.location.address is not None:
-                    log_edit_value("location address", incident.location.address, edits.location.address)
+                    log_edit_value(key, incident.location.address, edits.location.address)
                     incident.location.address = edits.location.address
             elif key is JSON.ranger_handles:
                 if edits.rangers is not None:
-                    # FIXME: figure out sets
-                    #old = set(incident.rangers)
-                    #new = set(edits.rangers)
-                    #both = old & new
-                    #system_messages.append("Removed rangers: {0}".format(", ".join(r.handle for r in old ^ both)))
-                    #system_messages.append("Added rangers: {0}".format(", ".join(r.handle for r in new ^ both)))
+                    added, removed = diff_set(key, incident.rangers, edits.rangers)
+                    log_edit_set(key, [r.handle for r in added], [r.handle for r in removed])
                     incident.rangers = edits.rangers
             elif key is JSON.incident_types:
                 if edits.incident_types is not None:
-                    # FIXME: figure out sets
-                    #old = set(incident.rangers)
-                    #new = set(edits.rangers)
-                    #both = old & new
-                    #system_messages.append("Removed incident types: {0}".format(", ".join(old ^ both)))
-                    #system_messages.append("Added incident types: {0}".format(", ".join(new ^ both)))
+                    log_edit_set(key, *diff_set(key, incident.incident_types, edits.incident_types))
                     incident.incident_types = edits.incident_types
             else:
                 attr_name = key.name
@@ -208,13 +223,7 @@ class IncidentManagementSystem(object):
                     # None values should not cause edits.
                     continue
 
-                if key is JSON.number:
-                    pass
-                elif key in (JSON.created, JSON.dispatched, JSON.on_scene, JSON.closed):
-                    # FIXME: log state change more usefully
-                    log_edit_value(attr_name, getattr(incident, attr_name), attr_value)
-                else:
-                    log_edit_value(attr_name, getattr(incident, attr_name), attr_value)
+                log_edit_value(key, getattr(incident, attr_name), attr_value)
 
                 setattr(incident, attr_name, attr_value)
 
