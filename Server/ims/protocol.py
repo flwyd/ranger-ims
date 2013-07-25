@@ -264,12 +264,13 @@ class IncidentManagementSystem(object):
         #
         # Add system report entries, then user entries
         #
-        incident.report_entries.append(
-            ReportEntry(
-                author = u"__ims__",
-                text = u"\n".join(system_messages)
+        if system_messages:
+            incident.report_entries.append(
+                ReportEntry(
+                    author = u"__ims__:{0}".format(self.avatarId.decode("utf-8")),
+                    text = u"\n".join(system_messages)
+                )
             )
-        )
         incident.report_entries.extend(user_entries)
 
         #
