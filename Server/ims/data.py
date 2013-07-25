@@ -55,6 +55,16 @@ class JSON(Values):
     on_scene         = ValueConstant("on_scene")
     closed           = ValueConstant("closed")
 
+    @classmethod
+    def states(cls):
+        return (cls.created, cls.dispatched, cls.on_scene, cls.closed)
+
+    @classmethod
+    def describe(cls, value):
+        return {
+            cls.created: u"new",
+        }.get(value, value.name.replace("_", " ").decode("utf-8"))
+
 
 
 class InvalidDataError (ValueError):
