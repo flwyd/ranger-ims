@@ -226,6 +226,22 @@ class Incident (object):
         )
 
 
+    def __hash__(self):
+        return hash((
+            self.number,
+            self.rangers,
+            self.location,
+            self.incident_types,
+            self.summary,
+            self.report_entries,
+            self.created,
+            self.dispatched,
+            self.on_scene,
+            self.closed,
+            self.priority,
+        ))
+
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
@@ -385,6 +401,14 @@ class ReportEntry(object):
         )
 
 
+    def __hash__(self):
+        return hash((
+            self.author,
+            self.text,
+            self.created,
+        ))
+
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
@@ -442,6 +466,14 @@ class Ranger(object):
         )
 
 
+    def __hash__(self):
+        return hash((
+            self.handle,
+            self.name,
+            self.status,
+        ))
+
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
@@ -496,6 +528,13 @@ class Location(object):
             "address={self.address!r})"
             .format(self=self)
         )
+
+
+    def __hash__(self):
+        return hash((
+            self.name,
+            self.address,
+        ))
 
 
     def __eq__(self, other):
