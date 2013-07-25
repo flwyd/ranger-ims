@@ -36,5 +36,7 @@
 
 - (BOOL) isEqualToReportEntry:(ReportEntry *)other;
 
+- (BOOL) isSystemReportEntry;
+
 
 @end

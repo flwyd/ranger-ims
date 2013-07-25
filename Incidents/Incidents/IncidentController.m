@@ -522,8 +522,21 @@ static NSDateFormatter *entryDateFormatter = nil;
 
     NSString *dateFormatted = [entryDateFormatter stringFromDate:entry.createdDate];
     NSString *dateStamp = [NSString stringWithFormat:@"%@, %@:\n", dateFormatted, entry.author];
+
+    NSString *fontName = @"Verdana-Bold";
+    CGFloat fontSize = 10.0;
+    NSColor *textColor = [NSColor textColor];
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+
+    if (entry.isSystemReportEntry) {
+        textColor = [textColor colorWithAlphaComponent:0.5];
+        paragraphStyle.alignment = NSCenterTextAlignment;
+    }
+
     NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:@"Menlo-Bold" size:0],
+        NSFontAttributeName           : [NSFont fontWithName:fontName size:fontSize],
+        NSForegroundColorAttributeName: textColor,
+        NSParagraphStyleAttributeName : paragraphStyle,
     };
 
     return [[NSAttributedString alloc] initWithString:dateStamp
@@ -533,9 +546,23 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (NSAttributedString *) textForReportEntry:(ReportEntry *)entry
 {
+    NSString *fontName = @"Verdana";
+    CGFloat fontSize = 12.0;
+    NSColor *textColor = [NSColor textColor];
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+
+    if (entry.isSystemReportEntry) {
+        fontSize -= 2.0;
+        textColor = [textColor colorWithAlphaComponent:0.5];
+        paragraphStyle.alignment = NSCenterTextAlignment;
+    }
+
     NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:0],
+        NSFontAttributeName           : [NSFont fontWithName:fontName size:fontSize],
+        NSForegroundColorAttributeName: textColor,
+        NSParagraphStyleAttributeName : paragraphStyle,
     };
+
     NSAttributedString *text = [[NSAttributedString alloc] initWithString:entry.text
                                                                attributes:attributes];
 
