@@ -394,7 +394,7 @@ class ReportEntry(object):
 
     def __init__(self, author, text, created=None, system_entry=False):
         if created is None:
-            created = datetime.now()
+            created = datetime.utcnow()
 
         self.author       = author
         self.text         = text
