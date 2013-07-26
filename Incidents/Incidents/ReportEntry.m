@@ -22,9 +22,6 @@
 
 
 @interface ReportEntry ()
-
-@property (assign) BOOL systemEntry;
-
 @end
 
 
@@ -34,32 +31,24 @@
 
 - (id) initWithText:(NSString *)text
 {
-    return [self initWithAuthor:nil text:text createdDate:nil];
+    return [self initWithAuthor:nil text:text createdDate:nil systemEntry:NO];
 }
 
 
 - (id) initWithAuthor:(NSString *)author
                  text:(NSString *)text
           createdDate:(NSDate *)createdDate
+          systemEntry:(BOOL)systemEntry
 {
     if (self = [super init]) {
         if (! createdDate) {
             createdDate = [NSDate date];
         }
 
-        NSString *systemPrefix = @"__ims__:";
-
-        if ([author hasPrefix:systemPrefix]) {
-            self.systemEntry = YES;
-            self.author      = [author substringFromIndex:[systemPrefix length]];
-        }
-        else {
-            self.systemEntry = NO;
-            self.author      = author;
-        }
-
+        self.author      = author;
         self.text        = text;
         self.createdDate = createdDate;
+        self.systemEntry = systemEntry;
     }
     return self;
 }
@@ -88,12 +77,6 @@
     if ((self.createdDate != other.createdDate) && (! [self.createdDate isEqualToDate:   other.createdDate])) { return NO; }
 
     return YES;
-}
-
-
-- (BOOL) isSystemReportEntry
-{
-    return self.systemEntry;
 }
 
 

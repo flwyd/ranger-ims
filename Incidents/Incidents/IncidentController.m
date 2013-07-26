@@ -528,7 +528,7 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSColor *textColor = [NSColor textColor];
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
 
-    if (entry.isSystemReportEntry) {
+    if (entry.systemEntry) {
         textColor = [textColor colorWithAlphaComponent:0.5];
         paragraphStyle.alignment = NSCenterTextAlignment;
     }
@@ -551,7 +551,7 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSColor *textColor = [NSColor textColor];
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
 
-    if (entry.isSystemReportEntry) {
+    if (entry.systemEntry) {
         fontSize -= 2.0;
         textColor = [textColor colorWithAlphaComponent:0.5];
         paragraphStyle.alignment = NSCenterTextAlignment;

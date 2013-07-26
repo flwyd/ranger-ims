@@ -27,16 +27,16 @@
 @property (strong) NSDate   *createdDate;
 @property (strong) NSString *text;
 @property (strong) NSString *author;
+@property (assign) BOOL systemEntry;
 
 
 - (id) initWithText:(NSString *)text;
 - (id) initWithAuthor:(NSString *)author
                  text:(NSString *)text
-          createdDate:(NSDate *)createdDate;
+          createdDate:(NSDate *)createdDate
+          systemEntry:(BOOL)systemEntry;
 
 - (BOOL) isEqualToReportEntry:(ReportEntry *)other;
-
-- (BOOL) isSystemReportEntry;
 
 
 @end

@@ -66,7 +66,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
         fillError(@"JSON object must be a string");
         return (NSString *)nil;
     };
-
+    
     NSNumber *(^toNumber)(NSNumber *) = ^(NSNumber *json) {
         if (json == (id)nullObject) return (NSNumber *)nil;
 
@@ -74,6 +74,14 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
         fillError(@"JSON object must be a number.");
         return (NSNumber *)nil;
+    };
+
+    BOOL (^toBOOL)(NSNumber *) = ^(NSNumber *json) {
+        if (json == (NSNumber *)kCFBooleanFalse) return NO;
+        if (json == (NSNumber *)kCFBooleanTrue ) return YES;
+
+        fillError(@"JSON object must be a boolean.");
+        return (BOOL)jsonIncident;
     };
 
     NSArray *(^toArray)(NSArray *) = ^(NSArray *json) {
@@ -123,7 +131,8 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     for (NSDictionary *reportEntryJSON in reportEntriesJSON) {
         ReportEntry *reportEntry = [[ReportEntry alloc] initWithAuthor:toString(reportEntryJSON[@"author"])
                                                                   text:toString(reportEntryJSON[@"text"])
-                                                         createdDate:toDate(reportEntryJSON[@"created"])];
+                                                           createdDate:toDate(reportEntryJSON[@"created"])
+                                                           systemEntry:toBOOL(reportEntryJSON[@"system_entry"])];
         [reportEntries addObject:reportEntry];
     }
 
@@ -397,7 +406,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     }
 
     for (ReportEntry *entry in self.reportEntries) {
-        if (entry.isSystemReportEntry) {
+        if (entry.systemEntry) {
             continue;
         }
 
