@@ -58,7 +58,19 @@ class JSON(Values):
 
     @classmethod
     def states(cls):
-        return (cls.created, cls.dispatched, cls.on_scene, cls.closed)
+        if not hasattr(cls, "_states"):
+            cls._states = (cls.created, cls.dispatched, cls.on_scene, cls.closed)
+        return cls._states
+
+    @classmethod
+    def cmpStates(cls, a, b):
+        assert isinstance(a, ValueConstant), "a"
+        assert isinstance(b, ValueConstant), "b"
+
+        if not hasattr(cls, "_stateIndexes"):
+            states = cls.states()
+            cls._stateIndexes = dict(zip(states, xrange(0, len(states))))
+        return cmp(cls._stateIndexes[a], cls._stateIndexes[b])
 
     @classmethod
     def describe(cls, value):
