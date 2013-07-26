@@ -21,7 +21,7 @@ setup(
 
     install_requires = [
         "mock==1.0.1",
-        "Werkzeug==0.9.1",
+        "Werkzeug==0.8.3", # Dont use 0.9.3; see https://github.com/twisted/klein/issues/19
         "zope.interface==4.0.5",
         "Twisted==13.0.0",
         "pyOpenSSL==0.13",
