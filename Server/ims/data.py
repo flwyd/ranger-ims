@@ -50,6 +50,7 @@ class JSON(Values):
     report_entries   = ValueConstant("report_entries")
     author           = ValueConstant("author")
     text             = ValueConstant("text")
+    system_entry     = ValueConstant("system_entry")
     created          = ValueConstant("created")
     dispatched       = ValueConstant("dispatched")
     on_scene         = ValueConstant("on_scene")
@@ -87,16 +88,8 @@ class Incident (object):
 
     @classmethod
     def from_json_io(cls, io, number=None, validate=True):
-        if False:
-            # For debugging
-            text = io.read()
-            print "*"*80
-            print text
-            print "*"*80
-            return cls.from_json_text(text, number, validate)
-        else:
-            root = from_json_io(io)
-            return cls.from_json(root, number, validate)
+        root = from_json_io(io)
+        return cls.from_json(root, number, validate)
 
 
     @classmethod
@@ -142,6 +135,7 @@ class Incident (object):
                 author = entry.get(JSON.author.value, u"<unknown>"),
                 text = entry.get(JSON.text.value, None),
                 created = parse_date(entry.get(JSON.created.value, None)),
+                system_entry = entry.get(JSON.system_entry.value, False),
             )
             for entry in root.get(JSON.report_entries.value, ())
         ]
@@ -366,6 +360,7 @@ class Incident (object):
                 JSON.author.value: entry.author,
                 JSON.text.value: entry.text,
                 JSON.created.value: render_date(entry.created),
+                JSON.system_entry.value: entry.system_entry,
             }
             for entry in self.report_entries
         ]
@@ -385,13 +380,14 @@ class ReportEntry(object):
     Report entry
     """
 
-    def __init__(self, author, text, created=None):
+    def __init__(self, author, text, created=None, system_entry=False):
         if created is None:
             created = datetime.now()
 
-        self.author  = author
-        self.text    = text
-        self.created = created
+        self.author       = author
+        self.text         = text
+        self.created      = created
+        self.system_entry = system_entry
 
 
     def __str__(self):
@@ -402,12 +398,17 @@ class ReportEntry(object):
 
 
     def __repr__(self):
+        if self.system_entry:
+            star = "*"
+        else:
+            star = ""
+
         return (
             "{self.__class__.__name__}("
-            "author={self.author!r},"
+            "author={self.author!r}{star},"
             "text={self.text!r},"
             "created={self.created!r})"
-            .format(self=self)
+            .format(self=self, star=star)
         )
 
 
@@ -416,15 +417,17 @@ class ReportEntry(object):
             self.author,
             self.text,
             self.created,
+            self.system_entry,
         ))
 
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
-                self.author  == other.author  and
-                self.text    == other.text    and
-                self.created == other.created
+                self.author       == other.author       and
+                self.text         == other.text         and
+                self.created      == other.created      and
+                self.system_entry == other.system_entry
             )
         else:
             return NotImplemented

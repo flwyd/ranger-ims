@@ -267,8 +267,9 @@ class IncidentManagementSystem(object):
         if system_messages:
             incident.report_entries.append(
                 ReportEntry(
-                    author = u"__ims__:{0}".format(self.avatarId.decode("utf-8")),
-                    text = u"\n".join(system_messages)
+                    author = self.avatarId.decode("utf-8"),
+                    text = u"\n".join(system_messages),
+                    system_entry = True,
                 )
             )
         incident.report_entries.extend(user_entries)
