@@ -85,7 +85,10 @@ class DispatchQueueElement(BaseElement):
             if incident.summary:
                 summary = incident.summary
             elif incident.report_entries:
-                summary = incident.report_entries[0].text
+                for entry in incident.report_entries:
+                    if not entry.system_entry:
+                        summary = entry.text
+                        break
             else:
                 summary = ""
 
