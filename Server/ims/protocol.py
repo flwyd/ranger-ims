@@ -156,7 +156,6 @@ class IncidentManagementSystem(object):
 
         system_messages = []
         state_changes = []
-        states = JSON.states()
 
         def log_edit_value(key, old, new):
             if key is JSON.number:
@@ -166,7 +165,8 @@ class IncidentManagementSystem(object):
                 #print "Client submitted unchaged value for {0}: {1}".format(JSON.describe(key), new)
                 return
 
-            if key in states:
+            print(JSON.states)
+            if key in JSON.states():
                 state_changes.append((key, new))
                 return
 
@@ -232,30 +232,23 @@ class IncidentManagementSystem(object):
         #
         # Figure out what to report about state changes
         #
+        print("3")
         highest_change = None
         lowest_change = None
         for state_changed, state_time in state_changes:
             if state_time is None:
-                if lowest_change is None:
+                if lowest_change is None or JSON.cmpStates(lowest_change, state_changed) > 0:
                     lowest_change = state_changed
-                continue
             else:
-                if highest_change is None:
+                if highest_change is None or JSON.cmpStates(highest_change[0], state_changed) < 0:
                     highest_change = (state_changed, state_time)
-                    continue
-
-            for state in states:
-                if state == state_changed:
-                    break
-                if state == highest_change[0]:
-                    highest_change = (state_changed, state_time)
-                    break
 
         if highest_change is not None:
             system_messages.append(u"State changed to: {0}".format(JSON.describe(highest_change[0])))
         elif lowest_change is not None:
+            # We need one state less than lowest_change
             last = None
-            for state in states:
+            for state in JSON.states():
                 if state == lowest_change:
                     break
                 last = state
