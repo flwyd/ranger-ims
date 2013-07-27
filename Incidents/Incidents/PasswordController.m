@@ -100,6 +100,13 @@
 }
 
 
+- (IBAction) showPreferences:(id)sender
+{
+    AppDelegate *appDelegate = self.appDelegate;
+    [appDelegate showPreferences:sender];
+}
+
+
 - (IBAction) quit:(id)sender
 {
     [NSApp terminate:self];

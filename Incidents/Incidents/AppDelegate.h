@@ -34,5 +34,6 @@
 
 - (NSURLCredential *) credentialForChallenge:(NSURLAuthenticationChallenge *)challenge;
 
+- (IBAction) showPreferences:(id)sender;
 
 @end
