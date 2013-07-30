@@ -244,6 +244,10 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (IBAction) reload:(id)sender
 {
+    if (self.incident.isNew) {
+        return; // Nothing to reload
+    }
+
     // Hide the reload button…
     NSButton *reloadButton = self.reloadButton;
     reloadButton.hidden = YES;
@@ -275,6 +279,13 @@ static NSDateFormatter *entryDateFormatter = nil;
     // Show the reload button…
     NSButton *reloadButton = self.reloadButton;
     reloadButton.hidden = NO;
+
+    if (self.incident.isNew) {
+        [reloadButton setEnabled: NO];
+    }
+    else {
+        [reloadButton setEnabled: YES];
+    }
 }
 
 
