@@ -259,7 +259,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (void) updateIncident
 {
-    if (! self.incident.number.integerValue < 0) {
+    if (! self.incident.isNew) {
         self.incident = [[self.dispatchQueueController.dataStore incidentWithNumber:self.incident.number] copy];
     }
 
@@ -287,7 +287,7 @@ static NSDateFormatter *entryDateFormatter = nil;
     NSString *summaryFromReport = incident.summaryFromReport;
 
     NSString *numberToDisplay;
-    if (incident.number.integerValue < 0) {
+    if (incident.isNew) {
         numberToDisplay = @"(new)";
     } else {
         numberToDisplay = incident.number.stringValue;
@@ -419,7 +419,7 @@ static NSDateFormatter *entryDateFormatter = nil;
 
 - (void) commitIncident
 {
-    if (self.incident.number.integerValue < 0) {
+    if (self.incident.isNew) {
         // New incident
         [self disableEditing];
         [self.dispatchQueueController.dataStore updateIncident:self.incident];
