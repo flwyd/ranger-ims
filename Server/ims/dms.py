@@ -118,15 +118,18 @@ class DutyManagementSystem(object):
         #
         log.msg("{0} Retrieving Rangers from Duty Management System...".format(self))
 
+        otherColumns = "first_name, mi, last_name, status"
+        statusClause = "status not in ('prospective', 'alpha', 'bonked', 'uberbonked', 'deceased')"
+
         d = self.dbpool.runQuery("""
-            select callsign, first_name, mi, last_name, status
+            select callsign, {otherColumns}
             from person
-            where status not in (
-                'prospective', 'alpha',
-                'bonked', 'uberbonked',
-                'deceased'
-            )
-        """)
+            where {statusClause}
+            union
+            select alternate_callsign as callsign, {otherColumns}
+            from person
+            where alternate_callsign is not null and {statusClause}
+        """.format(otherColumns=otherColumns, statusClause=statusClause))
 
         def onError(f):
             self.rangers_updating = False
