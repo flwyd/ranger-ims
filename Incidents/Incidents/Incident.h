@@ -65,7 +65,6 @@
               priority:(NSNumber *)priority;
 
 - (BOOL) isEqualToIncident:(Incident *)other;
-- (BOOL) isNew;
 
 - (NSDictionary *) asJSON;
 

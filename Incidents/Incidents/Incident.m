@@ -272,11 +272,6 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     return YES;
 }
 
-- (BOOL) isNew
-{
-    return self.number.integerValue < 0;
-}
-
 - (NSString *) description
 {
     NSString *state;

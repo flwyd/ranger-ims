@@ -272,9 +272,9 @@ static NSDateFormatter *entryDateFormatter = nil;
     [loadingIndicator stopAnimation:self];
     loadingIndicator.hidden = YES;
 
-    // Show the reload button, unless the incident hasn't been saved…
+    // Show the reload button…
     NSButton *reloadButton = self.reloadButton;
-    reloadButton.hidden = self.incident.isNew ? YES : NO;
+    reloadButton.hidden = NO;
 }
 
 
