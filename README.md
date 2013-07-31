@@ -23,33 +23,3 @@ The components are in the following directories:
  * `Incidents/` — Mac OS client application.
 
    Requires Mac OS 10.7 or greater.
-
-Getting Started
-===============
-
-Prerequisites: git, python, and Xcode
-
-```
-# Get the code:
-git clone https://github.com/burningmantech/ranger-ims
-
-# Install dependencies:
-cd ranger-ims/Server
-sudo python setup.py install`
-
-# Create a config:
-cp conf/imsd-sample.conf conf/imsd.conf
-
-# Start the server:
-bin/imsd
-
-# Build the client:
-open -a Xcode
-File > Open :: path/to/rangers-ims/Incidents/Incidents.xcodeproj
-Product > Run
-# Log in as user test with password test
-# You can add new users in Server/conf/users.pwdb
-
-# Kill the server:
-bin/imsd -k
-```
