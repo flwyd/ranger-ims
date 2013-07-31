@@ -66,6 +66,8 @@
 
 - (BOOL) isEqualToIncident:(Incident *)other;
 
+- (BOOL) isNew;
+
 - (NSDictionary *) asJSON;
 
 - (void) addRanger:(Ranger *)ranger;

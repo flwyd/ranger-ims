@@ -191,7 +191,7 @@ NSArray *getRangerHandles(void);
         performAlert(@"Cannot commit invalid incident: %@", incident);
         return;
     }
-    if (incident.number.integerValue < 0) {
+    if (incident.isNew) {
         incident.number = [NSNumber numberWithInt:self.nextIncidentNumber++];
     }
     self.allIncidentsByNumber[incident.number] = incident;

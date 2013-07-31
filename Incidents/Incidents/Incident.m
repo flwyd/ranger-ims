@@ -248,6 +248,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     return [self isEqualToIncident:other];
 }
 
+
 - (BOOL) isEqualToIncident:(Incident *)other
 {
     if (self == other) {
@@ -271,6 +272,7 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
 
     return YES;
 }
+
 
 - (NSString *) description
 {
@@ -301,6 +303,12 @@ NSDate *dateFromRFC3339String(NSString *rfc3339String);
     return [NSString stringWithFormat:
                @"Incident #%@ (%@) %@: %@",
                self.number, state, description, self.summaryFromReport];
+}
+
+
+- (BOOL) isNew
+{
+    return (self.number.integerValue < 0);
 }
 
 

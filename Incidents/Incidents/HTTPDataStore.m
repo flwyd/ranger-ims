@@ -135,8 +135,8 @@ static int nextTemporaryNumber = -1;
     NSInteger expectedStatusCode;
     NSNumber *incidentNumberToReplace = nil;
 
-    if (incident.number.integerValue < 0) {
-        // This is a temporary incident, upload as a new one (without an assigned number).
+    if (incident.isNew) {
+        // This is a new incident, upload without an assigned number.
         incident = [incident copy];
         incidentNumberToReplace = incident.number;
         incident.number = nil;
